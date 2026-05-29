@@ -1,0 +1,151 @@
+sectors:
+  # === LOW (cibles prioritaires) ===
+  - slug: pme_industrielles
+    nom: PME industrielles (méca, plasturgie, agro)
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: distribution_b2b
+    nom: Grossistes et distribution B2B
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: pme_btp
+    nom: PME BTP et artisans 5-50
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: concessions_auto
+    nom: Concessions auto / moto
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: bureaux_etudes
+    nom: Bureaux d'études techniques
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: imprimeries
+    nom: Imprimeries
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: garages_independants
+    nom: Garages indépendants
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: bureaux_etudes_rge
+    nom: Bureaux d'études RGE / rénovation énergétique
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: cooperatives_agricoles
+    nom: Coopératives agricoles
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: societes_nettoyage
+    nom: Sociétés de nettoyage / services
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+  - slug: cabinets_geometres
+    nom: Cabinets de géomètres-experts
+    usage_count: 0
+    niveau_equipement_ia: low
+    cooldown: false
+
+  # === MEDIUM (cibles secondaires) ===
+  - slug: cabinets_avocats
+    nom: Cabinets d'avocats
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: cabinets_notaires
+    nom: Études notariales
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: cabinets_architectes
+    nom: Cabinets d'architectes
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: cabinets_recrutement
+    nom: Cabinets de recrutement
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: cabinets_rh_paie
+    nom: Cabinets RH / paie externalisée
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: courtage_assurance
+    nom: Courtiers en assurance
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: courtage_credit
+    nom: Courtiers en crédit
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: pme_logistique
+    nom: PME logistique / transport
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: hotellerie_independante
+    nom: Hôtellerie indépendante
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: restauration_reseaux
+    nom: Restauration en réseau
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: organismes_formation
+    nom: Organismes de formation pro
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: pharmacies_groupements
+    nom: Pharmacies et groupements
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: cabinets_dentaires
+    nom: Cabinets dentaires groupés
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+  - slug: agences_voyage_b2b
+    nom: Agences de voyage B2B
+    usage_count: 0
+    niveau_equipement_ia: medium
+    cooldown: false
+
+  # === HIGH (saturés, exclus sauf exception) ===
+  - slug: cabinets_comptables
+    nom: Cabinets d'expertise comptable
+    usage_count: 0
+    niveau_equipement_ia: high
+    cooldown: false
+  - slug: agences_immobilieres
+    nom: Agences immobilières
+    usage_count: 0
+    niveau_equipement_ia: high
+    cooldown: false
+  - slug: pme_ecommerce
+    nom: PME e-commerce
+    usage_count: 0
+    niveau_equipement_ia: high
+    cooldown: false
+  - slug: agences_communication
+    nom: Agences de communication / marketing
+    usage_count: 0
+    niveau_equipement_ia: high
+    cooldown: false

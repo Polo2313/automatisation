@@ -1,0 +1,49 @@
+audit_cadrage_gratuit:
+  prix_eur: 0
+  duree_min: 30
+  duree_max: 45
+  finalite: "Qualification mutuelle, scope, signaux d'achat"
+
+audit_approfondi:
+  min_eur: 2500
+  max_eur: 4000
+  duree_jours: 3-5
+
+automatisation_simple:
+  min_eur: 6000
+  max_eur: 12000
+  duree_jours_min: 7
+  duree_jours_max: 15
+  conditions: "1-2 intégrations, sans IA générative"
+
+automatisation_ia:
+  min_eur: 12000
+  max_eur: 25000
+  duree_jours_min: 15
+  duree_jours_max: 30
+  conditions: "3-5 intégrations, agent IA inclus"
+
+projet_bout_en_bout:
+  min_eur: 25000
+  max_eur: 50000
+  duree_jours_min: 30
+  duree_jours_max: 60
+  conditions: "5+ intégrations, IA + back-office"
+
+run_mensuel_option:
+  pct_one_shot_min: 0.08
+  pct_one_shot_max: 0.15
+  contenu: "monitoring, maintenance, évolutions mineures, support N1"
+
+mvp_ratio: 0.35
+buffer_delai: 1.3
+
+# TJM utilisateur (ROI client uniquement, sélectionner par persona)
+tjm_user_personas:
+  assistant_admin: 28
+  technicien_terrain: 38
+  charge_affaires: 45
+  cadre_intermediaire: 55
+  cadre_senior: 75
+
+tjm_vantyse: 650  # pricing prestation uniquement
