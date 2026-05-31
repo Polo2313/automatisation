@@ -1,0 +1,18 @@
+cases:
+  - id: pme_btp-qualification-leads-devis
+    status: produit
+    last_touch_date: 2026-05-31
+    prospects:
+      - entreprise: Morin Couverture
+        contact: "À identifier — LinkedIn search: Gérant Morin Couverture Nantes 44"
+        linkedin: ""
+        next_action: "Envoyer demande de connexion LinkedIn T0"
+      - entreprise: BTP Renovaction
+        contact: "À identifier — LinkedIn search: Gérant BTP Lyon"
+        linkedin: ""
+        next_action: "Envoyer demande de connexion LinkedIn T0"
+      - entreprise: Plâtrerie Guichard
+        contact: "À identifier — LinkedIn search: Gérant Plâtrerie Bordeaux"
+        linkedin: ""
+        next_action: "Envoyer demande de connexion LinkedIn T0"
+    notes: "Livrable complet produit le 2026-05-31. Passer en ready_to_pitch après identification des 3 contacts LinkedIn."

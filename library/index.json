@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-leads-devis",
+      "date": "2026-05-31",
+      "secteur": "pme_btp",
+      "probleme_slug": "qualification-leads-devis",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistante administrative (ou gérant seul)",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "Morin Couverture", "ville": "Nantes", "effectif": "~8 sal.", "secteur": "Couverture-zinguerie"},
+        {"nom": "BTP Renovaction", "ville": "Lyon", "effectif": "~15 sal.", "secteur": "Rénovation tous corps d'état"},
+        {"nom": "Plâtrerie Guichard", "ville": "Bordeaux", "effectif": "~12 sal.", "secteur": "Plâtrerie-peinture-isolation"}
+      ],
+      "linkedin_target_title": "Gérant PME BTP",
+      "linkedin_target_alt": "Dirigeant BTP / Assistante administrative BTP",
+      "marche_fr_adressable": "~120 000 PME BTP 5-50 salariés en France",
+      "prix_recommande_eur": 14000,
+      "prix_mvp_eur": 4900,
+      "run_mensuel_eur": 1680,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 60,
+      "h_gagnees_par_semaine": 4,
+      "capacity_freed_eur_an": 3091,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 22500,
+      "total_net_eur_an": 24371,
+      "payback_mois_central": 7,
+      "payback_mois_pessimiste_gains": 14.5,
+      "payback_mois_pessimiste_adoption": 14.5,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "claude-haiku-api", "gmail-api", "airtable", "twilio", "360dialog-whatsapp"],
+      "path": "/library/pme_btp/qualification-leads-devis/"
+    }
+  ]
+}
