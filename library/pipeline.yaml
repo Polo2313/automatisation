@@ -1,11 +1,6 @@
-cases: []
-# Schéma par cas:
-#  - id: "{secteur}-{cas}"
-#    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost
-#    last_touch_date: YYYY-MM-DD
-#    prospects:
-#      - entreprise: ...
-#        contact: ...
-#        linkedin: ...
-#        next_action: ...
-#    notes: ...
+cases:
+  - id: pme_btp-qualification-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-01"
+    prospects: []
+    notes: "Premier cas produit. Prochaine action : sourcing 3 contacts LinkedIn gérants BTP 15-50 salariés sur Sales Navigator avant le 2026-06-08."

@@ -12,7 +12,7 @@ sectors:
     cooldown: false
   - slug: pme_btp
     nom: PME BTP et artisans 5-50
-    usage_count: 0
+    usage_count: 1
     niveau_equipement_ia: low
     cooldown: false
   - slug: concessions_auto

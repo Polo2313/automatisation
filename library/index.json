@@ -1,1 +1,40 @@
-{ "cases": [] }
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-devis-entrants",
+      "date": "2026-06-01",
+      "secteur": "pme_btp",
+      "probleme_slug": "qualification-devis-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistante administrative BTP",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "EURL Blanchard Électricité", "ville": "Tours", "effectif": "~12", "secteur": "Électricité bâtiment résidentiel/tertiaire"},
+        {"nom": "SARL Mauger Plomberie", "ville": "Nantes", "effectif": "~20", "secteur": "Plomberie/chauffage/sanitaire"},
+        {"nom": "SAS Berthelot Construction", "ville": "Bordeaux", "effectif": "~35", "secteur": "Gros-œuvre/maçonnerie"}
+      ],
+      "linkedin_target_title": "Gérant (BTP, France)",
+      "linkedin_target_alt": "Dirigeant TPE ou Responsable administratif BTP",
+      "marche_fr_adressable": "~180 000 PME BTP de 5-50 salariés en France",
+      "prix_recommande_eur": 9500,
+      "prix_mvp_eur": 3300,
+      "run_mensuel_eur": 950,
+      "delai_implem_jours": 10,
+      "cout_run_pme_mensuel_eur": 15,
+      "h_gagnees_par_semaine": 5.5,
+      "capacity_freed_eur_an": 4250,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 9000,
+      "total_net_eur_an": 12570,
+      "payback_mois_central": 9.1,
+      "payback_mois_pessimiste_gains": 18.7,
+      "payback_mois_pessimiste_adoption": 18.6,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "Gmail API", "OpenAI gpt-4o-mini", "Google Sheets", "Resend"],
+      "path": "/library/pme_btp/qualification-devis-entrants/"
+    }
+  ]
+}
