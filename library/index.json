@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-traitement-devis-entrants",
+      "date": "2026-06-03",
+      "secteur": "pme_btp",
+      "probleme_slug": "traitement-devis-entrants",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "chargé d'affaires BTP",
+      "tjm_user_eur": 45,
+      "decideur": "Gérant / Directeur commercial PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "SARL Durand Gros Œuvre", "ville": "Clermont-Ferrand", "effectif": "~28 salariés", "secteur": "gros oeuvre / maçonnerie"},
+        {"nom": "Entreprise Martin Rénovation", "ville": "Nantes", "effectif": "~35 salariés", "secteur": "second oeuvre / rénovation"},
+        {"nom": "SAS Lemaire BTP", "ville": "Lille", "effectif": "~42 salariés", "secteur": "construction tous corps d'état"}
+      ],
+      "linkedin_target_title": "Gérant BTP",
+      "linkedin_target_alt": "Responsable d'affaires BTP",
+      "marche_fr_adressable": "~45 000 PME BTP 15-80 salariés en France métropolitaine",
+      "prix_recommande_eur": 13000,
+      "prix_mvp_eur": 4500,
+      "run_mensuel_eur": 1170,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 25,
+      "h_gagnees_par_semaine": 5,
+      "capacity_freed_eur_an": 12420,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 9600,
+      "total_net_eur_an": 21320,
+      "payback_mois_central": 7.3,
+      "payback_mois_pessimiste_gains": 15.1,
+      "payback_mois_pessimiste_adoption": 15.1,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "OpenAI gpt-4o-mini", "Gmail", "Airtable", "Supabase", "Resend"],
+      "path": "/library/pme_btp/traitement-devis-entrants/"
+    }
+  ]
+}

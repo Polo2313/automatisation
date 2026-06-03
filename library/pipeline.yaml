@@ -1,0 +1,6 @@
+cases:
+  - id: pme_btp-traitement-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-03"
+    prospects: []
+    notes: "Cas produit le 2026-06-03. Prochaine action : identifier 3 contacts LinkedIn Gérant BTP et lancer séquence outbound T0."
