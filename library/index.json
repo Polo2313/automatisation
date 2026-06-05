@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-leads-chantier",
+      "date": "2026-06-05",
+      "secteur": "PME BTP et artisans 5-50",
+      "probleme_slug": "qualification-leads-chantier",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé d'affaires / commercial",
+      "tjm_user_eur": 45,
+      "decideur": "Gérant / Dirigeant PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "SARL Dupont Rénovation", "ville": "Strasbourg", "effectif": "~20 salariés", "secteur": "Rénovation second œuvre"},
+        {"nom": "Entreprise Fabre BTP", "ville": "Montpellier", "effectif": "~35 salariés", "secteur": "Maçonnerie gros œuvre"},
+        {"nom": "SARL Lebrun Construction", "ville": "Lille", "effectif": "~25 salariés", "secteur": "Construction et rénovation"}
+      ],
+      "linkedin_target_title": "Gérant PME BTP / construction / rénovation",
+      "linkedin_target_alt": "Directeur commercial bâtiment",
+      "marche_fr_adressable": "~35 000 PME BTP 5-50 salariés avec présence digitale active en France métropolitaine",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 25,
+      "cout_run_pme_mensuel_eur": 21,
+      "h_gagnees_par_semaine": 4,
+      "capacity_freed_eur_an": 9936,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 14400,
+      "total_net_eur_an": 23584,
+      "payback_mois_central": 6.1,
+      "payback_mois_pessimiste_gains": 12.2,
+      "payback_mois_pessimiste_adoption": 12.6,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "Gmail IMAP", "OpenAI GPT-4o-mini", "Notion API", "Resend"],
+      "path": "/library/pme_btp/qualification-leads-chantier/"
+    }
+  ]
+}

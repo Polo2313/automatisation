@@ -1,0 +1,23 @@
+[
+  {
+    "source": "email",
+    "from_email": "jean.martin@exemple.com",
+    "subject": "Demande de devis rénovation salle de bain",
+    "raw_text": "Objet: Demande de devis rénovation salle de bain\nBonjour, je cherche une entreprise pour rénover complètement ma salle de bain d'environ 12m² à Lyon 69003. J'aimerais faire les travaux avant fin juillet. Mon budget est autour de 9 000 euros. Je suis disponible en semaine pour un rendez-vous. Jean Martin, 06 12 34 56 78.",
+    "received_at": "2026-06-05T08:15:00Z"
+  },
+  {
+    "source": "formulaire",
+    "from_email": "sophie.bernard@gmail.com",
+    "subject": null,
+    "raw_text": "type_travaux: Réfection toiture\nsurface: 80m2\nlocalisation: Bordeaux 33000\nbudget: 15000\ncoordonnes: Sophie Bernard, 06 98 76 54 32\ndelai: Dans les 3 mois\nmessage: Toiture ardoise, maison des années 60",
+    "received_at": "2026-06-05T09:30:00Z"
+  },
+  {
+    "source": "email",
+    "from_email": "contact@exemple-pro.fr",
+    "subject": "Question devis",
+    "raw_text": "Objet: Question devis\nBonjour, est-ce que vous faites de la réparation de volets roulants ? Merci",
+    "received_at": "2026-06-05T10:05:00Z"
+  }
+]

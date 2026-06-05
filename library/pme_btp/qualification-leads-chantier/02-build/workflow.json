@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. Remplacer toutes les valeurs {{PLACEHOLDER}} avant import. Testé sur n8n v1.x. Le smoke test documenté est dans architecture.md.",
+    "importable": true,
+    "smoke_test_documented": true
+  },
+  "name": "BTP — Qualification Leads Chantier Entrants",
+  "nodes": [
+    {
+      "id": "node_01",
+      "name": "Email IMAP Trigger",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [0, 200],
+      "parameters": {
+        "host": "{{IMAP_HOST}}",
+        "port": 993,
+        "user": "{{IMAP_USER}}",
+        "password": "{{IMAP_PASSWORD}}",
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "credentials": {
+        "imap": { "id": "IMAP_CREDENTIAL_ID", "name": "IMAP Lead Email" }
+      }
+    },
+    {
+      "id": "node_02",
+      "name": "Webhook Formulaire Web",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 400],
+      "parameters": {
+        "path": "leads-btp-form",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "node_03",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "parameters": {
+        "mode": "multiplex"
+      }
+    },
+    {
+      "id": "node_04",
+      "name": "Clean & Normalize",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300],
+      "parameters": {
+        "functionCode": "const item = items[0].json;\n\n// Normalise selon la source\nlet source = 'unknown';\nlet rawText = '';\nlet fromEmail = '';\n\nif (item.from) {\n  // Source email IMAP\n  source = 'email';\n  const htmlBody = item.html || '';\n  const textBody = item.text || '';\n  rawText = `Objet: ${item.subject || ''}\\n${textBody || htmlBody.replace(/<[^>]+>/g, ' ')}`;\n  fromEmail = item.from?.value?.[0]?.address || item.from || '';\n} else {\n  // Source formulaire web\n  source = 'formulaire';\n  rawText = Object.entries(item.body || item)\n    .map(([k, v]) => `${k}: ${v}`)\n    .join('\\n');\n  fromEmail = item.body?.email || item.email || '';\n}\n\nreturn [{\n  json: {\n    source,\n    raw_text: rawText.slice(0, 3000),\n    from_email: fromEmail,\n    received_at: new Date().toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "id": "node_05",
+      "name": "OpenAI — Extraction JSON",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [600, 300],
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant qui extrait des informations structurées depuis des demandes de chantier. Réponds UNIQUEMENT avec un JSON valide, sans markdown. Champs attendus: type_travaux (string), surface_m2 (number|null), localisation (string), budget_estime_eur (number|null), delai_travaux (string|null), disponibilite_rdv (string|null), prospect_nom (string|null), prospect_email (string|null), prospect_tel (string|null), perimetre_ok (boolean — false si demande hors BTP ou irréaliste), motif_hors_perimetre (string|null)."
+            },
+            {
+              "role": "user",
+              "content": "={{$json.raw_text}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokens": 400
+        }
+      },
+      "credentials": {
+        "openAiApi": { "id": "OPENAI_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "node_06",
+      "name": "JSON Parser & Defaults",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [800, 300],
+      "parameters": {
+        "functionCode": "const item = items[0].json;\nlet extracted = {};\n\ntry {\n  const content = item.choices?.[0]?.message?.content || '{}';\n  extracted = JSON.parse(content);\n} catch(e) {\n  extracted = { perimetre_ok: false, motif_hors_perimetre: 'Erreur parsing GPT' };\n}\n\nreturn [{\n  json: {\n    ...items[0].json,\n    ...extracted,\n    from_email: items[0].json.from_email,\n    source: items[0].json.source,\n    received_at: items[0].json.received_at,\n    surface_m2: extracted.surface_m2 || null,\n    budget_estime_eur: extracted.budget_estime_eur || null,\n    perimetre_ok: extracted.perimetre_ok !== false\n  }\n}];"
+      }
+    },
+    {
+      "id": "node_07",
+      "name": "Score Lead",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1000, 300],
+      "parameters": {
+        "functionCode": "const item = items[0].json;\nconst budget = item.budget_estime_eur || 0;\n\nlet score = 'C';\nlet motif_score = '';\n\nif (budget >= 8000) {\n  score = 'A';\n  motif_score = 'Budget élevé (≥ 8k€), projet qualifié';\n} else if (budget >= 3000) {\n  score = 'B';\n  motif_score = 'Budget moyen (3-8k€), à qualifier';\n} else if (budget > 0) {\n  score = 'C';\n  motif_score = 'Budget faible (< 3k€) ou non déclaré';\n} else {\n  score = 'C';\n  motif_score = 'Budget non renseigné';\n}\n\nreturn [{ json: { ...item, score_lead: score, motif_score } }];"
+      }
+    },
+    {
+      "id": "node_08",
+      "name": "Route — Hors Périmètre ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1200, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.perimetre_ok}}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node_09",
+      "name": "Notion — Créer Fiche Lead",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1400, 200],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{$env.NOTION_DATABASE_ID}}",
+        "title": "={{$json.prospect_nom || $json.from_email}} — {{$json.type_travaux || 'Demande'}}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Email", "type": "email", "emailValue": "={{$json.prospect_email || $json.from_email}}" },
+            { "key": "Type travaux", "type": "richText", "textContent": "={{$json.type_travaux}}" },
+            { "key": "Budget €", "type": "number", "numberValue": "={{$json.budget_estime_eur}}" },
+            { "key": "Score", "type": "select", "selectValue": "={{$json.score_lead}}" },
+            { "key": "Localisation", "type": "richText", "textContent": "={{$json.localisation}}" },
+            { "key": "Source", "type": "select", "selectValue": "={{$json.source}}" },
+            { "key": "Reçu le", "type": "date", "dateValue": "={{$json.received_at}}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "NOTION_CREDENTIAL_ID", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "node_10",
+      "name": "Resend — Notif Commercial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "body": {
+          "from": "={{$env.COMPANY_EMAIL_FROM}}",
+          "to": ["={{$env.COMMERCIAL_EMAIL_1}}"],
+          "subject": "=[LEAD {{$json.score_lead}}] {{$json.type_travaux}} — {{$json.localisation}}",
+          "html": "=<b>Nouveau lead {{$json.score_lead}}</b><br>Type: {{$json.type_travaux}}<br>Budget: {{$json.budget_estime_eur}}€<br>Localisation: {{$json.localisation}}<br>Délai: {{$json.delai_travaux}}<br>Contact: {{$json.prospect_email || $json.from_email}}<br>Score: {{$json.motif_score}}<br><br>Fiche Notion créée automatiquement."
+        }
+      }
+    },
+    {
+      "id": "node_11",
+      "name": "Gmail — Accusé Réception Prospect",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1800, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toList": "={{$json.prospect_email || $json.from_email}}",
+        "subject": "Votre demande de chantier a bien été reçue",
+        "message": "=Bonjour {{$json.prospect_nom || ''}},\n\nNous avons bien reçu votre demande concernant : {{$json.type_travaux}}.\n\nUn de nos conseillers vous recontactera dans les 24h ouvrées.\n\nCordialement,\nL'équipe commerciale",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": { "id": "GMAIL_CREDENTIAL_ID", "name": "Gmail Account" }
+      }
+    },
+    {
+      "id": "node_12",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [0, 600],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Email IMAP Trigger": { "main": [[{ "node": "Merge Sources", "type": "main", "index": 0 }]] },
+    "Webhook Formulaire Web": { "main": [[{ "node": "Merge Sources", "type": "main", "index": 1 }]] },
+    "Merge Sources": { "main": [[{ "node": "Clean & Normalize", "type": "main", "index": 0 }]] },
+    "Clean & Normalize": { "main": [[{ "node": "OpenAI — Extraction JSON", "type": "main", "index": 0 }]] },
+    "OpenAI — Extraction JSON": { "main": [[{ "node": "JSON Parser & Defaults", "type": "main", "index": 0 }]] },
+    "JSON Parser & Defaults": { "main": [[{ "node": "Score Lead", "type": "main", "index": 0 }]] },
+    "Score Lead": { "main": [[{ "node": "Route — Hors Périmètre ?", "type": "main", "index": 0 }]] },
+    "Route — Hors Périmètre ?": {
+      "main": [
+        [{ "node": "Notion — Créer Fiche Lead", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Notion — Créer Fiche Lead": { "main": [[{ "node": "Resend — Notif Commercial", "type": "main", "index": 0 }]] },
+    "Resend — Notif Commercial": { "main": [[{ "node": "Gmail — Accusé Réception Prospect", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": ["BTP", "leads", "qualification", "automation_ia"]
+}

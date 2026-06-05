@@ -1,0 +1,9 @@
+cases:
+  - id: pme_btp-qualification-leads-chantier
+    status: produit
+    last_touch_date: 2026-06-05
+    prospects: []
+    notes: >
+      Premier cas produit. Séquence outbound à lancer dès que 3 prospects
+      LinkedIn identifiés. Vérifier les 3 entreprises ICP sur Pappers avant
+      prospection.
