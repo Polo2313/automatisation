@@ -1,0 +1,6 @@
+cases:
+  - id: distribution_b2b-traitement-emails-commandes
+    status: produit
+    last_touch_date: 2026-06-06
+    prospects: []
+    notes: "Premier cas produit. Secteur distribution B2B. Sourcing prospects à lancer."

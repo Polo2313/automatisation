@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "distribution_b2b-traitement-emails-commandes",
+      "date": "2026-06-06",
+      "secteur": "Grossistes et distribution B2B",
+      "probleme_slug": "traitement-emails-commandes",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistante ADV / assistante commerciale",
+      "tjm_user_eur": 28,
+      "decideur": "Directeur commercial, DAF ou gérant",
+      "icp_entreprises_reelles": [
+        {"nom": "Prolians (agence régionale)", "ville": "Lyon / réseau national", "effectif": "20-80 par agence", "secteur": "Distribution fournitures industrielles (Groupe Descours & Cabaud)"},
+        {"nom": "Legallais SAS", "ville": "Caen (14)", "effectif": "~450 salariés", "secteur": "Distribution outillage et EPI B2B"},
+        {"nom": "Brammer France (IPH Group)", "ville": "Villeurbanne (69)", "effectif": "~200 salariés France", "secteur": "Distribution maintenance industrielle MRO"}
+      ],
+      "linkedin_target_title": "Assistante ADV",
+      "linkedin_target_alt": "Coordinatrice administration des ventes",
+      "marche_fr_adressable": "~12 000 grossistes et distributeurs B2B 10-250 salariés en France (données INSEE NAF 46.xx)",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 42,
+      "h_gagnees_par_semaine": 8,
+      "capacity_freed_eur_an": 18547,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 0,
+      "total_net_eur_an": 17467,
+      "payback_mois_central": 8,
+      "payback_mois_pessimiste_gains": 17,
+      "payback_mois_pessimiste_adoption": 17,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "OpenAI gpt-4o-mini", "Gmail API / IMAP", "Airtable", "Resend", "Slack"],
+      "path": "/library/distribution_b2b/traitement-emails-commandes/"
+    }
+  ]
+}

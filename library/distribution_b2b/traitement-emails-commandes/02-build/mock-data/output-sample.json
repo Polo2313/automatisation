@@ -1,0 +1,59 @@
+{
+  "_description": "Output attendu après traitement complet de l'email input-sample.json",
+  "extraction_openai": {
+    "expediteur_email": "m.bernard@industrie-auvergne.fr",
+    "expediteur_nom": "Marc Bernard",
+    "societe_cliente": "Industrie Auvergne SAS",
+    "fonction_contact": "Responsable Achats",
+    "lignes_commande": [
+      {"reference": "4521-B", "quantite": 50, "unite": "unité"},
+      {"reference": "7890-A", "quantite": 20, "unite": "unité"},
+      {"reference": "3310-C", "quantite": 5, "unite": "boîte"}
+    ],
+    "delai_souhaite": "avant le 15 juin 2026",
+    "urgence": "haute",
+    "commentaire": "Arrêt de chaîne prévu — livraison critique",
+    "type_email": "commande",
+    "montant_estime_eur": null,
+    "confiance_extraction": 0.96,
+    "email_original_subject": "Commande urgente réf 4521-B et 7890-A",
+    "email_received_at": "2026-06-06T09:14:22Z",
+    "error": null
+  },
+  "airtable_record": {
+    "id": "rec_test_001",
+    "fields": {
+      "Email_Expediteur": "m.bernard@industrie-auvergne.fr",
+      "Nom_Contact": "Marc Bernard",
+      "Societe": "Industrie Auvergne SAS",
+      "Lignes_JSON": "[{\"reference\":\"4521-B\",\"quantite\":50,\"unite\":\"unité\"},{\"reference\":\"7890-A\",\"quantite\":20,\"unite\":\"unité\"},{\"reference\":\"3310-C\",\"quantite\":5,\"unite\":\"boîte\"}]",
+      "Delai_Souhaite": "avant le 15 juin 2026",
+      "Urgence": "haute",
+      "Type_Email": "commande",
+      "Montant_Estime": null,
+      "Statut": "nouveau",
+      "Date_Reception": "2026-06-06T09:14:22Z",
+      "Sujet_Original": "Commande urgente réf 4521-B et 7890-A"
+    }
+  },
+  "email_accuse_reception": {
+    "to": "m.bernard@industrie-auvergne.fr",
+    "subject": "[Accusé de réception] Commande urgente réf 4521-B et 7890-A",
+    "body_preview": "Bonjour Marc Bernard, nous avons bien reçu votre demande concernant 3 référence(s) pour livraison avant le 15 juin 2026. Notre équipe commerciale revient vers vous dans les plus brefs délais.",
+    "sent_at": "2026-06-06T09:14:55Z",
+    "status": "sent"
+  },
+  "slack_notification": {
+    "channel": "#commandes-entrants",
+    "message": "🆕 *Nouvelle commande reçue*\n*Client :* Industrie Auvergne SAS (Marc Bernard)\n*Réfs :* 4521-B x50, 7890-A x20, 3310-C x5\n*Délai :* avant le 15 juin 2026\n*Urgence :* haute\n*Statut :* ✅ Accusé envoyé automatiquement",
+    "sent_at": "2026-06-06T09:14:57Z"
+  },
+  "execution_summary": {
+    "email_received_at": "2026-06-06T09:14:22Z",
+    "processing_completed_at": "2026-06-06T09:14:57Z",
+    "total_latency_seconds": 35,
+    "extraction_confidence": 0.96,
+    "human_validation_required": false,
+    "status": "success"
+  }
+}
