@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "distribution_b2b-relance-clients-inactifs",
+      "date": "2026-06-08",
+      "secteur": "distribution_b2b",
+      "probleme_slug": "relance-clients-inactifs",
+      "type_flux": "relance_commerciale",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "chargé d'affaires / responsable commercial",
+      "tjm_user_eur": 45,
+      "decideur": "Directeur commercial / Gérant",
+      "icp_entreprises_reelles": [
+        {"nom": "Doras", "ville": "Lyon 3e", "effectif": "~80 sal.", "secteur": "Distribution peintures et revêtements"},
+        {"nom": "Prolians (agence régionale)", "ville": "Lyon / Marseille / Bordeaux", "effectif": "30-80 sal./agence", "secteur": "Fournitures industrielles, outillage, EPI"},
+        {"nom": "Grossiste distribution quincaillerie type (requête Pappers NACE 4669Z)", "ville": "France régions", "effectif": "20-50 sal.", "secteur": "Distribution quincaillerie / fixations industrielles"}
+      ],
+      "linkedin_target_title": "Directeur commercial",
+      "linkedin_target_alt": "Responsable commercial",
+      "marche_fr_adressable": "~2 500 PME distributeurs B2B 20-150 sal. avec ≥2 commerciaux et ERP exportable [H]",
+      "prix_recommande_eur": 18000,
+      "prix_mvp_eur": 6300,
+      "run_mensuel_eur": 1620,
+      "delai_implem_jours": 12,
+      "cout_run_pme_mensuel_eur": 22,
+      "h_gagnees_par_semaine": 12,
+      "capacity_freed_eur_an": 14904,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 14256,
+      "total_net_eur_an": 28096,
+      "payback_mois_central": 7.7,
+      "payback_mois_pessimiste_gains": 16.0,
+      "payback_mois_pessimiste_adoption": 16.0,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "Supabase", "OpenAI gpt-4o-mini", "Resend", "Google Sheets"],
+      "path": "/library/distribution_b2b/relance-clients-inactifs/"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+cases:
+  - id: distribution_b2b-relance-clients-inactifs
+    status: produit
+    last_touch_date: 2026-06-08
+    prospects: []
+    notes: "Cas produit le 2026-06-08. Prochaine action : sourcing 3 prospects LinkedIn (Directeur commercial / Responsable commercial, distributeurs B2B 20-150 sal.) via Sales Navigator. Objectif : 1 audit cadrage dans les 30 jours."
