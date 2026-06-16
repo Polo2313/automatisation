@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-devis-auto",
+      "date": "2026-06-16",
+      "secteur": "PME BTP et artisans 5-50",
+      "probleme_slug": "qualification-devis-multicanal-manuel",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé d'affaires BTP",
+      "tjm_user_eur": 45,
+      "decideur": "Gérant / Directeur Général PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "SOCOBA BTP", "ville": "Clermont-Ferrand", "effectif": "~20 sal.", "secteur": "Maçonnerie, gros œuvre, rénovation"},
+        {"nom": "AMP Rénovation", "ville": "Bordeaux", "effectif": "~18 sal.", "secteur": "Rénovation résidentielle et tertiaire"},
+        {"nom": "MTB Construction", "ville": "Strasbourg", "effectif": "~25 sal.", "secteur": "Construction neuve, réhabilitation"}
+      ],
+      "linkedin_target_title": "Gérant PME BTP",
+      "linkedin_target_alt": "Chargé d'affaires BTP",
+      "marche_fr_adressable": "~40 000 PME BTP 10-50 salariés avec présence web et formulaire de devis en France",
+      "prix_recommande_eur": 15000,
+      "prix_mvp_eur": 5250,
+      "run_mensuel_eur": 1500,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 22,
+      "h_gagnees_par_semaine": 4,
+      "nb_users": 2,
+      "capacity_freed_eur_an": 9936,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 14400,
+      "total_brut_eur_an": 24336,
+      "total_net_eur_an": 23512,
+      "payback_mois_central": 7.7,
+      "payback_mois_pessimiste_gains": 15.9,
+      "payback_mois_pessimiste_adoption": 15.9,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "OpenAI GPT-4o-mini", "Resend", "Google Sheets", "Tally"],
+      "path": "/library/pme_btp/qualification-devis-auto/"
+    }
+  ]
+}

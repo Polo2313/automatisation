@@ -1,0 +1,10 @@
+cases:
+  - id: pme_btp-qualification-devis-auto
+    status: produit
+    last_touch_date: 2026-06-16
+    prospects: []
+    notes: >
+      Premier cas produit. Statut initial : produit.
+      Prochaine action : sourcer 3 entreprises BTP réelles sur Pappers
+      (NAF 4120A/4120B/4329A, 10-50 sal., présence web) + identifier
+      3 gérants sur LinkedIn Sales Navigator. Lancer séquence outbound T0.
