@@ -1,0 +1,100 @@
+{
+  "_description": "Sorties attendues pour chaque cas de test — à comparer avec les résultats réels en recette",
+
+  "case_1_output_chaud": {
+    "qualification_openai": {
+      "projet_type": "construction",
+      "surface_m2": 60,
+      "budget_estime": "high_plus50k",
+      "zone_geo": "Nantes (44)",
+      "urgence": "normal_1_3mois",
+      "score": "CHAUD",
+      "resume_une_ligne": "Extension maison 60m2 à Nantes, budget 90k€, travaux début septembre."
+    },
+    "airtable_record_created": {
+      "Email": "martin.dupont@gmail.com",
+      "Nom": "Martin Dupont",
+      "Source": "gmail",
+      "Score": "CHAUD",
+      "Projet_Type": "construction",
+      "Budget": "high_plus50k",
+      "Urgence": "normal_1_3mois",
+      "Zone_Geo": "Nantes (44)",
+      "Resume": "Extension maison 60m2 à Nantes, budget 90k€, travaux début septembre.",
+      "Statut": "Nouveau",
+      "Received_At": "2026-06-19T09:14:32.000Z"
+    },
+    "email_sent": {
+      "to": "martin.dupont@gmail.com",
+      "subject": "Votre projet construction — nous revenons vers vous dans les 4 heures",
+      "status": "delivered"
+    },
+    "notification_sent": {
+      "channel": "ntfy/slack",
+      "message": "🔥 LEAD CHAUD BTP — construction | Nantes (44) | Budget: high_plus50k | Martin Dupont — martin.dupont@gmail.com",
+      "status": "sent"
+    }
+  },
+
+  "case_2_output_tiede": {
+    "qualification_openai": {
+      "projet_type": "renovation",
+      "surface_m2": 12,
+      "budget_estime": "unknown",
+      "zone_geo": "Clermont-Ferrand",
+      "urgence": "planifie_plus3mois",
+      "score": "TIEDE",
+      "resume_une_ligne": "Rénovation SDB 12m2 à Clermont-Ferrand, budget non défini, horizon 3-6 mois."
+    },
+    "airtable_record_created": {
+      "Email": "isabelle.renaud@orange.fr",
+      "Nom": "Isabelle Renaud",
+      "Source": "tally",
+      "Score": "TIEDE",
+      "Projet_Type": "renovation",
+      "Budget": "unknown",
+      "Urgence": "planifie_plus3mois",
+      "Zone_Geo": "Clermont-Ferrand",
+      "Resume": "Rénovation SDB 12m2 à Clermont-Ferrand, budget non défini, horizon 3-6 mois.",
+      "Statut": "Nouveau",
+      "Received_At": "2026-06-19T11:30:00.000Z"
+    },
+    "email_sent": {
+      "to": "isabelle.renaud@orange.fr",
+      "subject": "Votre demande de devis — nous revenons vers vous sous 48 h",
+      "status": "delivered"
+    },
+    "notification_sent": null
+  },
+
+  "case_3_output_froid": {
+    "qualification_openai": {
+      "projet_type": "autre",
+      "surface_m2": null,
+      "budget_estime": "unknown",
+      "zone_geo": "unknown",
+      "urgence": "unknown",
+      "score": "FROID",
+      "resume_une_ligne": "Demande peinture sans précision de budget, surface ou urgence."
+    },
+    "airtable_record_created": {
+      "Email": "j.bernard@hotmail.com",
+      "Nom": "J. Bernard",
+      "Source": "gmail",
+      "Score": "FROID",
+      "Projet_Type": "autre",
+      "Budget": "unknown",
+      "Urgence": "unknown",
+      "Zone_Geo": "unknown",
+      "Resume": "Demande peinture sans précision de budget, surface ou urgence.",
+      "Statut": "Nouveau",
+      "Received_At": "2026-06-19T14:55:12.000Z"
+    },
+    "email_sent": {
+      "to": "j.bernard@hotmail.com",
+      "subject": "Votre demande reçue",
+      "status": "delivered"
+    },
+    "notification_sent": null
+  }
+}

@@ -1,0 +1,6 @@
+cases:
+  - id: pme_btp-qualification-leads-btp
+    status: produit
+    last_touch_date: "2026-06-19"
+    prospects: []
+    notes: "Cas produit le 2026-06-19. Aucun prospect identifié et contacté. Prochaine action : sourcing 3 entreprises BTP cibles via Pappers + lancement séquence outbound LinkedIn."

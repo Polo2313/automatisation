@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-leads-btp",
+      "date": "2026-06-19",
+      "secteur": "PME BTP et artisans 5-50",
+      "probleme_slug": "qualification-leads-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Conducteur de travaux / responsable exploitation",
+      "tjm_user_eur": 38,
+      "decideur": "Gérant / Directeur PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "PME TCE type Batim Construction", "ville": "Lyon (69)", "effectif": "15-30", "secteur": "BTP tous corps d'état"},
+        {"nom": "PME second oeuvre rénovation résidentielle", "ville": "Nantes (44)", "effectif": "10-25", "secteur": "BTP rénovation"},
+        {"nom": "PME électricité bâtiment (APE 4321A)", "ville": "Toulouse (31)", "effectif": "8-20", "secteur": "BTP électricité"}
+      ],
+      "linkedin_target_title": "Gérant (BTP / Construction)",
+      "linkedin_target_alt": "Conducteur de travaux",
+      "marche_fr_adressable": "~8 000 PME BTP 5-50 salariés avec présence web et douleur qualification leads",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 14,
+      "cout_run_pme_mensuel_eur": 34,
+      "h_gagnees_par_semaine": 3,
+      "capacity_freed_eur_an": 3154,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 33120,
+      "total_net_eur_an": 35366,
+      "payback_mois_central": 4.1,
+      "payback_mois_pessimiste_gains": 8.4,
+      "payback_mois_pessimiste_adoption": 8.4,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "OpenAI gpt-4o-mini", "Gmail API", "Tally", "Airtable", "Resend"],
+      "path": "/library/pme_btp/qualification-leads-btp/"
+    }
+  ]
+}
