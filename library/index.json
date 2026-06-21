@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_industrielles-qualification-devis-entrants",
+      "date": "2026-06-21",
+      "secteur": "PME industrielles (méca, plasturgie, agro)",
+      "probleme_slug": "qualification-devis-entrants",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé d'affaires / technico-commercial",
+      "tjm_user_eur": 45,
+      "decideur": "Directeur commercial ou Gérant PME 20-80 sal.",
+      "icp_entreprises_reelles": [
+        {"nom": "Baud Industries SAS", "ville": "Saint-Denis-en-Bugey (01)", "effectif": "~180 sal.", "secteur": "Fonderie aluminium, usinage"},
+        {"nom": "Ronis SA", "ville": "Caluire-et-Cuire (69)", "effectif": "~150 sal.", "secteur": "Serrurerie industrielle"},
+        {"nom": "Aldev SAS", "ville": "Annecy (74)", "effectif": "~60 sal.", "secteur": "Décolletage de précision"}
+      ],
+      "linkedin_target_title": "Directeur Commercial (PME industrielle)",
+      "linkedin_target_alt": "Responsable Commercial / Gérant PME industrielle",
+      "marche_fr_adressable": "~65 000 PME industrielles 10-200 sal. en France (NAF 24/25/28), ~15 000 cibles prioritaires avec volume devis > 10/semaine",
+      "prix_recommande_eur": 15000,
+      "prix_mvp_eur": 5250,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 10,
+      "cout_run_pme_mensuel_eur": 40,
+      "h_gagnees_par_semaine": 8,
+      "capacity_freed_eur_an": 19872,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 8400,
+      "total_net_eur_an": 27292,
+      "payback_mois_central": 6.6,
+      "payback_mois_pessimiste_gains": 13.7,
+      "payback_mois_pessimiste_adoption": 13.7,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "openai-gpt-4o-mini", "supabase", "resend", "imap"],
+      "path": "/library/pme_industrielles/qualification-devis-entrants/"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+cases:
+  - id: pme_industrielles-qualification-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-21"
+    prospects: []
+    notes: "Premier cas produit. Prochaine étape : sourcer 3 prospects réels et passer en ready_to_pitch."
