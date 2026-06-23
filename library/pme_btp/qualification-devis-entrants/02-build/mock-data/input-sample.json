@@ -1,0 +1,47 @@
+[
+  {
+    "scenario": "lead_A_complet",
+    "email_from": "sophie.martin@gmail.com",
+    "email_to": "devis@entreprise-btp.fr",
+    "subject": "Demande de devis isolation combles perdus",
+    "body": "Bonjour,\n\nJe cherche un artisan pour isoler mes combles perdus. Surface approximative : 85 m². Je suis à Villeurbanne (69100).\n\nJ'ai un budget de 4 000 à 5 000 euros et je voudrais que les travaux soient faits avant fin juillet.\n\nPouvez-vous me faire une proposition ?\n\nCordialement,\nSophie Martin\n06 12 34 56 78",
+    "received_at": "2026-06-23T09:14:00Z",
+    "attachments": []
+  },
+  {
+    "scenario": "lead_B_incomplet",
+    "email_from": "jean.dupont@hotmail.fr",
+    "email_to": "devis@entreprise-btp.fr",
+    "subject": "Travaux plomberie",
+    "body": "Bonjour je voudrais un devis pour des travaux de plomberie. Merci.",
+    "received_at": "2026-06-23T10:22:00Z",
+    "attachments": []
+  },
+  {
+    "scenario": "hors_perimetre",
+    "email_from": "contact@société-jardinage.fr",
+    "email_to": "devis@entreprise-btp.fr",
+    "subject": "Entretien jardin et élagage",
+    "body": "Bonjour, nous proposons des services d'entretien de jardins et d'élagage. Seriez-vous intéressé par nos prestations pour vos chantiers ?",
+    "received_at": "2026-06-23T11:05:00Z",
+    "attachments": []
+  },
+  {
+    "scenario": "spam",
+    "email_from": "noreply@promo-outils.net",
+    "email_to": "devis@entreprise-btp.fr",
+    "subject": "OFFRE EXCEPTIONNELLE outillage professionnel -50%",
+    "body": "Ne manquez pas notre offre exceptionnelle sur l'outillage professionnel...",
+    "received_at": "2026-06-23T11:30:00Z",
+    "attachments": []
+  },
+  {
+    "scenario": "lead_A_urgence",
+    "email_from": "pierre.renaud@orange.fr",
+    "email_to": "devis@entreprise-btp.fr",
+    "subject": "URGENT - Fuite toiture après orage",
+    "body": "Bonsoir, suite à l'orage de ce soir nous avons une infiltration dans notre toiture. Il faut intervenir rapidement. Maison de 120m² à Bourg-en-Bresse (01000). Je suis disponible dès demain matin. Pierre Renaud, 07 98 76 54 32.",
+    "received_at": "2026-06-23T20:45:00Z",
+    "attachments": []
+  }
+]

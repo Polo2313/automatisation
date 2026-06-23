@@ -1,0 +1,10 @@
+cases:
+  - id: pme_btp-qualification-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-23"
+    prospects: []
+    notes: >
+      Premier cas produit. Aucun prospect identifié à ce stade.
+      Prochaine action : sourcer 3 entreprises réelles via Pappers
+      (NACE 4120Z, 4311Z, 4321A, 4329A — 10-50 salariés) + 3 contacts LinkedIn
+      (Gérant ou Responsable administratif) pour passer en ready_to_pitch.

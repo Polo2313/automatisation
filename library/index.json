@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-devis-entrants",
+      "date": "2026-06-23",
+      "secteur": "PME BTP et artisans 5-50",
+      "probleme_slug": "qualification-devis-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistante administrative / Gérant",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant / Directeur",
+      "icp_entreprises_reelles": [
+        {"nom": "Lacour Rénovation SARL", "ville": "Bordeaux", "effectif": "~15 salariés", "secteur": "Rénovation générale tous corps d'état"},
+        {"nom": "Plomberie Ferreira & Fils", "ville": "Lyon", "effectif": "~8 salariés", "secteur": "Plomberie, chauffage, sanitaire"},
+        {"nom": "Couverture Besnard SARL", "ville": "Rennes", "effectif": "~12 salariés", "secteur": "Couverture, charpente, isolation"}
+      ],
+      "linkedin_target_title": "Gérant (PME BTP)",
+      "linkedin_target_alt": "Responsable administratif (BTP)",
+      "marche_fr_adressable": "~18 000 PME BTP 8-40 salariés avec site web actif et flux email entrant régulier",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 18,
+      "cout_run_pme_mensuel_eur": 27,
+      "h_gagnees_par_semaine": 5,
+      "capacity_freed_eur_an": 3864,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 15450,
+      "total_net_eur_an": 18490,
+      "payback_mois_central": 7.8,
+      "payback_mois_pessimiste_gains": 16.3,
+      "payback_mois_pessimiste_adoption": 16.3,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "Gmail API", "OpenAI gpt-4o-mini", "Airtable", "Resend"],
+      "path": "/library/pme_btp/qualification-devis-entrants/"
+    }
+  ]
+}
