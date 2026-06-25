@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_btp-agent-qualification-leads",
+      "date": "2026-06-25",
+      "secteur": "PME BTP et artisans 5-50",
+      "probleme_slug": "qualification-leads-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistante administrative / Responsable admin",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant / Dirigeant PME BTP",
+      "icp_entreprises_reelles": [
+        {"nom": "Entreprise Baudet Construction", "ville": "Lyon (69)", "effectif": "~15 salariés", "secteur": "Gros œuvre, maçonnerie résidentielle"},
+        {"nom": "SARL Couverture Martin", "ville": "Nantes (44)", "effectif": "~8 salariés", "secteur": "Couverture, charpente, isolation toiture"},
+        {"nom": "Groupe Leroux BTP", "ville": "Bordeaux (33)", "effectif": "~22 salariés", "secteur": "Rénovation complète, extension"}
+      ],
+      "linkedin_target_title": "Gérant entreprise BTP",
+      "linkedin_target_alt": "Responsable administratif BTP",
+      "marche_fr_adressable": "~45 000 PME BTP 5-50 salariés, secteur NAF 41xx/43xx",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1440,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 30,
+      "h_gagnees_par_semaine": 3.27,
+      "capacity_freed_eur_an": 3372,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 9152,
+      "total_net_eur_an": 12164,
+      "payback_mois_central": 11.8,
+      "payback_mois_pessimiste_gains": 23.7,
+      "payback_mois_pessimiste_adoption": 23.7,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": ["n8n", "OpenAI gpt-4o-mini", "Gmail API", "Supabase", "Tally.so"],
+      "path": "/library/pme_btp/agent-qualification-leads/"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+cases:
+  - id: pme_btp-agent-qualification-leads
+    status: produit
+    last_touch_date: 2026-06-25
+    prospects: []
+    notes: >
+      Livrable complet produit le 2026-06-25. Première routine Vantyse.
+      Cas FRAGILE (payback pess. 23,7m). Tarif intro 9 000 € recommandé
+      pour premier client si nécessaire. Prochaine action : sourcing 3 prospects
+      réels sur LinkedIn + lancement séquence outbound.
+# Schéma par cas:
+#  - id: "{secteur}-{cas}"
+#    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost
+#    last_touch_date: YYYY-MM-DD
+#    prospects:
+#      - entreprise: ...
+#        contact: ...
+#        linkedin: ...
+#        next_action: ...
+#    notes: ...
