@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_industrielles-relance-devis-industrie",
+      "date": "2026-06-26",
+      "secteur": "PME industrielles (méca, plasturgie, agro)",
+      "probleme_slug": "relance-devis-non-signes",
+      "type_flux": "relance_commerciale",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé d'affaires / commercial junior",
+      "tjm_user_eur": 45,
+      "decideur": "Dirigeant PME ou Responsable commercial",
+      "icp_entreprises_reelles": [
+        {"nom": "Sométal Industrie", "ville": "Bourges", "effectif": "~35", "secteur": "Chaudronnerie / structures métalliques"},
+        {"nom": "Plastinnov", "ville": "Oyonnax", "effectif": "~25", "secteur": "Injection plastique"},
+        {"nom": "Mécano Loire", "ville": "Saint-Étienne", "effectif": "~40", "secteur": "Mécanique de précision"}
+      ],
+      "linkedin_target_title": "Directeur commercial | Responsable commercial (industrie manufacturing)",
+      "linkedin_target_alt": "Gérant | PDG PME industrielle 20-100 salariés",
+      "marche_fr_adressable": "~15 000 PME industrielles (méca, plasturgie, agro) 15-100 salariés, activité commerciale B2B active",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 1200,
+      "delai_implem_jours": 10,
+      "cout_run_pme_mensuel_eur": 40,
+      "h_gagnees_par_semaine": 3.5,
+      "capacity_freed_eur_an": 8694,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 12250,
+      "total_net_eur_an": 19940,
+      "payback_mois_central": 7.2,
+      "payback_mois_pessimiste_gains": 15.3,
+      "payback_mois_pessimiste_adoption": 15.3,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n", "OpenAI gpt-4o-mini", "Supabase", "Resend", "CRM webhook"],
+      "path": "/library/pme_industrielles/relance-devis-industrie/"
+    }
+  ]
+}

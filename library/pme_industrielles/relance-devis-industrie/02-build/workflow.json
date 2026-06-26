@@ -1,0 +1,290 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. À importer via Settings > Import Workflow dans n8n. Remplacer toutes les valeurs {{PLACEHOLDER}} avant utilisation. Tester avec le smoke test documenté dans architecture.md.",
+    "n8n_version": ">=1.30.0",
+    "smoke_test": "Voir architecture.md section 'Test de smoke'"
+  },
+  "name": "Vantyse — Relance Devis Industrie (Workflow B — Cron séquence)",
+  "nodes": [
+    {
+      "id": "node-01-cron",
+      "name": "Cron 08h30 jours ouvrés",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 8 * * 1-5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-02-supabase-select",
+      "name": "Supabase — Fetch devis à relancer",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [300, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.N8N_SUPABASE_URL}}/rest/v1/devis",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {"name": "apikey", "value": "={{$env.N8N_SUPABASE_KEY}"},
+            {"name": "Authorization", "value": "=Bearer {{$env.N8N_SUPABASE_KEY}}"}
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "values": [
+            {"name": "status", "value": "eq.envoyé"},
+            {"name": "select", "value": "*"},
+            {
+              "name": "or",
+              "value": "(date_relance_1.is.null,and(date_relance_1.not.is.null,date_relance_2.is.null),and(date_relance_2.not.is.null,date_relance_3.is.null))"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-03-if-empty",
+      "name": "IF — Devis à traiter ?",
+      "type": "n8n-nodes-base.if",
+      "position": [500, 300],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.length}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-04-split",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [700, 250],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "node-05-determine-relance",
+      "name": "Determine numéro relance",
+      "type": "n8n-nodes-base.set",
+      "position": [900, 250],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "nb_relances",
+              "value": "={{$json.nb_relances}}"
+            }
+          ],
+          "string": [
+            {
+              "name": "relance_type",
+              "value": "={{$json.nb_relances === 0 ? 'relance_1' : $json.nb_relances === 1 ? 'relance_2' : 'break_up'}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-06-openai",
+      "name": "OpenAI — Personnalise email relance",
+      "type": "n8n-nodes-base.openAi",
+      "position": [1100, 250],
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu rédiges des emails de relance commerciale B2B pour une PME industrielle française. Ton : professionnel, direct. Longueur : 80-100 mots max. Langue : français. Ne jamais inventer d'informations. Ne pas utiliser de superlatifs."
+            },
+            {
+              "role": "user",
+              "content": "=Génère un email de relance {{$json.relance_type}} pour : Prénom={{$json.contact_prenom}}, Nom={{$json.contact_nom}}, Réf devis={{$json.ref_devis}}, Produit={{$json.description_produit}}, Date envoi={{$json.date_envoi}}, Montant={{$json.montant_eur}}€ HT."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 300
+        }
+      }
+    },
+    {
+      "id": "node-07-send-email",
+      "name": "Resend — Envoi email relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1300, 250],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {"name": "Authorization", "value": "=Bearer {{$env.N8N_RESEND_API_KEY}}"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "from", "value": "{{PLACEHOLDER_EXPEDITEUR_EMAIL}}"},
+            {"name": "to", "value": "={{$('Split In Batches').item.json.contact_email}}"},
+            {"name": "subject", "value": "=Votre devis {{$('Split In Batches').item.json.ref_devis}} — {{$('Split In Batches').item.json.relance_type === 'relance_1' ? 'Un point rapide ?' : $('Split In Batches').item.json.relance_type === 'relance_2' ? 'Toujours intéressé ?' : 'On ferme le dossier'}}"},
+            {"name": "html", "value": "={{$('OpenAI — Personnalise email relance').item.json.choices[0].message.content}}"},
+            {"name": "headers", "value": {"List-Unsubscribe": "<mailto:unsubscribe@{{PLACEHOLDER_DOMAINE}}>"}}
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-08-supabase-update",
+      "name": "Supabase — Update statut devis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1500, 250],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.N8N_SUPABASE_URL}}/rest/v1/devis?id=eq.{{$('Split In Batches').item.json.id}}",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {"name": "apikey", "value": "={{$env.N8N_SUPABASE_KEY}"},
+            {"name": "Authorization", "value": "=Bearer {{$env.N8N_SUPABASE_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=minimal"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"nb_relances\": {{$('Split In Batches').item.json.nb_relances + 1}}, \"date_derniere_relance\": \"{{new Date().toISOString().split('T')[0]}}\"}"
+      }
+    },
+    {
+      "id": "node-09-if-final-relance",
+      "name": "IF — 3 relances atteintes ?",
+      "type": "n8n-nodes-base.if",
+      "position": [1700, 250],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$('Split In Batches').item.json.nb_relances + 1}}",
+              "operation": "largerEqual",
+              "value2": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-10-mark-non-repondu",
+      "name": "Supabase — status = non_répondu",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1900, 200],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.N8N_SUPABASE_URL}}/rest/v1/devis?id=eq.{{$('Split In Batches').item.json.id}}",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {"name": "apikey", "value": "={{$env.N8N_SUPABASE_KEY}"},
+            {"name": "Authorization", "value": "=Bearer {{$env.N8N_SUPABASE_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=minimal"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"status\": \"non_répondu\"}"
+      }
+    },
+    {
+      "id": "node-11-alert-commercial",
+      "name": "Email — Alerte commercial (non répondu)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2100, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {"name": "Authorization", "value": "=Bearer {{$env.N8N_RESEND_API_KEY}}"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"from\": \"noreply@{{PLACEHOLDER_DOMAINE}}\", \"to\": \"{{PLACEHOLDER_EMAIL_COMMERCIAL}}\", \"subject\": \"[Devis sans réponse] {{$('Split In Batches').item.json.ref_devis}} — {{$('Split In Batches').item.json.entreprise}}\", \"html\": \"Le devis {{$('Split In Batches').item.json.ref_devis}} ({{$('Split In Batches').item.json.montant_eur}}€ HT) n'a reçu aucune réponse après 3 relances. Action recommandée : appel téléphonique ou classement.\"}"
+      }
+    },
+    {
+      "id": "node-12-end",
+      "name": "End",
+      "type": "n8n-nodes-base.noOp",
+      "position": [2300, 300],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Cron 08h30 jours ouvrés": {
+      "main": [[{"node": "Supabase — Fetch devis à relancer", "type": "main", "index": 0}]]
+    },
+    "Supabase — Fetch devis à relancer": {
+      "main": [[{"node": "IF — Devis à traiter ?", "type": "main", "index": 0}]]
+    },
+    "IF — Devis à traiter ?": {
+      "main": [
+        [{"node": "Split In Batches", "type": "main", "index": 0}],
+        [{"node": "End", "type": "main", "index": 0}]
+      ]
+    },
+    "Split In Batches": {
+      "main": [[{"node": "Determine numéro relance", "type": "main", "index": 0}]]
+    },
+    "Determine numéro relance": {
+      "main": [[{"node": "OpenAI — Personnalise email relance", "type": "main", "index": 0}]]
+    },
+    "OpenAI — Personnalise email relance": {
+      "main": [[{"node": "Resend — Envoi email relance", "type": "main", "index": 0}]]
+    },
+    "Resend — Envoi email relance": {
+      "main": [[{"node": "Supabase — Update statut devis", "type": "main", "index": 0}]]
+    },
+    "Supabase — Update statut devis": {
+      "main": [[{"node": "IF — 3 relances atteintes ?", "type": "main", "index": 0}]]
+    },
+    "IF — 3 relances atteintes ?": {
+      "main": [
+        [{"node": "Supabase — status = non_répondu", "type": "main", "index": 0}],
+        [{"node": "End", "type": "main", "index": 0}]
+      ]
+    },
+    "Supabase — status = non_répondu": {
+      "main": [[{"node": "Email — Alerte commercial (non répondu)", "type": "main", "index": 0}]]
+    },
+    "Email — Alerte commercial (non répondu)": {
+      "main": [[{"node": "End", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "{{PLACEHOLDER_ERROR_WORKFLOW_ID}}"
+  }
+}

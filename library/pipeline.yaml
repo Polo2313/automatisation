@@ -1,0 +1,6 @@
+cases:
+  - id: pme_industrielles-relance-devis-industrie
+    status: produit
+    last_touch_date: 2026-06-26
+    prospects: []
+    notes: "Premier cas produit. Prochain step : identifier 3 contacts LinkedIn et lancer séquence outbound T0."
