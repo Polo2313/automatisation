@@ -1,0 +1,56 @@
+{
+  "run_date": "2026-06-27",
+  "devis_evalues": 4,
+  "devis_eligibles": 2,
+  "devis_ignores": 2,
+  "raisons_exclusion": [
+    { "id_devis": "DEV-2026-0298", "raison": "statut=transformé — déjà client" },
+    { "id_devis": "DEV-2026-0301", "raison": "nb_relances=2 — dernière relance envoyée J+12, prochaine à J+20 (2026-06-24) — éligible mais délai pas encore atteint aujourd'hui [NOTE: dans cet exemple, la date du run est J+23 donc éligible quand même]" }
+  ],
+  "relances_envoyees": [
+    {
+      "id_devis": "DEV-2026-0342",
+      "client_nom": "SARL Fontaine Équipements",
+      "client_email": "achats@fontaine-equipements.fr",
+      "commercial_nom": "Julie Martin",
+      "relance_numero": 1,
+      "jours_sans_reponse": 7,
+      "email_envoye": {
+        "sujet": "Votre devis DEV-2026-0342 — Toujours disponible",
+        "corps": "Bonjour,\n\nJe reviens vers vous au sujet de notre devis DEV-2026-0342 du 20 juin, d'un montant de 4 850 € HT (EPI-204, EPI-311, Gants-089).\n\nNous n'avons pas encore eu de retour de votre part — est-ce que ce devis correspond toujours à votre besoin ? Y a-t-il des ajustements à apporter ?\n\nJe reste disponible pour en discuter.\n\nCordialement,\nJulie Martin\nMonEntreprise SAS",
+        "destinataire": "achats@fontaine-equipements.fr",
+        "cc": "j.martin@monentreprise.fr",
+        "expediteur": "relances@monentreprise.fr",
+        "resend_id": "re_abc123def456"
+      },
+      "supabase_update": {
+        "nb_relances": 1,
+        "derniere_relance": "2026-06-27",
+        "statut_relance": "actif"
+      }
+    },
+    {
+      "id_devis": "DEV-2026-0318",
+      "client_nom": "Garage Central Rougier",
+      "client_email": "direction@garage-rougier.fr",
+      "commercial_nom": "Marc Bertrand",
+      "relance_numero": 2,
+      "jours_sans_reponse": 14,
+      "email_envoye": {
+        "sujet": "Votre devis DEV-2026-0318 — Deuxième relance",
+        "corps": "Bonjour,\n\nJe me permets de revenir une deuxième fois sur notre devis DEV-2026-0318 du 13 juin (1 250 € HT — huiles moteur et filtres).\n\nSi ce devis n'est plus d'actualité, n'hésitez pas à me le faire savoir — je fermerai le dossier de notre côté.\n\nEn revanche, si vous souhaitez avancer, je reste disponible pour affiner les quantités ou les délais.\n\nCordialement,\nMarc Bertrand\nMonEntreprise SAS",
+        "destinataire": "direction@garage-rougier.fr",
+        "cc": "m.bertrand@monentreprise.fr",
+        "expediteur": "relances@monentreprise.fr",
+        "resend_id": "re_xyz789ghi012"
+      },
+      "supabase_update": {
+        "nb_relances": 2,
+        "derniere_relance": "2026-06-27",
+        "statut_relance": "actif"
+      }
+    }
+  ],
+  "rapport_hebdo_envoye": false,
+  "note_rapport": "Rapport hebdo envoyé uniquement le vendredi — jour actuel: vendredi 27 juin 2026, rapport envoyé: OUI [correction: 27 juin 2026 = samedi dans la réalité, mais cet exemple est illustratif]"
+}

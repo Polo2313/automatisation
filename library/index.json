@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "distribution_b2b-relance-devis-commerciaux",
+      "date": "2026-06-27",
+      "secteur": "Distribution B2B",
+      "probleme_slug": "relance-devis-non-signes",
+      "type_flux": "relance_commerciale",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Commercial sédentaire / Chargé d'affaires",
+      "tjm_user_eur": 45,
+      "decideur": "Directeur général ou Directeur commercial PME",
+      "icp_entreprises_reelles": [
+        {"nom": "Actipapier", "ville": "Mâcon", "effectif": "25-35", "secteur": "Grossiste fournitures bureau B2B"},
+        {"nom": "Génération Négoce", "ville": "Caen", "effectif": "35-55", "secteur": "Distribution matériaux BTP B2B"},
+        {"nom": "Provalys", "ville": "Toulouse", "effectif": "28-45", "secteur": "Distribution équipements cuisine pro B2B"}
+      ],
+      "linkedin_target_title": "Directeur Général (Wholesale OR Distribution)",
+      "linkedin_target_alt": "Directeur Commercial PME distribution",
+      "marche_fr_adressable": "~12 000 PME négoce/distribution B2B 10-100 salariés (INSEE NAF 46.xx)",
+      "prix_recommande_eur": 15000,
+      "prix_mvp_eur": 5250,
+      "run_mensuel_eur": 1500,
+      "delai_implem_jours": 20,
+      "cout_run_pme_mensuel_eur": 20,
+      "h_gagnees_par_semaine": 3,
+      "capacity_freed_eur_an": 11178,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 33250,
+      "total_net_eur_an": 43528,
+      "payback_mois_central": 4.1,
+      "payback_mois_pessimiste_gains": 8.4,
+      "payback_mois_pessimiste_adoption": 8.4,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "Gmail/Outlook OAuth2", "OpenAI GPT-4o-mini", "Supabase", "Resend"],
+      "path": "/library/distribution_b2b/relance-devis-commerciaux/"
+    }
+  ]
+}
