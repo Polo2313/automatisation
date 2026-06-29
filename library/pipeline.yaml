@@ -1,0 +1,6 @@
+cases:
+  - id: pme_industrielles-qualification-devis-entrants
+    status: produit
+    last_touch_date: 2026-06-29
+    prospects: []
+    notes: "Cas produit le 2026-06-29. Prochaine action : sourcer 3 prospects réels + lancer séquence outbound."

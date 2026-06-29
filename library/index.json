@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "id": "pme_industrielles-qualification-devis-entrants",
+      "date": "2026-06-29",
+      "secteur": "PME industrielles (méca, plasturgie, agro)",
+      "probleme_slug": "qualification-devis-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé d'affaires / assistant commercial",
+      "tjm_user_eur": 45,
+      "decideur": "Directeur commercial ou dirigeant PME",
+      "icp_entreprises_reelles": [
+        {"nom": "Favi SAS", "ville": "Hallencourt", "effectif": "~350", "secteur": "Fonderie zamak, pièces auto B2B"},
+        {"nom": "Mécafi", "ville": "Clermont-Ferrand", "effectif": "~45", "secteur": "Sous-traitance mécanique précision"},
+        {"nom": "Sopab", "ville": "Langon", "effectif": "~55", "secteur": "Mécanique de précision"}
+      ],
+      "linkedin_target_title": "Directeur commercial",
+      "linkedin_target_alt": "Chargé d'affaires",
+      "marche_fr_adressable": "~12 000 PME industrielles 20-150 salariés avec flux devis entrants actif",
+      "prix_recommande_eur": 15000,
+      "prix_mvp_eur": 5250,
+      "run_mensuel_eur": 1500,
+      "delai_implem_jours": 15,
+      "cout_run_pme_mensuel_eur": 35,
+      "h_gagnees_par_semaine": 5,
+      "capacity_freed_eur_an": 12420,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 21760,
+      "total_net_eur_an": 33360,
+      "payback_mois_central": 5.4,
+      "payback_mois_pessimiste_gains": 10.8,
+      "payback_mois_pessimiste_adoption": 11.1,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": ["n8n.cloud", "OpenAI gpt-4o-mini", "Gmail API", "Supabase", "Resend"],
+      "path": "/library/pme_industrielles/qualification-devis-entrants/"
+    }
+  ]
+}
