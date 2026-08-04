@@ -31,8 +31,15 @@ projet_bout_en_bout:
   conditions: "5+ intégrations, IA + back-office"
 
 run_mensuel_option:
-  pct_one_shot_min: 0.08
-  pct_one_shot_max: 0.15
+  # Le pourcentage s'applique au prix one-shot sur une base ANNUELLE,
+  # puis se facture lissé chaque mois : mensuel = one_shot × pct / 12.
+  # (ex: one-shot 14 000€ × 10% / 12 ≈ 117€/mois — cohérent avec un
+  # retainer de maintenance agence. Lu comme "8-15% du one-shot / mois"
+  # au pied de la lettre, la formule donnerait 1 120-2 100€/mois, soit
+  # plus que le one-shot payé en run en moins d'un an : corrigé le
+  # 2026-08-03 après détection lors de la production d'un cas.)
+  pct_one_shot_annual_min: 0.08
+  pct_one_shot_annual_max: 0.15
   contenu: "monitoring, maintenance, évolutions mineures, support N1"
 
 mvp_ratio: 0.35

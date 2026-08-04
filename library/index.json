@@ -1,1 +1,40 @@
-{ "cases": [] }
+{
+  "cases": [
+    {
+      "id": "pme_btp-qualification-routage-devis-entrants",
+      "date": "2026-08-03",
+      "secteur": "pme_btp",
+      "probleme_slug": "qualification-routage-devis-entrants",
+      "type_flux": "capture_lead",
+      "type_produit": "agent_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / secrétariat",
+      "tjm_user_eur": 28,
+      "decideur": "Dirigeant·e / gérant·e PME BTP",
+      "icp_entreprises_reelles": [
+        { "nom": "Boutillet SAS", "ville": "Chauvigny (86)", "effectif": "~137 salariés", "secteur": "Entreprise générale du bâtiment / gros-œuvre" },
+        { "nom": "ISB", "ville": "Toulouse (31)", "effectif": "~50 salariés", "secteur": "Entreprise générale du bâtiment" },
+        { "nom": "SEBACO (Société Bâtiment de Cornouaille)", "ville": "Ergué-Gabéric / Quimper (29)", "effectif": "50-99 salariés", "secteur": "Construction de maisons individuelles, tous corps d'état" }
+      ],
+      "linkedin_target_title": "Gérant / Dirigeant bâtiment tous corps d'état",
+      "linkedin_target_alt": "Conducteur de travaux",
+      "marche_fr_adressable": "~20 000 PME du bâtiment 10-50 salariés en France [ordre de grandeur]",
+      "prix_recommande_eur": 13800,
+      "prix_mvp_eur": 4800,
+      "run_mensuel_eur": 115,
+      "delai_implem_jours": 12,
+      "cout_run_pme_mensuel_eur": 28,
+      "h_gagnees_par_semaine": 4,
+      "capacity_freed_eur_an": 6182,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 7500,
+      "total_net_eur_an": 11966,
+      "payback_mois_central": 13.8,
+      "payback_mois_pessimiste_gains": 32.3,
+      "payback_mois_pessimiste_adoption": 33.3,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": ["n8n", "Gmail API", "OpenAI gpt-4o-mini", "Google Sheets"],
+      "path": "/library/pme_btp/qualification-routage-devis-entrants/"
+    }
+  ]
+}

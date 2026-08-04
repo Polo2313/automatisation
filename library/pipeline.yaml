@@ -1,4 +1,9 @@
-cases: []
+cases:
+  - id: "pme_btp-qualification-routage-devis-entrants"
+    status: produit
+    last_touch_date: "2026-08-03"
+    prospects: []
+    notes: "Pack vente + build complets. Aucun prospect sourcé (nom de contact LinkedIn) à date. Prochain run: sourcing prospect (3 entreprises identifiées dans gtm.md, contacts LinkedIn à trouver) avant passage a ready_to_pitch."
 # Schéma par cas:
 #  - id: "{secteur}-{cas}"
 #    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost

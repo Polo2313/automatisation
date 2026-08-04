@@ -1,0 +1,201 @@
+{
+  "name": "Vantyse - Qualification et routage devis entrants (BTP)",
+  "meta": {
+    "importNote": "STATUT IMPORT: squelette construit hors instance n8n live (pas d'accès à un serveur n8n pendant cette session de build). Structure nodes/connections valide pour n8n >= 1.4x, mais NON testée par un import réel. A valider en environnement n8n avant mise en production : (1) importer ce fichier, (2) recréer les credentials Gmail/OpenAI/Google Sheets, (3) exécuter le smoke test documenté en bas de ce fichier avec mock-data/input-sample.json."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Qualification & routage devis entrants\nImport non testé en live (voir meta.importNote). Recréer les credentials avant activation.",
+        "height": 160,
+        "width": 320
+      },
+      "id": "sticky-1",
+      "name": "Note - statut import",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, -220]
+    },
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute", "value": 5 }] },
+        "filters": { "q": "to:devis@client.fr" }
+      },
+      "id": "trigger-email",
+      "name": "Trigger - Email devis",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH_CREDENTIAL", "name": "Gmail devis@" } }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "devis-form",
+        "responseMode": "onReceived"
+      },
+      "id": "trigger-webhook",
+      "name": "Trigger - Formulaire site",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 200]
+    },
+    {
+      "parameters": { "mode": "append" },
+      "id": "merge-sources",
+      "name": "Merge - Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [260, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({ json: { from: item.json.from || item.json.email || '', subject: item.json.subject || 'Demande via formulaire', body: item.json.text || item.json.body || item.json.message || '', receivedAt: new Date().toISOString(), source: item.json.headers ? 'email' : 'formulaire' } }));"
+      },
+      "id": "normalize",
+      "name": "Normalisation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 100]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "jsonOutput": true,
+        "prompt": "Extrais les champs suivants du texte de la demande de devis ci-dessous, au format JSON strict: nom_contact, telephone, email, adresse_chantier, type_travaux, urgence (basse|moyenne|haute), budget_estime_eur (nombre ou null si absent). Texte: {{$json.body}}"
+      },
+      "id": "openai-extract",
+      "name": "OpenAI - Extraction structurée",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [700, 100],
+      "credentials": { "openAiApi": { "id": "OPENAI_API_KEY", "name": "OpenAI Vantyse" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ !!$json.telephone && !!$json.adresse_chantier }}", "value2": true }
+          ]
+        }
+      },
+      "id": "if-complete",
+      "name": "IF - Champs obligatoires OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [920, 100]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$env.ASSISTANT_ADMIN_EMAIL}}",
+        "subject": "Demande de devis à compléter manuellement",
+        "message": "Champs manquants (téléphone ou adresse) sur la demande de {{$json.nom_contact}}. Merci de compléter avant routage."
+      },
+      "id": "notify-incomplete",
+      "name": "Notif - Assistant admin (incomplet)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1140, 260],
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH_CREDENTIAL", "name": "Gmail devis@" } }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "jsonOutput": true,
+        "prompt": "A partir de urgence={{$json.urgence}}, type_travaux={{$json.type_travaux}}, budget_estime_eur={{$json.budget_estime_eur}}, donne un score_priorite entier de 1 (faible) à 3 (fort) au format JSON strict {\"score_priorite\": n}."
+      },
+      "id": "openai-score",
+      "name": "OpenAI - Scoring priorité",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1140, 0],
+      "credentials": { "openAiApi": { "id": "OPENAI_API_KEY", "name": "OpenAI Vantyse" } }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.adresse_chantier}}",
+        "rules": {
+          "rules": [
+            { "value2": "regex:.*", "output": 0 }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "id": "switch-routage",
+      "name": "Switch - Routage zone/type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [1360, 0]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.CRM_SHEET_ID}}",
+        "range": "Suivi!A:H"
+      },
+      "id": "sheets-append",
+      "name": "Google Sheets - Mini-CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1580, -80],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GOOGLE_SHEETS_CREDENTIAL", "name": "Google Sheets Vantyse" } }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.email}}",
+        "subject": "Votre demande de devis a bien été reçue",
+        "message": "Bonjour {{$json.nom_contact}},\n\nNous avons bien reçu votre demande concernant : {{$json.type_travaux}}.\nUn conducteur de travaux revient vers vous très prochainement.\n\nCordialement."
+      },
+      "id": "gmail-ack",
+      "name": "Gmail - Accusé de réception",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1580, 80],
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH_CREDENTIAL", "name": "Gmail devis@" } }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.conducteur_assigne_email}}",
+        "subject": "Nouvelle demande de devis assignée - priorité {{$json.score_priorite}}",
+        "message": "Nouvelle demande: {{$json.type_travaux}} - {{$json.adresse_chantier}}. Contact: {{$json.nom_contact}} / {{$json.telephone}}."
+      },
+      "id": "gmail-notify-conducteur",
+      "name": "Gmail - Notif conducteur de travaux",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1580, 240],
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH_CREDENTIAL", "name": "Gmail devis@" } }
+    }
+  ],
+  "connections": {
+    "Trigger - Email devis": { "main": [[{ "node": "Merge - Sources", "type": "main", "index": 0 }]] },
+    "Trigger - Formulaire site": { "main": [[{ "node": "Merge - Sources", "type": "main", "index": 1 }]] },
+    "Merge - Sources": { "main": [[{ "node": "Normalisation", "type": "main", "index": 0 }]] },
+    "Normalisation": { "main": [[{ "node": "OpenAI - Extraction structurée", "type": "main", "index": 0 }]] },
+    "OpenAI - Extraction structurée": { "main": [[{ "node": "IF - Champs obligatoires OK", "type": "main", "index": 0 }]] },
+    "IF - Champs obligatoires OK": {
+      "main": [
+        [{ "node": "OpenAI - Scoring priorité", "type": "main", "index": 0 }],
+        [{ "node": "Notif - Assistant admin (incomplet)", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI - Scoring priorité": { "main": [[{ "node": "Switch - Routage zone/type", "type": "main", "index": 0 }]] },
+    "Switch - Routage zone/type": {
+      "main": [[
+        { "node": "Google Sheets - Mini-CRM", "type": "main", "index": 0 },
+        { "node": "Gmail - Accusé de réception", "type": "main", "index": 0 },
+        { "node": "Gmail - Notif conducteur de travaux", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "smokeTest": {
+    "description": "Test de fumée documenté - a exécuter manuellement après import et configuration des credentials.",
+    "input": "Voir 02-build/mock-data/input-sample.json (email brut simulant une demande de devis)",
+    "expectedOutput": "Voir 02-build/mock-data/output-sample.json (ligne mini-CRM + score_priorite=2 + accusé de réception envoyé à l'email extrait)"
+  }
+}

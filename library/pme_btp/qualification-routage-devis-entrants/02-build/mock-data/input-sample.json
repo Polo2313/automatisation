@@ -1,0 +1,7 @@
+{
+  "from": "j.martin.particulier@example-mail.fr",
+  "subject": "Demande de devis - rénovation salle de bain",
+  "body": "Bonjour, je souhaiterais un devis pour la rénovation complète de ma salle de bain (environ 6m2) au 12 rue des Lilas, 29000 Quimper. Les travaux devraient inclure carrelage, plomberie et électricité. C'est assez urgent car la salle de bain actuelle est hors service. Mon budget est autour de 9000 euros. Vous pouvez me joindre au 06 12 34 56 78. Cordialement, Julien Martin.",
+  "receivedAt": "2026-08-03T08:14:00+02:00",
+  "source": "email"
+}
