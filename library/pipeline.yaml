@@ -1,0 +1,86 @@
+cases:
+  - id: pme_btp-qualification-leads-devis
+    status: produit
+    last_touch_date: "2026-05-31"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement le 2026-07-29. Aucune donnée de suivi commercial réelle disponible (pipeline.yaml n'existait pas au moment de la production) : impossible de savoir si ce cas a été pitché. À vérifier avec Paul."
+  - id: pme_btp-qualification-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-01"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement. Doublon probleme_slug avec le cas du 2026-06-23 (même secteur) — à dédoublonner commercialement si les deux ont été pitchés séparément."
+  - id: pme_btp-traitement-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-03"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_btp-qualification-leads-chantier
+    status: produit
+    last_touch_date: "2026-06-05"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: distribution_b2b-traitement-emails-commandes
+    status: produit
+    last_touch_date: "2026-06-06"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: distribution_b2b-relance-clients-inactifs
+    status: produit
+    last_touch_date: "2026-06-08"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_btp-qualification-devis-auto
+    status: produit
+    last_touch_date: "2026-06-16"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_btp-qualification-leads-btp
+    status: produit
+    last_touch_date: "2026-06-19"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_industrielles-qualification-devis-entrants
+    status: produit
+    last_touch_date: "2026-06-21"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement. Doublon probleme_slug avec le cas du 2026-06-29 (même secteur)."
+  - id: pme_btp-qualification-devis-entrants-2026-06-23
+    status: produit
+    last_touch_date: "2026-06-23"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement. Doublon exact du cas pme_btp-qualification-devis-entrants du 2026-06-01 — n'aurait jamais dû être produit."
+  - id: pme_btp-agent-qualification-leads
+    status: produit
+    last_touch_date: "2026-06-25"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_industrielles-relance-devis-industrie
+    status: produit
+    last_touch_date: "2026-06-26"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: distribution_b2b-relance-devis-commerciaux
+    status: produit
+    last_touch_date: "2026-06-27"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement."
+  - id: pme_industrielles-qualification-devis-entrants-2026-06-29
+    status: produit
+    last_touch_date: "2026-06-29"
+    prospects: []
+    notes: "Statut reconstruit rétroactivement. Doublon exact du cas pme_industrielles-qualification-devis-entrants du 2026-06-21. Dernier cas produit avant l'arrêt de 30 jours de la routine (aucune production entre le 2026-06-29 et le 2026-07-29)."
+  - id: pme_btp-qualification-routage-devis-entrants
+    status: produit
+    last_touch_date: "2026-08-03"
+    prospects: []
+    notes: "Pack vente + build complets. Aucun prospect sourcé (nom de contact LinkedIn) à date. Prochain run: sourcing prospect (3 entreprises identifiées dans gtm.md, contacts LinkedIn à trouver) avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch."
+# Schéma par cas:
+#  - id: "{secteur}-{cas}"
+#    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost
+#    last_touch_date: YYYY-MM-DD
+#    prospects:
+#      - entreprise: ...
+#        contact: ...
+#        linkedin: ...
+#        next_action: ...
+#    notes: ...

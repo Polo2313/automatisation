@@ -1,0 +1,17 @@
+{
+  "email_id": "msg-test-001",
+  "from": "marc.duponthomeowner@gmail.com",
+  "to": "devis@entreprise-btp.fr",
+  "subject": "Demande de devis rénovation salle de bain",
+  "date": "2026-06-03T09:14:22Z",
+  "text": "Bonjour,\n\nJe souhaiterais obtenir un devis pour la rénovation complète de ma salle de bain.\n\nDétails :\n- Surface : environ 8 m²\n- Localisation : Lyon 6e (69006)\n- Travaux souhaités : remplacement baignoire par douche italienne, nouveau carrelage sol et murs, remplacement vasque et robinetterie, mise aux normes électriques\n- Délai souhaité : travaux à réaliser avant fin août 2026 si possible\n- Budget indicatif : 12 000 - 16 000 €\n\nJe suis disponible pour une visite la semaine prochaine en fin de journée (après 18h).\n\nCordialement,\nMarc Dupont\n06 12 34 56 78",
+  "html": "<p>Bonjour,</p><p>Je souhaiterais obtenir un devis pour la rénovation complète de ma salle de bain...</p>",
+  "attachments": [
+    {
+      "filename": "plan_sdb.pdf",
+      "mimeType": "application/pdf",
+      "size": 142560,
+      "data": "BASE64_ENCODED_PDF_DATA_HERE"
+    }
+  ]
+}

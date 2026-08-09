@@ -1,0 +1,325 @@
+{
+  "name": "Vantyse — Relance clients inactifs B2B",
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "Schedule Trigger — Lundi 08h00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtDay": [1],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-2",
+      "name": "Supabase — Clients inactifs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/clients",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "select", "value": "*" },
+            { "name": "actif", "value": "eq.true" },
+            { "name": "derniere_commande_date", "value": "=lte.{{ new Date(Date.now() - parseInt($env.INACTIVITY_THRESHOLD) * 86400000).toISOString().split('T')[0] }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-3",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "node-4",
+      "name": "Supabase — Dernière relance ce client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/relances",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "client_id", "value": "=eq.{{ $json.id }}" },
+            { "name": "order", "value": "date_envoi.desc" },
+            { "name": "limit", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-5",
+      "name": "IF — Anti-spam 14j",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.length > 0 ? Math.floor((Date.now() - new Date($json[0].date_envoi).getTime()) / 86400000) : 999 }}",
+              "rightValue": "={{ parseInt($env.SPAM_GUARD_DAYS) }}",
+              "operator": { "type": "number", "operation": "gte" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-6",
+      "name": "NoOp — Skip client",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1120, 480],
+      "parameters": {}
+    },
+    {
+      "id": "node-7",
+      "name": "Supabase — Historique commandes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/commandes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "client_id", "value": "=eq.{{ $('Split In Batches').item.json.id }}" },
+            { "name": "order", "value": "date_commande.desc" },
+            { "name": "limit", "value": "3" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-8",
+      "name": "Set — Variables client",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1560, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "client_id", "value": "={{ $('Split In Batches').item.json.id }}", "type": "string" },
+            { "id": "a2", "name": "contact_prenom", "value": "={{ $('Split In Batches').item.json.contact_prenom }}", "type": "string" },
+            { "id": "a3", "name": "raison_sociale", "value": "={{ $('Split In Batches').item.json.raison_sociale }}", "type": "string" },
+            { "id": "a4", "name": "email", "value": "={{ $('Split In Batches').item.json.email }}", "type": "string" },
+            { "id": "a5", "name": "derniere_commande_date", "value": "={{ $('Split In Batches').item.json.derniere_commande_date }}", "type": "string" },
+            { "id": "a6", "name": "nb_jours_inactif", "value": "={{ Math.floor((Date.now() - new Date($('Split In Batches').item.json.derniere_commande_date).getTime()) / 86400000) }}", "type": "number" },
+            { "id": "a7", "name": "produit_favori_slug", "value": "={{ $('Split In Batches').item.json.produit_favori_slug ?? 'vos produits habituels' }}", "type": "string" },
+            { "id": "a8", "name": "montant_habituel_eur", "value": "={{ Math.round($json.reduce((sum, c) => sum + (c.montant_ht_eur || 0), 0) / Math.max($json.length, 1)) }}", "type": "number" },
+            { "id": "a9", "name": "type_relance", "value": "={{ $('Split In Batches').item.json.nb_jours_inactif > 120 ? 'inactif_120j' : $('Split In Batches').item.json.nb_jours_inactif > 90 ? 'inactif_90j' : 'inactif_60j' }}", "type": "string" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-9",
+      "name": "OpenAI — Email personnalisé",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.3,
+      "position": [1780, 300],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": { "__rl": true, "value": "gpt-4o-mini", "mode": "list" },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Tu es un assistant commercial. Écris un email de relance pour ce client B2B.\n\nClient : {{ $json.contact_prenom }} — {{ $json.raison_sociale }}\nDernière commande : {{ $json.derniere_commande_date }} (il y a {{ $json.nb_jours_inactif }} jours)\nProduit favori : {{ $json.produit_favori_slug }}\nMontant habituel : ~{{ $json.montant_habituel_eur }} € HT\n\nRègles :\n- Ton professionnel et chaleureux, 4-5 phrases max\n- Mentionner le produit favori naturellement\n- Proposer un appel ou une réponse rapide\n- Ne pas mentionner que c'est automatique\n- Terminer avec 'Cordialement, L'équipe commerciale'\n\nRetourne uniquement du JSON valide : {\"subject\": \"...\", \"body\": \"...\"}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 400
+        }
+      }
+    },
+    {
+      "id": "node-10",
+      "name": "Resend — Envoie email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.RESEND_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "from", "value": "={{ $env.FROM_EMAIL }}" },
+            { "name": "to", "value": "=[\"{{ $('Set — Variables client').item.json.email }}\"]" },
+            { "name": "subject", "value": "={{ JSON.parse($json.message.content).subject }}" },
+            { "name": "text", "value": "={{ JSON.parse($('OpenAI — Email personnalisé').item.json.message.content).body }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-11",
+      "name": "Supabase — Log relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/relances",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ client_id: $('Set — Variables client').item.json.client_id, date_envoi: new Date().toISOString(), type_relance: $('Set — Variables client').item.json.type_relance, sujet_email: JSON.parse($('OpenAI — Email personnalisé').item.json.message.content).subject, statut: 'envoyé' }) }}"
+      }
+    },
+    {
+      "id": "node-12",
+      "name": "Google Sheets — Append row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2440, 300],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": { "__rl": true, "value": "={{ $env.GOOGLE_SHEETS_ID }}", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Relances", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ new Date().toLocaleDateString('fr-FR') }}",
+            "Client ID": "={{ $('Set — Variables client').item.json.client_id }}",
+            "Raison sociale": "={{ $('Set — Variables client').item.json.raison_sociale }}",
+            "Email": "={{ $('Set — Variables client').item.json.email }}",
+            "Type relance": "={{ $('Set — Variables client').item.json.type_relance }}",
+            "Jours inactif": "={{ $('Set — Variables client').item.json.nb_jours_inactif }}",
+            "Statut": "Envoyé"
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger — Lundi 08h00": {
+      "main": [[{ "node": "Supabase — Clients inactifs", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Clients inactifs": {
+      "main": [[{ "node": "Split In Batches", "type": "main", "index": 0 }]]
+    },
+    "Split In Batches": {
+      "main": [[{ "node": "Supabase — Dernière relance ce client", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Dernière relance ce client": {
+      "main": [[{ "node": "IF — Anti-spam 14j", "type": "main", "index": 0 }]]
+    },
+    "IF — Anti-spam 14j": {
+      "main": [
+        [{ "node": "Supabase — Historique commandes", "type": "main", "index": 0 }],
+        [{ "node": "NoOp — Skip client", "type": "main", "index": 0 }]
+      ]
+    },
+    "Supabase — Historique commandes": {
+      "main": [[{ "node": "Set — Variables client", "type": "main", "index": 0 }]]
+    },
+    "Set — Variables client": {
+      "main": [[{ "node": "OpenAI — Email personnalisé", "type": "main", "index": 0 }]]
+    },
+    "OpenAI — Email personnalisé": {
+      "main": [[{ "node": "Resend — Envoie email", "type": "main", "index": 0 }]]
+    },
+    "Resend — Envoie email": {
+      "main": [[{ "node": "Supabase — Log relance", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Log relance": {
+      "main": [[{ "node": "Google Sheets — Append row", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "pinData": {},
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "vantyse-local"
+  },
+  "id": "vantyse-relance-clients-inactifs-v1",
+  "_note": "SMOKE TEST : Désactiver le Schedule Trigger, déclencher manuellement. Input attendu : 1 client inactif en Supabase avec email valide. Output attendu : 1 email reçu + 1 ligne dans table relances + 1 ligne dans Google Sheets. Vérifier JSON.parse du retour OpenAI avant mise en prod (gpt-4o-mini peut retourner du markdown — utiliser extractors si nécessaire)."
+}

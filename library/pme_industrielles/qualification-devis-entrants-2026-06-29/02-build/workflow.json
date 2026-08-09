@@ -1,0 +1,322 @@
+{
+  "_meta": {
+    "note": "Squelette importable n8n. À tester après import : remplacer les credentials par les vôtres, puis lancer le test de smoke documenté dans architecture.md.",
+    "n8n_version_min": "1.30.0",
+    "status": "squelette_testable"
+  },
+  "name": "Vantyse — Qualification devis entrants PME industrielle",
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "Gmail Watch Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "pollTimes": {
+          "item": [{ "mode": "everyMinutes", "value": 5 }]
+        },
+        "filters": {
+          "readStatus": "unread",
+          "labelIds": []
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": { "id": "REPLACE_ME", "name": "Gmail Devis" }
+      }
+    },
+    {
+      "id": "node-2",
+      "name": "Filtre Email Devis",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject.toLowerCase() + ' ' + $json.text.toLowerCase() }}",
+              "operation": "regex",
+              "value2": "devis|demande de prix|demande de tarif|cotation|offre de prix"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-3",
+      "name": "OpenAI Extraction Devis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [650, 200],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant qui extrait des informations structurées depuis des emails de demandes de devis B2B industriel. Réponds uniquement en JSON valide, sans markdown. Schéma attendu : {\"produit\": string, \"quantite\": number|null, \"unite\": string|null, \"delai_souhaite\": string|null, \"contact_nom\": string|null, \"contact_email\": string, \"contact_tel\": string|null, \"entreprise\": string|null, \"infos_manquantes\": [string], \"urgence_score\": number (1-10), \"langue\": string, \"resume\": string (max 50 mots)}"
+            },
+            {
+              "role": "user",
+              "content": "=Email de : {{ $json.from }}\nObjet : {{ $json.subject }}\nCorps :\n{{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 500
+        }
+      },
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_ME", "name": "OpenAI Vantyse" }
+      }
+    },
+    {
+      "id": "node-4",
+      "name": "Parse JSON Extraction",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [850, 200],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.message.content;\nlet extracted;\ntry {\n  extracted = JSON.parse(raw);\n} catch(e) {\n  extracted = { erreur: 'parse_failed', raw };\n}\nconst email = $('Gmail Watch Trigger').first().json;\nreturn [{ json: {\n  ...extracted,\n  email_from: email.from,\n  email_subject: email.subject,\n  email_date: email.date,\n  email_id: email.id,\n  hash_dedup: Buffer.from(email.from + email.subject + email.date.substring(0,10)).toString('base64').substring(0,32)\n}}];"
+      }
+    },
+    {
+      "id": "node-5",
+      "name": "Supabase Upsert Demande",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1050, 200],
+      "parameters": {
+        "operation": "upsert",
+        "tableId": "demandes_devis",
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "hash_dedup", "fieldValue": "={{ $json.hash_dedup }}" },
+            { "fieldId": "email_from", "fieldValue": "={{ $json.email_from }}" },
+            { "fieldId": "email_subject", "fieldValue": "={{ $json.email_subject }}" },
+            { "fieldId": "produit", "fieldValue": "={{ $json.produit }}" },
+            { "fieldId": "quantite", "fieldValue": "={{ $json.quantite }}" },
+            { "fieldId": "delai_souhaite", "fieldValue": "={{ $json.delai_souhaite }}" },
+            { "fieldId": "contact_nom", "fieldValue": "={{ $json.contact_nom }}" },
+            { "fieldId": "contact_tel", "fieldValue": "={{ $json.contact_tel }}" },
+            { "fieldId": "entreprise", "fieldValue": "={{ $json.entreprise }}" },
+            { "fieldId": "infos_manquantes", "fieldValue": "={{ JSON.stringify($json.infos_manquantes) }}" },
+            { "fieldId": "urgence_score", "fieldValue": "={{ $json.urgence_score }}" },
+            { "fieldId": "resume", "fieldValue": "={{ $json.resume }}" },
+            { "fieldId": "statut", "fieldValue": "en_cours" },
+            { "fieldId": "created_at", "fieldValue": "={{ new Date().toISOString() }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": { "id": "REPLACE_ME", "name": "Supabase Vantyse" }
+      }
+    },
+    {
+      "id": "node-6",
+      "name": "Condition Infos Complètes",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1250, 200],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.infos_manquantes ? $json.infos_manquantes.length : 0 }}",
+              "operation": "equal",
+              "value2": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-7a",
+      "name": "Resend Accusé Réception",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1450, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"from\": \"devis@client.fr\",\n  \"to\": [\"{{ $('Parse JSON Extraction').first().json.email_from }}\"],\n  \"subject\": \"Re : {{ $('Gmail Watch Trigger').first().json.subject }}\",\n  \"html\": \"<p>Bonjour {{ $('Parse JSON Extraction').first().json.contact_nom || '' }},</p><p>Nous avons bien reçu votre demande concernant : <strong>{{ $('Parse JSON Extraction').first().json.produit }}</strong>.</p><p>Notre équipe commerciale vous répondra dans les 4 heures ouvrées.</p><p>Cordialement,<br>L'équipe commerciale</p>\"\n}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "REPLACE_ME", "name": "Resend API" }
+      }
+    },
+    {
+      "id": "node-7b",
+      "name": "Supabase Update Complet",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1450, 200],
+      "parameters": {
+        "operation": "update",
+        "tableId": "demandes_devis",
+        "filterType": "string",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            { "keyName": "hash_dedup", "keyValue": "={{ $('Parse JSON Extraction').first().json.hash_dedup }}" }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "statut", "fieldValue": "recu-complet" },
+            { "fieldId": "accuse_envoye_at", "fieldValue": "={{ new Date().toISOString() }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": { "id": "REPLACE_ME", "name": "Supabase Vantyse" }
+      }
+    },
+    {
+      "id": "node-7c",
+      "name": "Notification Chargé Affaires",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1450, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"from\": \"notif@vantyse.fr\",\n  \"to\": [\"{{ $env.NOTIF_EMAIL }}\"],\n  \"subject\": \"[Devis] Nouvelle demande — {{ $('Parse JSON Extraction').first().json.produit }}\",\n  \"html\": \"<h2>Nouvelle demande de devis reçue</h2><ul><li><b>Produit :</b> {{ $('Parse JSON Extraction').first().json.produit }}</li><li><b>Quantité :</b> {{ $('Parse JSON Extraction').first().json.quantite }}</li><li><b>Délai :</b> {{ $('Parse JSON Extraction').first().json.delai_souhaite }}</li><li><b>Contact :</b> {{ $('Parse JSON Extraction').first().json.contact_nom }} — {{ $('Parse JSON Extraction').first().json.contact_tel }}</li><li><b>Entreprise :</b> {{ $('Parse JSON Extraction').first().json.entreprise }}</li><li><b>Urgence :</b> {{ $('Parse JSON Extraction').first().json.urgence_score }}/10</li></ul><p><i>{{ $('Parse JSON Extraction').first().json.resume }}</i></p>\"\n}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "REPLACE_ME", "name": "Resend API" }
+      }
+    },
+    {
+      "id": "node-8a",
+      "name": "OpenAI Génère Email Info Manquante",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1450, 450],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu rédiges un email professionnel court (max 80 mots) pour demander les informations manquantes à un prospect B2B industriel. Ton sobre et direct. Signe 'L'équipe commerciale'."
+            },
+            {
+              "role": "user",
+              "content": "=Informations manquantes : {{ $('Parse JSON Extraction').first().json.infos_manquantes.join(', ') }}\nProduit mentionné : {{ $('Parse JSON Extraction').first().json.produit }}\nContact : {{ $('Parse JSON Extraction').first().json.contact_nom || 'Madame, Monsieur' }}"
+            }
+          ]
+        },
+        "options": { "temperature": 0.3, "maxTokens": 200 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_ME", "name": "OpenAI Vantyse" }
+      }
+    },
+    {
+      "id": "node-8b",
+      "name": "Resend Email Info Manquante",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1650, 450],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"from\": \"devis@client.fr\",\n  \"to\": [\"{{ $('Parse JSON Extraction').first().json.email_from }}\"],\n  \"subject\": \"Re : {{ $('Gmail Watch Trigger').first().json.subject }}\",\n  \"html\": \"{{ $json.message.content.replace(/\\n/g, '<br>') }}\"\n}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "REPLACE_ME", "name": "Resend API" }
+      }
+    },
+    {
+      "id": "node-8c",
+      "name": "Supabase Update Info Manquante",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1650, 550],
+      "parameters": {
+        "operation": "update",
+        "tableId": "demandes_devis",
+        "filterType": "string",
+        "filters": {
+          "conditions": [
+            { "keyName": "hash_dedup", "keyValue": "={{ $('Parse JSON Extraction').first().json.hash_dedup }}" }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "statut", "fieldValue": "info-manquante" }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": { "id": "REPLACE_ME", "name": "Supabase Vantyse" }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Watch Trigger": {
+      "main": [[{ "node": "Filtre Email Devis", "type": "main", "index": 0 }]]
+    },
+    "Filtre Email Devis": {
+      "main": [
+        [{ "node": "OpenAI Extraction Devis", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "OpenAI Extraction Devis": {
+      "main": [[{ "node": "Parse JSON Extraction", "type": "main", "index": 0 }]]
+    },
+    "Parse JSON Extraction": {
+      "main": [[{ "node": "Supabase Upsert Demande", "type": "main", "index": 0 }]]
+    },
+    "Supabase Upsert Demande": {
+      "main": [[{ "node": "Condition Infos Complètes", "type": "main", "index": 0 }]]
+    },
+    "Condition Infos Complètes": {
+      "main": [
+        [
+          { "node": "Resend Accusé Réception", "type": "main", "index": 0 },
+          { "node": "Supabase Update Complet", "type": "main", "index": 0 },
+          { "node": "Notification Chargé Affaires", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "OpenAI Génère Email Info Manquante", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI Génère Email Info Manquante": {
+      "main": [[
+        { "node": "Resend Email Info Manquante", "type": "main", "index": 0 },
+        { "node": "Supabase Update Info Manquante", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

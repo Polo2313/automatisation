@@ -1,0 +1,310 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. Remplacer toutes les valeurs {{PLACEHOLDER}} par vos credentials réels avant import. Tester avec mock-data/input-sample.json.",
+    "version": "1.0",
+    "n8n_version_min": "1.30.0",
+    "smoke_test": "Envoyer 5 emails depuis mock-data/input-sample.json et vérifier output attendu dans mock-data/output-sample.json"
+  },
+  "name": "Vantyse - Qualification Devis BTP",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [{ "mode": "everyMinute", "minute": 5 }]
+        },
+        "filters": {
+          "readStatus": "unread",
+          "labelIds": ["INBOX"]
+        },
+        "downloadAttachments": false,
+        "options": {}
+      },
+      "id": "node-1-gmail-trigger",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "gmailOAuth2": { "id": "{{GMAIL_CREDENTIAL_ID}}", "name": "Gmail OAuth2" }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.from }}",
+              "operation": "doesNotContain",
+              "value2": "noreply"
+            },
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "node-2-antispam-filter",
+      "name": "Anti-spam Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "prompt",
+              "value": "=Tu es un assistant de qualification pour une PME BTP française.\nAnalyse l'email suivant et extrais les informations sous forme JSON.\n\nEmail :\n---\nDe : {{ $json.from }}\nObjet : {{ $json.subject }}\nCorps : {{ $json.text }}\n---\n\nRetourne UNIQUEMENT ce JSON (sans markdown, sans commentaire) :\n{\n  \"nom_prospect\": \"string ou null\",\n  \"email\": \"string\",\n  \"telephone\": \"string ou null\",\n  \"adresse_chantier\": \"string ou null\",\n  \"code_postal\": \"string ou null\",\n  \"type_travaux\": \"string ou null\",\n  \"surface_m2\": \"number ou null\",\n  \"budget_indique_eur\": \"number ou null\",\n  \"urgence\": \"moins_de_2_semaines | 1_a_3_mois | non_precise\",\n  \"langue\": \"fr | autre\",\n  \"qualification\": \"A | B | hors_perimetre | spam\",\n  \"motif_hors_perimetre\": \"string ou null\"\n}\n\nRègles : A = travaux dans périmètre + budget OU surface renseignés + urgence connue. B = périmètre OK mais infos incomplètes. hors_perimetre = travaux clairement hors activité. spam = pub/démarchage."
+            }
+          ]
+        }
+      },
+      "id": "node-3-format-prompt",
+      "name": "Format Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [680, 240]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokens": 600
+        }
+      },
+      "id": "node-4-openai",
+      "name": "OpenAI Extract",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [900, 240],
+      "credentials": {
+        "openAiApi": { "id": "{{OPENAI_CREDENTIAL_ID}}", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.message.content;\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch(e) {\n  const match = raw.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    parsed = JSON.parse(match[0]);\n  } else {\n    throw new Error('OpenAI output not parseable: ' + raw);\n  }\n}\n\nconst leadId = `BTP-${new Date().toISOString().slice(0,10)}-${Math.random().toString(36).substr(2,4).toUpperCase()}`;\nconst originalEmail = $('Gmail Trigger').first().json;\n\nreturn [{\n  json: {\n    ...parsed,\n    lead_id: leadId,\n    email_original_from: originalEmail.from,\n    email_original_subject: originalEmail.subject,\n    email_original_date: originalEmail.date,\n    processed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-5-parse-validate",
+      "name": "Parse & Validate JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 240]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value": "A",
+              "output": 0
+            },
+            {
+              "value": "B",
+              "output": 1
+            },
+            {
+              "value": "hors_perimetre",
+              "output": 2
+            },
+            {
+              "value": "spam",
+              "output": 3
+            }
+          ]
+        },
+        "value": "={{ $json.qualification }}"
+      },
+      "id": "node-6-router",
+      "name": "Router Qualification",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1340, 240]
+    },
+    {
+      "parameters": {
+        "application": "{{AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "nom_prospect": "={{ $json.nom_prospect }}",
+            "email": "={{ $json.email }}",
+            "telephone": "={{ $json.telephone }}",
+            "adresse_chantier": "={{ $json.adresse_chantier }}",
+            "code_postal": "={{ $json.code_postal }}",
+            "type_travaux": "={{ $json.type_travaux }}",
+            "surface_m2": "={{ $json.surface_m2 }}",
+            "budget_indique_eur": "={{ $json.budget_indique_eur }}",
+            "urgence": "={{ $json.urgence }}",
+            "qualification": "={{ $json.qualification }}",
+            "source_email": "={{ $json.email_original_from }}",
+            "date_reception": "={{ $json.email_original_date }}",
+            "statut": "Nouveau"
+          }
+        }
+      },
+      "id": "node-7a-airtable-lead-a",
+      "name": "Airtable - Lead A",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1560, 100],
+      "credentials": {
+        "airtableTokenApi": { "id": "{{AIRTABLE_CREDENTIAL_ID}}", "name": "Airtable" }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "devis@{{DOMAIN_CLIENT}}",
+        "toEmail": "={{ $('Parse & Validate JSON').first().json.email }}",
+        "subject": "Votre demande de devis — nous l'avons bien reçue",
+        "emailType": "text",
+        "message": "=Bonjour {{ $('Parse & Validate JSON').first().json.nom_prospect ?? '' }},\n\nNous avons bien reçu votre demande concernant : {{ $('Parse & Validate JSON').first().json.type_travaux ?? 'vos travaux' }}.\n\nNotre équipe l'examine et vous contacte dans les meilleurs délais pour convenir d'un rendez-vous de chiffrage.\n\nBien cordialement,\nL'équipe {{NOM_ENTREPRISE_CLIENT}}\n{{TELEPHONE_ENTREPRISE_CLIENT}}"
+      },
+      "id": "node-8a-resend-lead-a",
+      "name": "Accusé Réception - Lead A",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1780, 60],
+      "credentials": {
+        "smtp": { "id": "{{SMTP_CREDENTIAL_ID}}", "name": "SMTP / Resend" }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "devis@{{DOMAIN_CLIENT}}",
+        "toEmail": "={{GERANT_EMAIL}}",
+        "subject": "=🔔 Nouveau lead A — {{ $('Parse & Validate JSON').first().json.type_travaux }}",
+        "emailType": "html",
+        "message": "=<b>Nouveau lead qualifié A</b><br><br><b>Prospect :</b> {{ $('Parse & Validate JSON').first().json.nom_prospect }}<br><b>Email :</b> {{ $('Parse & Validate JSON').first().json.email }}<br><b>Tél :</b> {{ $('Parse & Validate JSON').first().json.telephone ?? 'Non renseigné' }}<br><b>Travaux :</b> {{ $('Parse & Validate JSON').first().json.type_travaux }}<br><b>Zone :</b> {{ $('Parse & Validate JSON').first().json.adresse_chantier }} ({{ $('Parse & Validate JSON').first().json.code_postal }})<br><b>Budget :</b> {{ $('Parse & Validate JSON').first().json.budget_indique_eur ? $('Parse & Validate JSON').first().json.budget_indique_eur + ' €' : 'Non indiqué' }}<br><b>Urgence :</b> {{ $('Parse & Validate JSON').first().json.urgence }}<br><br><a href='https://airtable.com/{{AIRTABLE_BASE_ID}}'>Voir dans Airtable →</a>"
+      },
+      "id": "node-9a-notif-gerant-a",
+      "name": "Notification Gérant - Lead A",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1780, 180],
+      "credentials": {
+        "smtp": { "id": "{{SMTP_CREDENTIAL_ID}}", "name": "SMTP / Resend" }
+      }
+    },
+    {
+      "parameters": {
+        "application": "{{AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "nom_prospect": "={{ $json.nom_prospect }}",
+            "email": "={{ $json.email }}",
+            "type_travaux": "={{ $json.type_travaux }}",
+            "qualification": "B",
+            "flag_revue_requise": true,
+            "statut": "À valider",
+            "source_email": "={{ $json.email_original_from }}"
+          }
+        }
+      },
+      "id": "node-7b-airtable-lead-b",
+      "name": "Airtable - Lead B",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "credentials": {
+        "airtableTokenApi": { "id": "{{AIRTABLE_CREDENTIAL_ID}}", "name": "Airtable" }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "devis@{{DOMAIN_CLIENT}}",
+        "toEmail": "={{ $('Parse & Validate JSON').first().json.email }}",
+        "subject": "Votre demande reçue — nous revenons vers vous",
+        "emailType": "text",
+        "message": "=Bonjour,\n\nNous avons bien reçu votre message. Pour préparer votre chiffrage, un membre de notre équipe vous contacte prochainement afin de préciser votre besoin.\n\nBien cordialement,\nL'équipe {{NOM_ENTREPRISE_CLIENT}}\n{{TELEPHONE_ENTREPRISE_CLIENT}}"
+      },
+      "id": "node-8b-resend-lead-b",
+      "name": "Accusé Réception - Lead B",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1780, 300],
+      "credentials": {
+        "smtp": { "id": "{{SMTP_CREDENTIAL_ID}}", "name": "SMTP / Resend" }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "devis@{{DOMAIN_CLIENT}}",
+        "toEmail": "={{ $('Parse & Validate JSON').first().json.email }}",
+        "subject": "Votre demande — hors de notre périmètre d'activité",
+        "emailType": "text",
+        "message": "=Bonjour,\n\nMerci pour votre message. Après lecture, votre demande ne correspond pas à notre domaine d'activité principal ({{ $('Parse & Validate JSON').first().json.motif_hors_perimetre ?? 'hors périmètre' }}).\n\nNous ne pouvons pas vous proposer un devis, mais vous souhaitons bonne continuation dans vos recherches.\n\nBien cordialement,\nL'équipe {{NOM_ENTREPRISE_CLIENT}}"
+      },
+      "id": "node-7c-declin",
+      "name": "Email Déclin - Hors périmètre",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1560, 500],
+      "credentials": {
+        "smtp": { "id": "{{SMTP_CREDENTIAL_ID}}", "name": "SMTP / Resend" }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [[ { "node": "Anti-spam Filter", "type": "main", "index": 0 } ]]
+    },
+    "Anti-spam Filter": {
+      "main": [
+        [ { "node": "Format Prompt", "type": "main", "index": 0 } ],
+        []
+      ]
+    },
+    "Format Prompt": {
+      "main": [[ { "node": "OpenAI Extract", "type": "main", "index": 0 } ]]
+    },
+    "OpenAI Extract": {
+      "main": [[ { "node": "Parse & Validate JSON", "type": "main", "index": 0 } ]]
+    },
+    "Parse & Validate JSON": {
+      "main": [[ { "node": "Router Qualification", "type": "main", "index": 0 } ]]
+    },
+    "Router Qualification": {
+      "main": [
+        [ { "node": "Airtable - Lead A", "type": "main", "index": 0 } ],
+        [ { "node": "Airtable - Lead B", "type": "main", "index": 0 } ],
+        [ { "node": "Email Déclin - Hors périmètre", "type": "main", "index": 0 } ],
+        []
+      ]
+    },
+    "Airtable - Lead A": {
+      "main": [[
+        { "node": "Accusé Réception - Lead A", "type": "main", "index": 0 },
+        { "node": "Notification Gérant - Lead A", "type": "main", "index": 0 }
+      ]]
+    },
+    "Airtable - Lead B": {
+      "main": [[ { "node": "Accusé Réception - Lead B", "type": "main", "index": 0 } ]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "tags": ["vantyse", "btp", "qualification-leads", "automation-ia"]
+}

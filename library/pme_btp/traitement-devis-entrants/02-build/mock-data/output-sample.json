@@ -1,0 +1,53 @@
+{
+  "extraction_ia": {
+    "type_travaux": "rénovation complète salle de bain — douche italienne, carrelage, vasque, robinetterie, électricité",
+    "adresse": "Lyon 6e (69006)",
+    "surface_m2": 8,
+    "delai_souhaite": "avant fin août 2026",
+    "budget_indication": "12 000 - 16 000 €",
+    "nom_prospect": "Marc Dupont",
+    "email_prospect": "marc.duponthomeowner@gmail.com",
+    "telephone_prospect": "06 12 34 56 78",
+    "type_client": "particulier",
+    "infos_complementaires": "Disponible pour visite semaine prochaine en fin de journée après 18h"
+  },
+  "scoring": {
+    "categorie_travaux": "second_oeuvre",
+    "score_complexite": 1,
+    "commercial_assigne": "commercial_1"
+  },
+  "airtable_record": {
+    "id": "recXXXXXXXXXXXXXX",
+    "fields": {
+      "Nom prospect": "Marc Dupont",
+      "Email": "marc.duponthomeowner@gmail.com",
+      "Téléphone": "06 12 34 56 78",
+      "Type travaux": "rénovation complète salle de bain — douche italienne, carrelage, vasque, robinetterie, électricité",
+      "Catégorie": "second_oeuvre",
+      "Adresse chantier": "Lyon 6e (69006)",
+      "Surface (m²)": 8,
+      "Délai souhaité": "avant fin août 2026",
+      "Budget indication": "12 000 - 16 000 €",
+      "Score complexité": 1,
+      "Commercial assigné": "commercial_1",
+      "Statut": "Nouveau",
+      "Date réception": "2026-06-03T09:14:22Z",
+      "Infos complémentaires": "Disponible pour visite semaine prochaine en fin de journée après 18h"
+    }
+  },
+  "email_notification": {
+    "to": "commercial@entreprise-btp.fr",
+    "subject": "🔔 Nouveau devis [Score 1] — rénovation complète salle de bain — douche italienne, carrelage, vasque, robinetterie, électricité",
+    "sent_at": "2026-06-03T09:15:04Z"
+  },
+  "supabase_log": {
+    "id": 1247,
+    "date_reception": "2026-06-03T09:14:22Z",
+    "date_traitement": "2026-06-03T09:15:04Z",
+    "email_origine": "marc.duponthomeowner@gmail.com",
+    "type_travaux": "rénovation complète salle de bain — douche italienne, carrelage, vasque, robinetterie, électricité",
+    "score_complexite": 1,
+    "statut": "traite",
+    "duree_traitement_secondes": 42
+  }
+}

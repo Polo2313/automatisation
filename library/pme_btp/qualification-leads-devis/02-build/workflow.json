@@ -1,0 +1,294 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. Remplacer toutes les valeurs PLACEHOLDER_ par les credentials réels avant test. Smoke test documenté dans architecture.md.",
+    "version": "1.0",
+    "n8n_min_version": "1.0.0",
+    "cas": "pme_btp/qualification-leads-devis"
+  },
+  "name": "Vantyse — Qualification Leads Devis BTP",
+  "nodes": [
+    {
+      "id": "node_01_gmail_trigger",
+      "name": "Gmail Watch — Nouveaux e-mails",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [100, 200],
+      "parameters": {
+        "filters": {
+          "labelIds": ["INBOX"],
+          "q": "-from:me"
+        },
+        "pollTimes": {
+          "item": [{ "mode": "everyMinute" }]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": "PLACEHOLDER_GMAIL_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_02_whatsapp_webhook",
+      "name": "WhatsApp Webhook — Messages entrants",
+      "type": "n8n-nodes-base.webhook",
+      "position": [100, 350],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wa-inbound-btp",
+        "responseMode": "onReceived",
+        "responseData": "{ \"status\": \"ok\" }"
+      }
+    },
+    {
+      "id": "node_03_router_source",
+      "name": "Router — Source du message",
+      "type": "n8n-nodes-base.switch",
+      "position": [300, 275],
+      "parameters": {
+        "mode": "expression",
+        "output": "={{ $json.source === 'gmail' ? 0 : 1 }}"
+      }
+    },
+    {
+      "id": "node_04_normalize_gmail",
+      "name": "Normalisation Gmail → JSON unifié",
+      "type": "n8n-nodes-base.set",
+      "position": [480, 200],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "source", "value": "gmail" },
+            { "name": "expediteur", "value": "={{ $json.from }}" },
+            { "name": "email", "value": "={{ $json.from }}" },
+            { "name": "tel", "value": "" },
+            { "name": "message_brut", "value": "={{ $json.snippet + ' ' + $json.body }}" },
+            { "name": "sujet", "value": "={{ $json.subject }}" },
+            { "name": "timestamp", "value": "={{ $now }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node_05_normalize_whatsapp",
+      "name": "Normalisation WhatsApp → JSON unifié",
+      "type": "n8n-nodes-base.set",
+      "position": [480, 350],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "source", "value": "whatsapp" },
+            { "name": "expediteur", "value": "={{ $json.entry[0].changes[0].value.messages[0].from }}" },
+            { "name": "tel", "value": "={{ $json.entry[0].changes[0].value.messages[0].from }}" },
+            { "name": "email", "value": "" },
+            { "name": "message_brut", "value": "={{ $json.entry[0].changes[0].value.messages[0].text.body }}" },
+            { "name": "sujet", "value": "Demande WhatsApp" },
+            { "name": "timestamp", "value": "={{ $now }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node_06_merge",
+      "name": "Merge — Réunir les sources",
+      "type": "n8n-nodes-base.merge",
+      "position": [660, 275],
+      "parameters": {
+        "mode": "passThrough"
+      }
+    },
+    {
+      "id": "node_07_llm_qualification",
+      "name": "Claude Haiku — Qualification + Scoring",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [840, 275],
+      "parameters": {
+        "model": "claude-haiku-4-5-20251001",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "Tu es un assistant de qualification commerciale pour une PME BTP. Analyse ce message entrant et réponds UNIQUEMENT en JSON valide avec les champs suivants:\n- type_travaux: string (ex: couverture, plomberie, maçonnerie, isolation, peinture, électricité, autre)\n- localisation: string (ville ou département mentionné, sinon 'non précisé')\n- urgence: string (urgent/normal/indéterminé)\n- budget_estime: string (montant mentionné ou 'non précisé')\n- coordonnees_trouvees: boolean (true si tel ou email trouvé dans le message)\n- score_lead: integer (0 à 10, 10=très qualifié: travaux précis + localisation + coordonnées + budget)\n- resume_50mots: string (résumé neutre du besoin en moins de 50 mots)\n\nMessage: {{ $json.message_brut }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 400,
+          "timeout": 10000
+        }
+      },
+      "credentials": {
+        "anthropicApi": "PLACEHOLDER_ANTHROPIC_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_08_parse_llm",
+      "name": "Parse JSON LLM",
+      "type": "n8n-nodes-base.code",
+      "position": [1020, 275],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text || $input.first().json.content;\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: { ...($input.first().json), ...parsed } }];\n} catch(e) {\n  return [{ json: { ...($input.first().json), score_lead: 3, type_travaux: 'indéterminé', resume_50mots: 'Parsing erreur — vérifier manuellement', parse_error: true } }];\n}"
+      }
+    },
+    {
+      "id": "node_09_router_score",
+      "name": "Router Score — Chaud / Tiède / Froid",
+      "type": "n8n-nodes-base.switch",
+      "position": [1200, 275],
+      "parameters": {
+        "mode": "rules",
+        "rules": [
+          { "conditions": { "number": [{ "value1": "={{ $json.score_lead }}", "operation": "gte", "value2": 7 }] }, "output": 0 },
+          { "conditions": { "number": [{ "value1": "={{ $json.score_lead }}", "operation": "gte", "value2": 4 }] }, "output": 1 }
+        ],
+        "fallbackOutput": 2
+      }
+    },
+    {
+      "id": "node_10_alert_gerant",
+      "name": "Alerte Gérant — SMS + Email (lead chaud)",
+      "type": "n8n-nodes-base.twilio",
+      "position": [1380, 150],
+      "parameters": {
+        "from": "PLACEHOLDER_TWILIO_FROM",
+        "to": "={{ $vars.GERANT_PHONE }}",
+        "message": "🔥 Lead BTP CHAUD (score {{ $json.score_lead }}/10)\n{{ $json.type_travaux }} — {{ $json.localisation }}\nUrgence: {{ $json.urgence }}\nContact: {{ $json.expediteur }}\nRésumé: {{ $json.resume_50mots }}"
+      },
+      "credentials": {
+        "twilioApi": "PLACEHOLDER_TWILIO_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_11_airtable_create",
+      "name": "Airtable — Créer record lead",
+      "type": "n8n-nodes-base.airtable",
+      "position": [1380, 275],
+      "parameters": {
+        "operation": "create",
+        "baseId": "PLACEHOLDER_AIRTABLE_BASE_ID",
+        "tableId": "PLACEHOLDER_AIRTABLE_TABLE_LEADS",
+        "fields": {
+          "Source": "={{ $json.source }}",
+          "Expéditeur": "={{ $json.expediteur }}",
+          "Email": "={{ $json.email }}",
+          "Téléphone": "={{ $json.tel }}",
+          "Type travaux": "={{ $json.type_travaux }}",
+          "Localisation": "={{ $json.localisation }}",
+          "Urgence": "={{ $json.urgence }}",
+          "Budget estimé": "={{ $json.budget_estime }}",
+          "Score": "={{ $json.score_lead }}",
+          "Statut": "Nouveau",
+          "Résumé": "={{ $json.resume_50mots }}",
+          "Date entrée": "={{ $now }}",
+          "Message brut": "={{ $json.message_brut }}"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": "PLACEHOLDER_AIRTABLE_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_12_accuse_reception",
+      "name": "Accusé réception — Prospect",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1560, 275],
+      "parameters": {
+        "operation": "send",
+        "toList": "={{ $json.email || '' }}",
+        "subject": "Votre demande de devis — confirmation de réception",
+        "message": "Bonjour,\n\nNous avons bien reçu votre demande concernant : {{ $json.type_travaux }}.\n\nNous vous recontactons sous 24 heures ouvrées pour convenir d'un rendez-vous ou vous adresser notre devis.\n\nVos coordonnées sont conservées dans notre système de suivi afin de traiter votre demande (RGPD — données supprimées sur simple demande).\n\nCordialement,\nL'équipe [Nom entreprise]\n[Téléphone]"
+      },
+      "credentials": {
+        "gmailOAuth2": "PLACEHOLDER_GMAIL_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_13_wait_48h",
+      "name": "Attente 48h — Relance si pas de réponse",
+      "type": "n8n-nodes-base.wait",
+      "position": [1740, 275],
+      "parameters": {
+        "resume": "timeInterval",
+        "unit": "hours",
+        "value": 48
+      }
+    },
+    {
+      "id": "node_14_check_statut",
+      "name": "Airtable — Vérifier statut lead",
+      "type": "n8n-nodes-base.airtable",
+      "position": [1920, 275],
+      "parameters": {
+        "operation": "search",
+        "baseId": "PLACEHOLDER_AIRTABLE_BASE_ID",
+        "tableId": "PLACEHOLDER_AIRTABLE_TABLE_LEADS",
+        "filterByFormula": "AND({Expéditeur}='{{ $json.expediteur }}', {Statut}='Nouveau')"
+      },
+      "credentials": {
+        "airtableTokenApi": "PLACEHOLDER_AIRTABLE_CREDENTIAL"
+      }
+    },
+    {
+      "id": "node_15_conditional_relance",
+      "name": "Toujours 'Nouveau' → Relancer",
+      "type": "n8n-nodes-base.if",
+      "position": [2100, 275],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.records?.length > 0 ? $json.records[0].fields?.Statut : 'traité' }}", "operation": "equal", "value2": "Nouveau" }]
+        }
+      }
+    },
+    {
+      "id": "node_16_relance_j2",
+      "name": "Relance J+2 — Prospect",
+      "type": "n8n-nodes-base.gmail",
+      "position": [2280, 200],
+      "parameters": {
+        "operation": "send",
+        "toList": "={{ $json.email || '' }}",
+        "subject": "Suite de votre demande de devis",
+        "message": "Bonjour,\n\nNous vous avions confirmé la réception de votre demande il y a 48 heures. Nous souhaitons nous assurer que nous ne vous avons pas manqué.\n\nSeriez-vous disponible pour un appel de 10 minutes cette semaine ?\n\n[Nom], [Entreprise]\n[Téléphone]"
+      },
+      "credentials": {
+        "gmailOAuth2": "PLACEHOLDER_GMAIL_CREDENTIAL"
+      }
+    }
+  ],
+  "connections": {
+    "node_01_gmail_trigger": { "main": [[{ "node": "node_03_router_source", "type": "main", "index": 0 }]] },
+    "node_02_whatsapp_webhook": { "main": [[{ "node": "node_03_router_source", "type": "main", "index": 0 }]] },
+    "node_03_router_source": {
+      "main": [
+        [{ "node": "node_04_normalize_gmail", "type": "main", "index": 0 }],
+        [{ "node": "node_05_normalize_whatsapp", "type": "main", "index": 0 }]
+      ]
+    },
+    "node_04_normalize_gmail": { "main": [[{ "node": "node_06_merge", "type": "main", "index": 0 }]] },
+    "node_05_normalize_whatsapp": { "main": [[{ "node": "node_06_merge", "type": "main", "index": 1 }]] },
+    "node_06_merge": { "main": [[{ "node": "node_07_llm_qualification", "type": "main", "index": 0 }]] },
+    "node_07_llm_qualification": { "main": [[{ "node": "node_08_parse_llm", "type": "main", "index": 0 }]] },
+    "node_08_parse_llm": { "main": [[{ "node": "node_09_router_score", "type": "main", "index": 0 }]] },
+    "node_09_router_score": {
+      "main": [
+        [{ "node": "node_10_alert_gerant", "type": "main", "index": 0 }],
+        [{ "node": "node_11_airtable_create", "type": "main", "index": 0 }],
+        [{ "node": "node_11_airtable_create", "type": "main", "index": 0 }]
+      ]
+    },
+    "node_10_alert_gerant": { "main": [[{ "node": "node_11_airtable_create", "type": "main", "index": 0 }]] },
+    "node_11_airtable_create": { "main": [[{ "node": "node_12_accuse_reception", "type": "main", "index": 0 }]] },
+    "node_12_accuse_reception": { "main": [[{ "node": "node_13_wait_48h", "type": "main", "index": 0 }]] },
+    "node_13_wait_48h": { "main": [[{ "node": "node_14_check_statut", "type": "main", "index": 0 }]] },
+    "node_14_check_statut": { "main": [[{ "node": "node_15_conditional_relance", "type": "main", "index": 0 }]] },
+    "node_15_conditional_relance": {
+      "main": [
+        [{ "node": "node_16_relance_j2", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  }
+}

@@ -1,0 +1,474 @@
+{
+  "_meta": {
+    "note": "Workflow n8n importable. Tester avec le smoke test documenté dans architecture.md avant mise en production. Remplacer toutes les valeurs {{PLACEHOLDER}} par les credentials réels dans les settings n8n.",
+    "version": "1.0",
+    "created": "2026-06-19",
+    "cas": "qualification-leads-btp"
+  },
+  "name": "BTP — Qualification Leads Entrants v1",
+  "nodes": [
+    {
+      "id": "node-gmail-trigger",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "credentials": {
+        "gmailOAuth2": {"id": "{{GMAIL_CREDENTIAL_ID}}", "name": "Gmail BTP Client"}
+      },
+      "parameters": {
+        "pollTimes": {
+          "item": [{"mode": "everyMinute", "value": 5}]
+        },
+        "filters": {
+          "labelIds": ["INBOX"],
+          "readStatus": "unread"
+        },
+        "options": {"dataPropertyAttachmentsPrefixName": "attachment_"}
+      }
+    },
+    {
+      "id": "node-webhook-tally",
+      "name": "Webhook Tally Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 480],
+      "parameters": {
+        "path": "lead-btp-tally",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "httpMethod": "POST"
+      },
+      "webhookId": "lead-btp-tally"
+    },
+    {
+      "id": "node-normalize",
+      "name": "Normaliser données lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [440, 390],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "fields": {
+          "values": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "={{ $json.from ? 'gmail' : 'tally' }}"
+            },
+            {
+              "name": "raw_content",
+              "type": "string",
+              "value": "={{ $json.snippet || ($json.data?.fields ? JSON.stringify($json.data.fields) : JSON.stringify($json)) }}"
+            },
+            {
+              "name": "sender_email",
+              "type": "string",
+              "value": "={{ $json.from?.value?.[0]?.address || $json.data?.respondent?.email || '' }}"
+            },
+            {
+              "name": "sender_name",
+              "type": "string",
+              "value": "={{ $json.from?.value?.[0]?.name || $json.data?.respondent?.name || 'Inconnu' }}"
+            },
+            {
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-dedup",
+      "name": "Vérif doublon Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [660, 390],
+      "credentials": {
+        "airtableTokenApi": {"id": "{{AIRTABLE_CREDENTIAL_ID}}", "name": "Airtable BTP"}
+      },
+      "parameters": {
+        "operation": "search",
+        "base": {"__rl": true, "value": "={{$env.AIRTABLE_BASE_ID}}", "mode": "id"},
+        "table": {"__rl": true, "value": "Leads", "mode": "name"},
+        "filterByFormula": "AND({Email}='{{ $json.sender_email }}', DATETIME_DIFF(NOW(), {Received_At}, 'hours') < 24)",
+        "options": {"fields": ["Email", "Received_At"]}
+      }
+    },
+    {
+      "id": "node-if-dedup",
+      "name": "Est doublon ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, 390],
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": false, "leftValue": "", "typeValidation": "strict"},
+          "conditions": [
+            {
+              "id": "check-dedup",
+              "leftValue": "={{ $json.records?.length || 0 }}",
+              "rightValue": 0,
+              "operator": {"type": "number", "operation": "gt"}
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-openai",
+      "name": "OpenAI — Extract & Score",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1100, 300],
+      "credentials": {
+        "openAiApi": {"id": "{{OPENAI_CREDENTIAL_ID}}", "name": "OpenAI Vantyse"}
+      },
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant de qualification commerciale pour une PME BTP française. Analyse la demande entrante et retourne UNIQUEMENT un objet JSON valide avec ces champs : {\"projet_type\": \"renovation|construction|extension|depannage|entretien|autre\", \"surface_m2\": null_ou_integer, \"budget_estime\": \"low_moins15k|medium_15k_50k|high_plus50k|unknown\", \"zone_geo\": \"ville ou département\", \"urgence\": \"immediate_moins1mois|normal_1_3mois|planifie_plus3mois|unknown\", \"score\": \"CHAUD|TIEDE|FROID\", \"resume_une_ligne\": \"texte\"}. Règles de scoring : CHAUD = (budget medium ou high) ET (urgence immediate ou normal). TIEDE = budget unknown ET urgence connue, OU budget low ET urgence immediate. FROID = infos insuffisantes pour évaluer, ou budget low sans urgence. Ne retourne que le JSON, aucun texte avant ou après."
+            },
+            {
+              "role": "user",
+              "content": "Demande reçue de {{ $json.sender_name }} ({{ $json.sender_email }}) via {{ $json.source }} :\n\n{{ $json.raw_content }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokens": 300,
+          "responseFormat": "json_object"
+        }
+      }
+    },
+    {
+      "id": "node-parse-ai",
+      "name": "Parser réponse IA",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1320, 300],
+      "parameters": {
+        "mode": "manual",
+        "fields": {
+          "values": [
+            {
+              "name": "qualification",
+              "type": "object",
+              "value": "={{ JSON.parse($json.message?.content || $json.choices?.[0]?.message?.content || '{}') }}"
+            },
+            {
+              "name": "score",
+              "type": "string",
+              "value": "={{ JSON.parse($json.message?.content || $json.choices?.[0]?.message?.content || '{\"score\":\"FROID\"}').score }}"
+            },
+            {
+              "name": "sender_email",
+              "type": "string",
+              "value": "={{ $('Normaliser données lead').item.json.sender_email }}"
+            },
+            {
+              "name": "sender_name",
+              "type": "string",
+              "value": "={{ $('Normaliser données lead').item.json.sender_name }}"
+            },
+            {
+              "name": "source",
+              "type": "string",
+              "value": "={{ $('Normaliser données lead').item.json.source }}"
+            },
+            {
+              "name": "raw_content",
+              "type": "string",
+              "value": "={{ $('Normaliser données lead').item.json.raw_content }}"
+            },
+            {
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $('Normaliser données lead').item.json.received_at }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-airtable-create",
+      "name": "Créer fiche Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1540, 300],
+      "credentials": {
+        "airtableTokenApi": {"id": "{{AIRTABLE_CREDENTIAL_ID}}", "name": "Airtable BTP"}
+      },
+      "parameters": {
+        "operation": "create",
+        "base": {"__rl": true, "value": "={{$env.AIRTABLE_BASE_ID}}", "mode": "id"},
+        "table": {"__rl": true, "value": "Leads", "mode": "name"},
+        "fields": {
+          "fieldValues": [
+            {"fieldId": "Email", "fieldValue": "={{ $json.sender_email }}"},
+            {"fieldId": "Nom", "fieldValue": "={{ $json.sender_name }}"},
+            {"fieldId": "Source", "fieldValue": "={{ $json.source }}"},
+            {"fieldId": "Score", "fieldValue": "={{ $json.score }}"},
+            {"fieldId": "Projet_Type", "fieldValue": "={{ $json.qualification.projet_type }}"},
+            {"fieldId": "Budget", "fieldValue": "={{ $json.qualification.budget_estime }}"},
+            {"fieldId": "Urgence", "fieldValue": "={{ $json.qualification.urgence }}"},
+            {"fieldId": "Zone_Geo", "fieldValue": "={{ $json.qualification.zone_geo }}"},
+            {"fieldId": "Resume", "fieldValue": "={{ $json.qualification.resume_une_ligne }}"},
+            {"fieldId": "Received_At", "fieldValue": "={{ $json.received_at }}"},
+            {"fieldId": "Statut", "fieldValue": "Nouveau"},
+            {"fieldId": "Raw_Content", "fieldValue": "={{ $json.raw_content }}"}
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-switch-score",
+      "name": "Router par score",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1760, 300],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {"caseSensitive": false},
+                "conditions": [{"leftValue": "={{ $json.score }}", "rightValue": "CHAUD", "operator": {"type": "string", "operation": "equals"}}]
+              },
+              "renameOutput": true,
+              "outputKey": "CHAUD"
+            },
+            {
+              "conditions": {
+                "options": {"caseSensitive": false},
+                "conditions": [{"leftValue": "={{ $json.score }}", "rightValue": "TIEDE", "operator": {"type": "string", "operation": "equals"}}]
+              },
+              "renameOutput": true,
+              "outputKey": "TIEDE"
+            },
+            {
+              "conditions": {
+                "options": {"caseSensitive": false},
+                "conditions": [{"leftValue": "={{ $json.score }}", "rightValue": "FROID", "operator": {"type": "string", "operation": "equals"}}]
+              },
+              "renameOutput": true,
+              "outputKey": "FROID"
+            }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "node-email-chaud",
+      "name": "Email réponse CHAUD (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1980, 160],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{"name": "Authorization", "value": "Bearer {{$env.RESEND_API_KEY}}"}]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "from": "={{$env.FROM_EMAIL}}",
+          "to": ["={{ $json.sender_email }}"],
+          "subject": "Votre projet {{ $json.qualification.projet_type }} — nous revenons vers vous dans les 4 heures",
+          "html": "<p>Bonjour {{ $json.sender_name }},</p><p>Nous avons bien reçu votre demande concernant votre projet de <strong>{{ $json.qualification.projet_type }}</strong> en {{ $json.qualification.zone_geo }}.</p><p>Votre demande est prioritaire pour notre équipe. Un responsable vous contacte dans les <strong>4 heures ouvrées</strong> pour convenir d'un rendez-vous de visite.</p><p>Cordialement,<br>L'équipe</p>"
+        }
+      }
+    },
+    {
+      "id": "node-notif-chaud",
+      "name": "Notif téléphone CHAUD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1980, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.NOTIF_WEBHOOK_URL}}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "title": "🔥 LEAD CHAUD BTP",
+          "message": "{{ $json.qualification.projet_type }} | {{ $json.qualification.zone_geo }} | Budget: {{ $json.qualification.budget_estime }} | {{ $json.sender_name }} — {{ $json.sender_email }}",
+          "priority": "high"
+        }
+      }
+    },
+    {
+      "id": "node-email-tiede",
+      "name": "Email réponse TIEDE (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1980, 440],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{"name": "Authorization", "value": "Bearer {{$env.RESEND_API_KEY}}"}]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "from": "={{$env.FROM_EMAIL}}",
+          "to": ["={{ $json.sender_email }}"],
+          "subject": "Votre demande de devis — nous revenons vers vous sous 48 h",
+          "html": "<p>Bonjour {{ $json.sender_name }},</p><p>Merci pour votre demande. Nous avons bien noté votre projet de {{ $json.qualification.projet_type }}.</p><p>Un de nos responsables prendra contact avec vous sous <strong>48 heures ouvrées</strong> pour discuter de votre projet et convenir d'une visite si nécessaire.</p><p>Cordialement,<br>L'équipe</p>"
+        }
+      }
+    },
+    {
+      "id": "node-email-froid",
+      "name": "Email réponse FROID (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1980, 580],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{"name": "Authorization", "value": "Bearer {{$env.RESEND_API_KEY}}"}]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "from": "={{$env.FROM_EMAIL}}",
+          "to": ["={{ $json.sender_email }}"],
+          "subject": "Votre demande reçue",
+          "html": "<p>Bonjour {{ $json.sender_name }},</p><p>Nous avons bien reçu votre demande et nous reviendrons vers vous prochainement.</p><p>Pour accélérer le traitement, n'hésitez pas à préciser le type de travaux souhaités, votre zone géographique et votre budget approximatif.</p><p>Cordialement,<br>L'équipe</p>"
+        }
+      }
+    },
+    {
+      "id": "node-cron-digest",
+      "name": "Cron — Digest lundi 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [200, 660],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "cronExpression", "expression": "0 8 * * 1"}]
+        }
+      }
+    },
+    {
+      "id": "node-airtable-digest",
+      "name": "Lire leads semaine Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [440, 660],
+      "credentials": {
+        "airtableTokenApi": {"id": "{{AIRTABLE_CREDENTIAL_ID}}", "name": "Airtable BTP"}
+      },
+      "parameters": {
+        "operation": "search",
+        "base": {"__rl": true, "value": "={{$env.AIRTABLE_BASE_ID}}", "mode": "id"},
+        "table": {"__rl": true, "value": "Leads", "mode": "name"},
+        "filterByFormula": "DATETIME_DIFF(NOW(), {Received_At}, 'days') <= 7",
+        "options": {"sort": [{"field": "Score", "direction": "desc"}]}
+      }
+    },
+    {
+      "id": "node-email-digest",
+      "name": "Envoyer digest email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, 660],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{"name": "Authorization", "value": "Bearer {{$env.RESEND_API_KEY}}"}]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "from": "noreply@={{$env.FROM_EMAIL}}",
+          "to": ["={{$env.FROM_EMAIL}}"],
+          "subject": "📊 Récap leads BTP — semaine du {{ $now.format('dd/MM/yyyy') }}",
+          "html": "<h2>Leads reçus cette semaine</h2><p>Total : {{ $items().length }} demandes</p><p>CHAUDS : {{ $items().filter(i => i.json.fields.Score === 'CHAUD').length }}</p><p>TIÈDES : {{ $items().filter(i => i.json.fields.Score === 'TIEDE').length }}</p><p>FROIDS : {{ $items().filter(i => i.json.fields.Score === 'FROID').length }}</p><p><a href='https://airtable.com/{{$env.AIRTABLE_BASE_ID}}'>Voir le tableau de bord complet →</a></p>"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [[{"node": "Normaliser données lead", "type": "main", "index": 0}]]
+    },
+    "Webhook Tally Lead": {
+      "main": [[{"node": "Normaliser données lead", "type": "main", "index": 0}]]
+    },
+    "Normaliser données lead": {
+      "main": [[{"node": "Vérif doublon Airtable", "type": "main", "index": 0}]]
+    },
+    "Vérif doublon Airtable": {
+      "main": [[{"node": "Est doublon ?", "type": "main", "index": 0}]]
+    },
+    "Est doublon ?": {
+      "main": [
+        [],
+        [{"node": "OpenAI — Extract & Score", "type": "main", "index": 0}]
+      ]
+    },
+    "OpenAI — Extract & Score": {
+      "main": [[{"node": "Parser réponse IA", "type": "main", "index": 0}]]
+    },
+    "Parser réponse IA": {
+      "main": [[{"node": "Créer fiche Airtable", "type": "main", "index": 0}]]
+    },
+    "Créer fiche Airtable": {
+      "main": [[{"node": "Router par score", "type": "main", "index": 0}]]
+    },
+    "Router par score": {
+      "main": [
+        [{"node": "Email réponse CHAUD (Resend)", "type": "main", "index": 0}],
+        [{"node": "Email réponse TIEDE (Resend)", "type": "main", "index": 0}],
+        [{"node": "Email réponse FROID (Resend)", "type": "main", "index": 0}]
+      ]
+    },
+    "Email réponse CHAUD (Resend)": {
+      "main": [[{"node": "Notif téléphone CHAUD", "type": "main", "index": 0}]]
+    },
+    "Cron — Digest lundi 8h": {
+      "main": [[{"node": "Lire leads semaine Airtable", "type": "main", "index": 0}]]
+    },
+    "Lire leads semaine Airtable": {
+      "main": [[{"node": "Envoyer digest email", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "tags": [{"id": "tag-btp", "name": "BTP"}, {"id": "tag-leads", "name": "Leads"}],
+  "pinData": {}
+}

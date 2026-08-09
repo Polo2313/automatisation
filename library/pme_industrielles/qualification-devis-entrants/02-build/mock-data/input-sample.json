@@ -1,0 +1,23 @@
+{
+  "_meta": "Email de devis entrant réaliste, anonymisé. Utilisé pour tester le workflow en phase de recette.",
+  "from": "jean.dupont@mecaexemple.fr",
+  "to": "devis@votreentreprise.fr",
+  "subject": "Demande de devis - Pièces aluminium - Besoin urgent",
+  "date": "2026-06-21T09:14:32+02:00",
+  "text": "Bonjour,\n\nJe me permets de vous contacter suite à notre échange téléphonique de la semaine dernière avec votre collègue Marc.\n\nNous avons un besoin de pièces usinées en aluminium 7075 pour notre ligne de production :\n\n- Référence : Bride de fixation BF-224\n- Matière : Aluminium 7075-T6\n- Quantité : 250 pièces\n- Tolérance dimensionnelle : ISO h7\n- Traitement de surface : anodisation dure 25 microns\n- Délai souhaité : 6 semaines maximum (démarrage production le 4 août)\n\nJe vous joins le plan en DWG et le cahier des charges en PDF.\n\nNous sommes une PME du secteur aéronautique (60 salariés, Toulouse). C'est notre premier contact avec votre société et nous souhaitons établir une relation durable si les délais et qualité sont au rendez-vous.\n\nMerci de bien vouloir nous revenir avant jeudi si possible.\n\nCordialement,\nJean Dupont\nResponsable achats\nMecaExemple SAS — Toulouse (31)\n+33 5 XX XX XX XX",
+  "html": null,
+  "attachments": [
+    {
+      "filename": "BF-224-plan-rev3.dwg",
+      "contentType": "application/acad",
+      "size": 245760
+    },
+    {
+      "filename": "cahier-des-charges-BF-224.pdf",
+      "contentType": "application/pdf",
+      "size": 189440
+    }
+  ],
+  "uid": "20260621-001",
+  "_scenario": "devis_urgent — deadline explicite, pièces dans périmètre industriel métal"
+}

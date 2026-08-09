@@ -1,0 +1,288 @@
+{
+  "_meta": {
+    "importable": true,
+    "smoke_test": "Envoyer l'email de test depuis mock-data/input-sample.json vers la boîte configurée. Attendre max 5 min. Vérifier : (1) fiche créée dans Airtable avec statut 'nouveau', (2) email accusé réception reçu par l'expéditeur, (3) message Slack envoyé au commercial. Output attendu : voir mock-data/output-sample.json",
+    "version": "1.0.0",
+    "cas": "distribution_b2b-traitement-emails-commandes",
+    "n8n_version_minimum": "1.30.0"
+  },
+  "name": "Vantyse — Traitement Emails Commandes B2B",
+  "nodes": [
+    {
+      "id": "node_01",
+      "name": "Poll Email IMAP",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": {
+        "mailbox": "INBOX",
+        "action": "read",
+        "download": false,
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "forceReconnect": false
+        }
+      },
+      "credentials": {
+        "imap": {
+          "id": "IMAP_CREDENTIAL_ID",
+          "name": "Boite Email Commandes"
+        }
+      }
+    },
+    {
+      "id": "node_02",
+      "name": "Filtre Type Email",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond_01",
+              "leftValue": "={{ $json.subject + ' ' + $json.text }}",
+              "rightValue": "commande|devis|demande de prix|order|rfq|bon de commande|tarif",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "or"
+        }
+      }
+    },
+    {
+      "id": "node_03",
+      "name": "Extraction OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [440, -100],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant spécialisé dans l'extraction de données depuis des emails commerciaux B2B. Tu retournes UNIQUEMENT du JSON valide, sans texte autour. Si un champ est absent, utilise null. Le champ confiance_extraction est un score entre 0 et 1 indiquant ta confiance dans l'extraction."
+            },
+            {
+              "role": "user",
+              "content": "=Extrais les données de cet email et retourne un JSON avec ces champs : expediteur_email, expediteur_nom, societe_cliente, fonction_contact, lignes_commande (tableau avec reference, quantite, unite), delai_souhaite, urgence (basse|normale|haute), commentaire, type_email (commande|devis|demande_prix|autre), montant_estime_eur (null si absent), confiance_extraction.\n\nEmail From: {{ $json.from }}\nEmail Subject: {{ $json.subject }}\nEmail Body: {{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.1
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "id": "node_04",
+      "name": "Parse et Valide JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, -100],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.choices[0].message.content;\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch(e) {\n  return [{ json: { error: 'JSON_PARSE_ERROR', raw, email_from: $('Poll Email IMAP').first().json.from } }];\n}\nconst required = ['expediteur_email', 'lignes_commande'];\nconst missing = required.filter(f => !parsed[f]);\nif (missing.length > 0) {\n  return [{ json: { error: 'MISSING_FIELDS', missing, parsed, email_from: $('Poll Email IMAP').first().json.from } }];\n}\nreturn [{ json: { ...parsed, email_original_subject: $('Poll Email IMAP').first().json.subject, email_received_at: new Date().toISOString(), error: null } }];\n"
+      }
+    },
+    {
+      "id": "node_05",
+      "name": "IF Erreur Extraction",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, -100],
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "cond_err",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {"type": "string", "operation": "notEmpty"}
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node_06",
+      "name": "Recherche Doublon Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1100, -200],
+      "parameters": {
+        "operation": "search",
+        "baseId": "={{ $env.AIRTABLE_BASE_ID }}",
+        "tableId": "={{ $env.AIRTABLE_TABLE_ID }}",
+        "filterByFormula": "={Email_Expediteur}='{{ $json.expediteur_email }}'",
+        "maxRecords": 1
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "id": "node_07",
+      "name": "Upsert Fiche Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1320, -200],
+      "parameters": {
+        "operation": "upsert",
+        "baseId": "={{ $env.AIRTABLE_BASE_ID }}",
+        "tableId": "={{ $env.AIRTABLE_TABLE_ID }}",
+        "matchingColumns": ["Email_Expediteur"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email_Expediteur": "={{ $('Parse et Valide JSON').first().json.expediteur_email }}",
+            "Nom_Contact": "={{ $('Parse et Valide JSON').first().json.expediteur_nom }}",
+            "Societe": "={{ $('Parse et Valide JSON').first().json.societe_cliente }}",
+            "Lignes_JSON": "={{ JSON.stringify($('Parse et Valide JSON').first().json.lignes_commande) }}",
+            "Delai_Souhaite": "={{ $('Parse et Valide JSON').first().json.delai_souhaite }}",
+            "Urgence": "={{ $('Parse et Valide JSON').first().json.urgence }}",
+            "Type_Email": "={{ $('Parse et Valide JSON').first().json.type_email }}",
+            "Montant_Estime": "={{ $('Parse et Valide JSON').first().json.montant_estime_eur }}",
+            "Statut": "nouveau",
+            "Date_Reception": "={{ $('Parse et Valide JSON').first().json.email_received_at }}",
+            "Sujet_Original": "={{ $('Parse et Valide JSON').first().json.email_original_subject }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "id": "node_08",
+      "name": "IF Seuil Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1540, -200],
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "cond_seuil",
+              "leftValue": "={{ $('Parse et Valide JSON').first().json.montant_estime_eur }}",
+              "rightValue": "={{ $env.SEUIL_VALIDATION_HUMAINE_EUR }}",
+              "operator": {"type": "number", "operation": "gt"}
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node_09",
+      "name": "Envoi Accusé Réception",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1760, -300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Authorization", "value": "=Bearer {{ $env.RESEND_API_KEY }}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"from\": \"{{ $env.ADRESSE_EMAIL_EXPEDITEUR }}\",\n  \"to\": [\"{{ $('Parse et Valide JSON').first().json.expediteur_email }}\"],\n  \"subject\": \"[Accusé de réception] {{ $('Parse et Valide JSON').first().json.email_original_subject }}\",\n  \"html\": \"<p>Bonjour {{ $('Parse et Valide JSON').first().json.expediteur_nom }},</p><p>Nous avons bien reçu votre demande concernant {{ $('Parse et Valide JSON').first().json.lignes_commande.length }} référence(s) pour livraison {{ $('Parse et Valide JSON').first().json.delai_souhaite }}.</p><p>Notre équipe commerciale revient vers vous dans les plus brefs délais.</p><p>Cordialement,<br>L'équipe ADV</p>\"\n}"
+      }
+    },
+    {
+      "id": "node_10",
+      "name": "Notification Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1980, -200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#commandes-entrants",
+        "text": "=🆕 *Nouvelle commande reçue*\n*Client :* {{ $('Parse et Valide JSON').first().json.societe_cliente }} ({{ $('Parse et Valide JSON').first().json.expediteur_nom }})\n*Réfs :* {{ $('Parse et Valide JSON').first().json.lignes_commande.map(l => l.reference + ' x' + l.quantite).join(', ') }}\n*Délai :* {{ $('Parse et Valide JSON').first().json.delai_souhaite }}\n*Urgence :* {{ $('Parse et Valide JSON').first().json.urgence }}\n*Statut :* {{ $('IF Seuil Validation').first().json ? '⚠️ Validation manuelle requise' : '✅ Accusé envoyé automatiquement' }}"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CREDENTIAL_ID",
+          "name": "Slack Workspace"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Poll Email IMAP": {
+      "main": [[{"node": "Filtre Type Email", "type": "main", "index": 0}]]
+    },
+    "Filtre Type Email": {
+      "main": [
+        [{"node": "Extraction OpenAI", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "Extraction OpenAI": {
+      "main": [[{"node": "Parse et Valide JSON", "type": "main", "index": 0}]]
+    },
+    "Parse et Valide JSON": {
+      "main": [[{"node": "IF Erreur Extraction", "type": "main", "index": 0}]]
+    },
+    "IF Erreur Extraction": {
+      "main": [
+        [{"node": "Recherche Doublon Airtable", "type": "main", "index": 0}],
+        [{"node": "Notification Slack", "type": "main", "index": 0}]
+      ]
+    },
+    "Recherche Doublon Airtable": {
+      "main": [[{"node": "Upsert Fiche Airtable", "type": "main", "index": 0}]]
+    },
+    "Upsert Fiche Airtable": {
+      "main": [[{"node": "IF Seuil Validation", "type": "main", "index": 0}]]
+    },
+    "IF Seuil Validation": {
+      "main": [
+        [{"node": "Envoi Accusé Réception", "type": "main", "index": 0}],
+        [{"node": "Notification Slack", "type": "main", "index": 0}]
+      ]
+    },
+    "Envoi Accusé Réception": {
+      "main": [[{"node": "Notification Slack", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["vantyse", "distribution_b2b", "traitement_doc", "production"]
+}
