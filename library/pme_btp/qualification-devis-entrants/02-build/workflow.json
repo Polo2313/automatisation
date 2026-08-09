@@ -1,0 +1,429 @@
+{
+  "_comment": "Workflow n8n — Qualification automatique des devis entrants — PME BTP",
+  "_smoke_test": "Test attendu : envoyer un email contenant le mot 'devis' à la boîte Gmail configurée → vérifier (1) apparition d'une nouvelle ligne dans Google Sheets avec score et type de travaux, (2) réception d'un email de confirmation Resend sur l'adresse expéditrice, (3) réception d'une alerte de notification sur l'email du gérant. Délai total attendu : < 10 minutes (polling 5 min + traitement ~2 min).",
+  "_version": "n8n >= 1.0.0",
+  "_date": "2026-06-01",
+
+  "name": "Qualification Devis Entrants — PME BTP",
+  "active": false,
+  "nodes": [
+    {
+      "id": "node-01-gmail-trigger",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "filters": {
+          "readStatus": "unread",
+          "labelIds": []
+        },
+        "options": {
+          "dataPropertyName": "message",
+          "downloadAttachments": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "PLACEHOLDER_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail OAuth2 — Compte pro client"
+        }
+      }
+    },
+    {
+      "id": "node-02-filter-keywords",
+      "name": "Filter: Keyword Pre-screen",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject + ' ' + $json.text }}",
+              "operation": "regex",
+              "value2": "(?i)(devis|travaux|intervention|tarif|prix|chantier|rénovation|installation|réparation|artisan|prestation)"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      }
+    },
+    {
+      "id": "node-03-parse-email",
+      "name": "Parse Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "mode": "manual",
+        "fields": {
+          "values": [
+            {
+              "name": "email_id",
+              "type": "string",
+              "string": "={{ $json.id }}"
+            },
+            {
+              "name": "expediteur_email",
+              "type": "string",
+              "string": "={{ $json.from.value[0].address }}"
+            },
+            {
+              "name": "expediteur_nom",
+              "type": "string",
+              "string": "={{ $json.from.value[0].name }}"
+            },
+            {
+              "name": "sujet",
+              "type": "string",
+              "string": "={{ $json.subject }}"
+            },
+            {
+              "name": "corps_email",
+              "type": "string",
+              "string": "={{ $json.text || $json.html | stripTags }}"
+            },
+            {
+              "name": "date_reception",
+              "type": "string",
+              "string": "={{ $json.date }}"
+            },
+            {
+              "name": "timestamp_iso",
+              "type": "string",
+              "string": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-04-openai-qualify",
+      "name": "OpenAI: Qualify & Score",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant spécialisé dans la qualification de demandes de devis pour des PME du BTP (électricité, plomberie, maçonnerie, rénovation). Tu analyses les emails entrants et retournes uniquement un objet JSON structuré, sans aucun texte supplémentaire.\n\nCritères de scoring (1 à 5) :\n- 5 : Budget mentionné, travaux précis, urgence forte, localisation connue\n- 4 : Budget ou urgence mentionné, travaux assez précis\n- 3 : Demande sérieuse mais peu de détails\n- 2 : Demande vague, intention peu claire\n- 1 : Démarchage commercial, spam, ou hors périmètre"
+            },
+            {
+              "role": "user",
+              "content": "Analyse cet email de demande de devis et retourne un JSON avec les champs suivants :\n- type_travaux (string) : catégorie principale des travaux demandés\n- localisation (string) : ville ou département mentionné, ou 'non précisé'\n- budget_estime (string) : fourchette mentionnée ou 'non précisé'\n- urgence (string) : 'haute' / 'normale' / 'faible' / 'non précisé'\n- score (integer 1-5) : score de priorité\n- qualification (string) : 'chaud' si score >= 3, 'froid' si score < 3\n- resume_lead (string) : résumé en 2 phrases pour le gérant\n- tags (array of strings) : mots-clés identifiés\n\nEmail à analyser :\nSujet : {{ $json.sujet }}\nDe : {{ $json.expediteur_nom }} <{{ $json.expediteur_email }}>\nContenu : {{ $json.corps_email }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 500
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "PLACEHOLDER_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API Key — Production"
+        }
+      }
+    },
+    {
+      "id": "node-05-router-score",
+      "name": "Router: Lead Score",
+      "type": "n8n-nodes-base.router",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "number": [
+                  {
+                    "value1": "={{ JSON.parse($json.choices[0].message.content).score }}",
+                    "operation": "gte",
+                    "value2": 3
+                  }
+                ]
+              },
+              "outputKey": "chaud",
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "number": [
+                  {
+                    "value1": "={{ JSON.parse($json.choices[0].message.content).score }}",
+                    "operation": "lt",
+                    "value2": 3
+                  }
+                ]
+              },
+              "outputKey": "froid",
+              "renameOutput": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-06-sheets-log",
+      "name": "Google Sheets: Log Lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1340, 200],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pipeline",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $('Parse Email').item.json.timestamp_iso }}",
+            "email_id": "={{ $('Parse Email').item.json.email_id }}",
+            "expediteur_email": "={{ $('Parse Email').item.json.expediteur_email }}",
+            "expediteur_nom": "={{ $('Parse Email').item.json.expediteur_nom }}",
+            "sujet": "={{ $('Parse Email').item.json.sujet }}",
+            "type_travaux": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).type_travaux }}",
+            "localisation": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).localisation }}",
+            "budget_estime": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).budget_estime }}",
+            "urgence": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).urgence }}",
+            "score": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).score }}",
+            "qualification": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).qualification }}",
+            "resume_lead": "={{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).resume_lead }}",
+            "statut": "recu",
+            "draft_response": ""
+          }
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 — Compte pro client"
+        }
+      }
+    },
+    {
+      "id": "node-07-openai-draft",
+      "name": "OpenAI: Draft Response",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1340, 380],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es l'assistant administratif d'une PME du BTP. Tu rédiges des réponses professionnelles, chaleureuses et concises à des demandes de devis. Ton objectif : confirmer la réception, montrer l'intérêt, et proposer un prochain contact. Ton ton est professionnel mais humain. Jamais de formulations génériques type 'Madame, Monsieur'. Utilise le prénom ou le nom de famille si connu. Maximum 150 mots."
+            },
+            {
+              "role": "user",
+              "content": "Rédige un email de réponse à cette demande de devis.\n\nInformations extraites :\n- Expéditeur : {{ $('Parse Email').item.json.expediteur_nom }}\n- Type de travaux : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).type_travaux }}\n- Localisation : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).localisation }}\n- Budget estimé : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).budget_estime }}\n- Urgence : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).urgence }}\n\nEmail original :\n{{ $('Parse Email').item.json.corps_email }}\n\nPropose de rappeler le prospect dans les 24h pour affiner le devis."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.5,
+          "maxTokens": 300
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "PLACEHOLDER_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API Key — Production"
+        }
+      }
+    },
+    {
+      "id": "node-08-human-review",
+      "name": "Human Review Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1560, 380],
+      "parameters": {
+        "fromEmail": "noreply@vantyse.fr",
+        "toEmail": "={{ $env.GERANT_EMAIL }}",
+        "subject": "🔔 Nouveau lead chaud — Score {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).score }}/5 — {{ $('Parse Email').item.json.expediteur_nom }}",
+        "emailType": "text",
+        "message": "NOUVEAU LEAD CHAUD — ACTION REQUISE\n\n---\n\nDE : {{ $('Parse Email').item.json.expediteur_nom }} <{{ $('Parse Email').item.json.expediteur_email }}>\nSUJET : {{ $('Parse Email').item.json.sujet }}\nREÇU LE : {{ $('Parse Email').item.json.date_reception }}\n\nANALYSE IA :\n- Type de travaux : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).type_travaux }}\n- Localisation : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).localisation }}\n- Budget estimé : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).budget_estime }}\n- Urgence : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).urgence }}\n- Score : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).score }}/5\n\nRÉSUMÉ : {{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).resume_lead }}\n\n---\n\nBROUILLON DE RÉPONSE SUGGÉRÉ :\n\n{{ $json.choices[0].message.content }}\n\n---\n\nACTION : Validez ou modifiez ce brouillon dans Gmail avant d'envoyer.\nL'accusé de réception automatique a déjà été envoyé au prospect.\n\nVoir le lead dans Google Sheets : https://docs.google.com/spreadsheets/d/{{ $env.SHEETS_ID }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "PLACEHOLDER_SMTP_CREDENTIAL_ID",
+          "name": "SMTP — Notifications internes"
+        }
+      }
+    },
+    {
+      "id": "node-09-resend-confirmation",
+      "name": "Resend: Send Acknowledgment",
+      "type": "n8n-nodes-base.resend",
+      "typeVersion": 1,
+      "position": [1560, 200],
+      "parameters": {
+        "operation": "send",
+        "fromEmail": "contact@votre-entreprise.fr",
+        "fromName": "{{ $env.ENTREPRISE_NOM | default: 'Votre artisan' }}",
+        "toEmail": "={{ $('Parse Email').item.json.expediteur_email }}",
+        "subject": "Votre demande de devis a bien été reçue",
+        "html": "<p>Bonjour {{ $('Parse Email').item.json.expediteur_nom }},</p>\n\n<p>Nous avons bien reçu votre demande de devis concernant <strong>{{ JSON.parse($('OpenAI: Qualify & Score').item.json.choices[0].message.content).type_travaux }}</strong>.</p>\n\n<p>Nous l'examinons et vous recontacterons dans les plus brefs délais — généralement sous 24 heures ouvrées.</p>\n\n<p>Si votre demande est urgente, n'hésitez pas à nous appeler directement.</p>\n\n<p>Cordialement,<br>L'équipe {{ $env.ENTREPRISE_NOM | default: 'de votre artisan' }}</p>"
+      },
+      "credentials": {
+        "resendApi": {
+          "id": "PLACEHOLDER_RESEND_CREDENTIAL_ID",
+          "name": "Resend API — Production"
+        }
+      }
+    },
+    {
+      "id": "node-10-daily-summary",
+      "name": "Daily Summary Node",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 560],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "_note": "Ce node est un déclencheur séparé qui envoie chaque matin du lundi au vendredi à 8h un récapitulatif des leads de la veille. Il doit être connecté à un sous-workflow ou à un node qui lit Google Sheets et envoie un email de synthèse au gérant. Implémenter en J+5 lors du build."
+    }
+  ],
+
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter: Keyword Pre-screen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Keyword Pre-screen": {
+      "main": [
+        [
+          {
+            "node": "Parse Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Email": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Qualify & Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Qualify & Score": {
+      "main": [
+        [
+          {
+            "node": "Router: Lead Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router: Lead Score": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Log Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Resend: Send Acknowledgment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets: Log Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Resend: Send Acknowledgment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Log Lead": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Draft Response": {
+      "main": [
+        [
+          {
+            "node": "Human Review Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+
+  "staticData": null,
+  "tags": ["btp", "qualification", "devis", "pme", "production"]
+}

@@ -1,0 +1,14 @@
+{
+  "nom_contact": "Julien Martin",
+  "telephone": "06 12 34 56 78",
+  "email": "j.martin.particulier@example-mail.fr",
+  "adresse_chantier": "12 rue des Lilas, 29000 Quimper",
+  "type_travaux": "Rénovation salle de bain (carrelage, plomberie, électricité)",
+  "urgence": "haute",
+  "budget_estime_eur": 9000,
+  "score_priorite": 2,
+  "conducteur_assigne": "Zone Quimper - conducteur affecté selon table de routage",
+  "statut": "à qualifier",
+  "accuse_reception_envoye": true,
+  "notification_conducteur_envoyee": true
+}

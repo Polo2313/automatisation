@@ -1,0 +1,250 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. Testé sur n8n v1.x. Importer via : n8n UI > Workflows > Import from JSON. Configurer les credentials avant activation. Voir smoke test dans architecture.md.",
+    "smoke_test_input": {"prenom":"Jean","nom":"Dupont","email":"jean.dupont@test.fr","telephone":"0612345678","type_travaux":"Rénovation toiture","description":"Fuite sur ma toiture, environ 100m2","adresse_chantier":"12 rue des Lilas, 69003 Lyon","budget_estime":"5000-8000","delai_souhaite":"2 mois","source":"formulaire"},
+    "smoke_test_expected_output": {"email_prospect_envoye":true,"email_equipe_envoye":true,"lead_supabase_insere":true,"score":"A"}
+  },
+  "name": "Vantyse — Agent Qualification Leads BTP",
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "Webhook — Réception Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-btp",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-code-parse",
+      "name": "Parser Données Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst lead = {\n  prenom: (body.prenom || '').trim(),\n  nom: (body.nom || '').trim(),\n  email: (body.email || '').trim().toLowerCase(),\n  telephone: (body.telephone || '').trim(),\n  type_travaux: (body.type_travaux || body.travaux || '').trim(),\n  description: (body.description || body.message || '').trim(),\n  adresse_chantier: (body.adresse_chantier || body.adresse || '').trim(),\n  budget_estime: body.budget_estime || body.budget || null,\n  delai_souhaite: body.delai_souhaite || body.delai || null,\n  source: body.source || 'webhook',\n  received_at: new Date().toISOString()\n};\nif (!lead.email || !lead.nom) {\n  throw new Error('Lead invalide : email ou nom manquant');\n}\nreturn [{ json: lead }];"
+      }
+    },
+    {
+      "id": "node-openai-qualify",
+      "name": "IA — Qualification Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [640, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Authorization", "value": "=Bearer {{$env.OPENAI_API_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": {\"type\": \"json_object\"},\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant de qualification pour une PME BTP. Analyse la demande et retourne UNIQUEMENT un objet JSON avec ces champs : \\\"score\\\" (A, B ou C), \\\"type_travaux_normalise\\\" (string court), \\\"urgence\\\" (haute/normale/basse), \\\"complet\\\" (true/false), \\\"raison_incomplete\\\" (string si false, sinon null). Score A = travaux clairement définis + zone géographique + contact valide. Score B = informations partielles mais prometteuses. Score C = trop vague ou hors périmètre BTP.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Qualifie ce lead BTP :\\nNom: {{$json.prenom}} {{$json.nom}}\\nEmail: {{$json.email}}\\nTél: {{$json.telephone}}\\nTravaux: {{$json.type_travaux}}\\nDescription: {{$json.description}}\\nAdresse: {{$json.adresse_chantier}}\\nBudget: {{$json.budget_estime}}\\nDélai: {{$json.delai_souhaite}}\"\n    }\n  ],\n  \"max_tokens\": 200,\n  \"temperature\": 0.1\n}"
+      }
+    },
+    {
+      "id": "node-code-merge",
+      "name": "Merger Lead + Qualification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300],
+      "parameters": {
+        "jsCode": "const leadData = $('Parser Données Lead').first().json;\nconst aiResponse = $input.first().json;\nlet qualification;\ntry {\n  qualification = JSON.parse(aiResponse.choices[0].message.content);\n} catch(e) {\n  qualification = { score: 'C', type_travaux_normalise: leadData.type_travaux, urgence: 'normale', complet: false, raison_incomplete: 'Erreur parsing IA' };\n}\nreturn [{ json: { ...leadData, ...qualification } }];"
+      }
+    },
+    {
+      "id": "node-if-complete",
+      "name": "Lead complet ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1080, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.complet}}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-openai-reply-qualified",
+      "name": "IA — Email Lead Qualifié",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Authorization", "value": "=Bearer {{$env.OPENAI_API_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu rédiges un email de réponse professionnel et chaleureux pour une PME BTP. Ton : direct, humain, sans jargon. Maximum 130 mots. Structure : (1) confirmer la réception et mentionner le type de travaux, (2) indiquer qu'un expert va les rappeler sous 24h, (3) proposer de donner un numéro si besoin urgent. Signe au nom de 'L'équipe {{$env.ENTREPRISE_NOM}}'. Ne pas inventer de prix.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Lead : {{$('Merger Lead + Qualification').first().json.prenom}} {{$('Merger Lead + Qualification').first().json.nom}} | Travaux : {{$('Merger Lead + Qualification').first().json.type_travaux_normalise}} | Urgence : {{$('Merger Lead + Qualification').first().json.urgence}} | Adresse : {{$('Merger Lead + Qualification').first().json.adresse_chantier}}\"\n    }\n  ],\n  \"max_tokens\": 250,\n  \"temperature\": 0.6\n}"
+      }
+    },
+    {
+      "id": "node-openai-reply-incomplete",
+      "name": "IA — Email Infos Manquantes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Authorization", "value": "=Bearer {{$env.OPENAI_API_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu rédiges un email court et bienveillant pour demander des informations complémentaires à un prospect BTP. Ton : humain, accueillant. Maximum 90 mots. Pose 2 questions maximum basées sur ce qui manque. Promets un rappel rapide dès réception. Signe au nom de 'L'équipe {{$env.ENTREPRISE_NOM}}'.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Prénom : {{$('Merger Lead + Qualification').first().json.prenom}} | Ce qui manque : {{$('Merger Lead + Qualification').first().json.raison_incomplete}}\"\n    }\n  ],\n  \"max_tokens\": 180,\n  \"temperature\": 0.6\n}"
+      }
+    },
+    {
+      "id": "node-code-email-body",
+      "name": "Préparer Corps Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 300],
+      "parameters": {
+        "jsCode": "const lead = $('Merger Lead + Qualification').first().json;\nlet emailBody = '';\ntry {\n  const qualified = $('IA — Email Lead Qualifié').first();\n  emailBody = qualified.json.choices[0].message.content;\n} catch(e) {\n  try {\n    const incomplete = $('IA — Email Infos Manquantes').first();\n    emailBody = incomplete.json.choices[0].message.content;\n  } catch(e2) {\n    emailBody = `Bonjour ${lead.prenom},\\n\\nNous avons bien reçu votre demande et reviendrons vers vous très rapidement.\\n\\nL'équipe`;\n  }\n}\nconst subject = lead.complet\n  ? `Suite à votre demande — ${lead.type_travaux_normalise || lead.type_travaux}`\n  : `Votre demande de devis — quelques précisions`;\nreturn [{ json: { ...lead, email_subject: subject, email_body: emailBody } }];"
+      }
+    },
+    {
+      "id": "node-gmail-prospect",
+      "name": "Gmail — Email au Prospect",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1740, 300],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{$json.email}}",
+        "subject": "={{$json.email_subject}}",
+        "emailType": "text",
+        "message": "={{$json.email_body}}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "id": "node-supabase-insert",
+      "name": "Supabase — Enregistrer Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1960, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{$env.SUPABASE_KEY}}"},
+            {"name": "Authorization", "value": "=Bearer {{$env.SUPABASE_KEY}}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prenom\": \"{{$json.prenom}}\",\n  \"nom\": \"{{$json.nom}}\",\n  \"email\": \"{{$json.email}}\",\n  \"telephone\": \"{{$json.telephone}}\",\n  \"score\": \"{{$json.score}}\",\n  \"type_travaux\": \"{{$json.type_travaux_normalise}}\",\n  \"urgence\": \"{{$json.urgence}}\",\n  \"adresse_chantier\": \"{{$json.adresse_chantier}}\",\n  \"budget_estime\": \"{{$json.budget_estime}}\",\n  \"source\": \"{{$json.source}}\",\n  \"statut\": \"nouveau\",\n  \"email_envoye\": true,\n  \"created_at\": \"{{$json.received_at}}\"\n}"
+      }
+    },
+    {
+      "id": "node-gmail-equipe",
+      "name": "Gmail — Notif Équipe",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [2180, 300],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{$env.EQUIPE_EMAIL}}",
+        "subject": "=[Lead {{$('Merger Lead + Qualification').first().json.score}}{{$('Merger Lead + Qualification').first().json.urgence === 'haute' ? ' 🔴 URGENT' : ''}}] {{$('Merger Lead + Qualification').first().json.prenom}} {{$('Merger Lead + Qualification').first().json.nom}} — {{$('Merger Lead + Qualification').first().json.type_travaux_normalise}}",
+        "emailType": "text",
+        "message": "=NOUVEAU LEAD ENTRANT\n\nScore     : {{$('Merger Lead + Qualification').first().json.score}}\nUrgence   : {{$('Merger Lead + Qualification').first().json.urgence}}\nComplet   : {{$('Merger Lead + Qualification').first().json.complet ? 'Oui' : 'Non — ' + $('Merger Lead + Qualification').first().json.raison_incomplete}}\n\nNom       : {{$('Merger Lead + Qualification').first().json.prenom}} {{$('Merger Lead + Qualification').first().json.nom}}\nEmail     : {{$('Merger Lead + Qualification').first().json.email}}\nTél       : {{$('Merger Lead + Qualification').first().json.telephone}}\nTravaux   : {{$('Merger Lead + Qualification').first().json.type_travaux_normalise}}\nAdresse   : {{$('Merger Lead + Qualification').first().json.adresse_chantier}}\nBudget    : {{$('Merger Lead + Qualification').first().json.budget_estime}}\nDélai     : {{$('Merger Lead + Qualification').first().json.delai_souhaite}}\nSource    : {{$('Merger Lead + Qualification').first().json.source}}\n\nAction recommandée :\n{{$('Merger Lead + Qualification').first().json.score === 'A' ? '→ APPELER dans les 2 heures' : $('Merger Lead + Qualification').first().json.score === 'B' ? '→ Rappeler sous 24h' : '→ Traiter en routine'}}\n\nEmail automatique envoyé au prospect : OUI\nEnregistré dans Supabase : OUI"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "id": "node-webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2400, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"status\":\"ok\",\"message\":\"Lead reçu et traité\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook — Réception Lead": {
+      "main": [[{"node": "Parser Données Lead", "type": "main", "index": 0}]]
+    },
+    "Parser Données Lead": {
+      "main": [[{"node": "IA — Qualification Lead", "type": "main", "index": 0}]]
+    },
+    "IA — Qualification Lead": {
+      "main": [[{"node": "Merger Lead + Qualification", "type": "main", "index": 0}]]
+    },
+    "Merger Lead + Qualification": {
+      "main": [[{"node": "Lead complet ?", "type": "main", "index": 0}]]
+    },
+    "Lead complet ?": {
+      "main": [
+        [{"node": "IA — Email Lead Qualifié", "type": "main", "index": 0}],
+        [{"node": "IA — Email Infos Manquantes", "type": "main", "index": 0}]
+      ]
+    },
+    "IA — Email Lead Qualifié": {
+      "main": [[{"node": "Préparer Corps Email", "type": "main", "index": 0}]]
+    },
+    "IA — Email Infos Manquantes": {
+      "main": [[{"node": "Préparer Corps Email", "type": "main", "index": 0}]]
+    },
+    "Préparer Corps Email": {
+      "main": [[{"node": "Gmail — Email au Prospect", "type": "main", "index": 0}]]
+    },
+    "Gmail — Email au Prospect": {
+      "main": [[{"node": "Supabase — Enregistrer Lead", "type": "main", "index": 0}]]
+    },
+    "Supabase — Enregistrer Lead": {
+      "main": [[{"node": "Gmail — Notif Équipe", "type": "main", "index": 0}]]
+    },
+    "Gmail — Notif Équipe": {
+      "main": [[{"node": "Webhook Response", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": ["vantyse", "btp", "leads", "automation-ia"]
+}

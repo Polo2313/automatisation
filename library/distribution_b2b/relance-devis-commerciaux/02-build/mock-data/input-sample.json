@@ -1,0 +1,54 @@
+[
+  {
+    "id_devis": "DEV-2026-0342",
+    "date_envoi": "2026-06-20",
+    "client_nom": "SARL Fontaine Équipements",
+    "client_email": "achats@fontaine-equipements.fr",
+    "commercial_nom": "Julie Martin",
+    "commercial_email": "j.martin@monentreprise.fr",
+    "montant_ht": 4850.00,
+    "produits_principaux": "Références EPI-204 (x20), EPI-311 (x10), Gants-089 (x50)",
+    "statut": "envoyé",
+    "nb_relances": 0,
+    "derniere_relance": null
+  },
+  {
+    "id_devis": "DEV-2026-0318",
+    "date_envoi": "2026-06-13",
+    "client_nom": "Garage Central Rougier",
+    "client_email": "direction@garage-rougier.fr",
+    "commercial_nom": "Marc Bertrand",
+    "commercial_email": "m.bertrand@monentreprise.fr",
+    "montant_ht": 1250.00,
+    "produits_principaux": "Huile moteur 15W40 (x60L), Filtres à air série 4 (x12)",
+    "statut": "envoyé",
+    "nb_relances": 1,
+    "derniere_relance": "2026-06-18"
+  },
+  {
+    "id_devis": "DEV-2026-0301",
+    "date_envoi": "2026-06-04",
+    "client_nom": "Menuiserie Dumont & Fils",
+    "client_email": "commandes@menuiserie-dumont.fr",
+    "commercial_nom": "Julie Martin",
+    "commercial_email": "j.martin@monentreprise.fr",
+    "montant_ht": 7300.00,
+    "produits_principaux": "Visserie inox M8 (x1000), Colle bois pro 5L (x24), Abrasifs 80gr (x200)",
+    "statut": "envoyé",
+    "nb_relances": 2,
+    "derniere_relance": "2026-06-16"
+  },
+  {
+    "id_devis": "DEV-2026-0298",
+    "date_envoi": "2026-06-02",
+    "client_nom": "BTP Solutions Est",
+    "client_email": "achat@btpsolutions-est.fr",
+    "commercial_nom": "Marc Bertrand",
+    "commercial_email": "m.bertrand@monentreprise.fr",
+    "montant_ht": 3100.00,
+    "produits_principaux": "Casques chantier B3 (x30), Chaussures sécurité S3 (x15 paires)",
+    "statut": "transformé",
+    "nb_relances": 1,
+    "derniere_relance": "2026-06-09"
+  }
+]

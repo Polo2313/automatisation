@@ -1,0 +1,53 @@
+{
+  "_meta": "Sortie attendue après traitement par le workflow n8n. À comparer avec la sortie réelle lors du smoke test.",
+  "source_email_uid": "20260621-001",
+  "processed_at": "2026-06-21T09:19:44+02:00",
+  "original_subject": "Demande de devis - Pièces aluminium - Besoin urgent",
+  "extracted": {
+    "expediteur_nom": "Jean Dupont",
+    "expediteur_email": "jean.dupont@mecaexemple.fr",
+    "entreprise_cliente": "MecaExemple SAS",
+    "matiere": "Aluminium 7075-T6",
+    "quantite": "250 pièces",
+    "delai_souhaite": "6 semaines maximum (démarrage 4 août 2026)",
+    "specifications_cles": [
+      "Bride de fixation BF-224",
+      "Tolérance ISO h7",
+      "Anodisation dure 25 microns",
+      "Secteur aéronautique",
+      "2 fichiers joints : DWG + PDF"
+    ],
+    "type_demande": "devis_urgent",
+    "justification_classification": "Délai explicite ('avant jeudi', démarrage 4 août). Matière et spécifications clairement industrielles. Pièces en périmètre.",
+    "faisabilite_probable": null,
+    "draft_reponse_fr": "Bonjour M. Dupont,\n\nMerci pour votre demande concernant la bride de fixation BF-224 en aluminium 7075-T6 (250 pièces, anodisation dure).\n\nNous avons bien reçu vos fichiers joints et les prenons en compte dans notre analyse de faisabilité.\n\nNous vous reviendrons avec une réponse détaillée (délai et prix) d'ici jeudi comme souhaité.\n\nCordialement,\n[Signature commerciale]"
+  },
+  "supabase_row": {
+    "id": "auto-generated",
+    "source_email_uid": "20260621-001",
+    "processed_at": "2026-06-21T09:19:44+02:00",
+    "expediteur_nom": "Jean Dupont",
+    "expediteur_email": "jean.dupont@mecaexemple.fr",
+    "entreprise_cliente": "MecaExemple SAS",
+    "matiere": "Aluminium 7075-T6",
+    "quantite": "250 pièces",
+    "delai_souhaite": "6 semaines maximum (démarrage 4 août 2026)",
+    "specifications_cles": ["Bride de fixation BF-224", "Tolérance ISO h7", "Anodisation dure 25 microns", "Secteur aéronautique", "2 fichiers joints : DWG + PDF"],
+    "type_demande": "devis_urgent",
+    "justification_classification": "Délai explicite ('avant jeudi', démarrage 4 août). Matière et spécifications clairement industrielles. Pièces en périmètre.",
+    "faisabilite_probable": null,
+    "draft_reponse_fr": "Bonjour M. Dupont,\n\nMerci pour votre demande concernant la bride de fixation BF-224 en aluminium 7075-T6 (250 pièces, anodisation dure).\n\nNous avons bien reçu vos fichiers joints et les prenons en compte dans notre analyse de faisabilité.\n\nNous vous reviendrons avec une réponse détaillée (délai et prix) d'ici jeudi comme souhaité.\n\nCordialement,\n[Signature commerciale]",
+    "statut": "nouveau",
+    "original_subject": "Demande de devis - Pièces aluminium - Besoin urgent"
+  },
+  "_validation": {
+    "json_parse_ok": true,
+    "type_demande_correct": true,
+    "expediteur_email_correct": true,
+    "matiere_extrait": true,
+    "quantite_extrait": true,
+    "delai_extrait": true,
+    "draft_reponse_fr_present": true,
+    "test_pass": true
+  }
+}

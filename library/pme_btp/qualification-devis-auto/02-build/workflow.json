@@ -1,0 +1,422 @@
+{
+  "name": "Vantyse — Qualification Devis BTP Auto",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qualification-devis-btp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Réception Demande Devis",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "qualification-devis-btp"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "nom_contact",
+              "value": "={{ $json.body.nom || $json.body.name || $json.body.prenom || 'Non précisé' }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.body.email || '' }}"
+            },
+            {
+              "name": "telephone",
+              "value": "={{ $json.body.telephone || $json.body.phone || $json.body.tel || '' }}"
+            },
+            {
+              "name": "type_travaux",
+              "value": "={{ $json.body.type_travaux || $json.body.message || $json.body.description || $json.body.travaux || '' }}"
+            },
+            {
+              "name": "budget_estime",
+              "value": "={{ $json.body.budget || $json.body.budget_estime || 'Non précisé' }}"
+            },
+            {
+              "name": "localisation",
+              "value": "={{ $json.body.localisation || $json.body.ville || $json.body.code_postal || '' }}"
+            },
+            {
+              "name": "urgence",
+              "value": "={{ $json.body.urgence || $json.body.delai || 'Non précisé' }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.body.source || 'formulaire_web' }}"
+            },
+            {
+              "name": "date_reception",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0002-0002-0002-000000000002",
+      "name": "Normalisation Données",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $credentials.openaiApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant de qualification commerciale pour une PME BTP française. Analyse la demande entrante et retourne UNIQUEMENT un objet JSON valide, sans markdown ni texte additionnel.\\n\\nCritères de score (1-5) :\\n- Score 5 : Budget > 20K€ OU urgence forte ET travaux clairement définis\\n- Score 4 : Budget 5K-20K€ ET travaux identifiables\\n- Score 3 : Budget non précisé mais travaux décrits ET localisation connue\\n- Score 2 : Demande vague OU budget < 5K€\\n- Score 1 : Hors périmètre (demande d'info générale, budget < 2K€, zone géographique hors secteur)\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyse cette demande de devis BTP :\\n\\nNom : {{ $json.nom_contact }}\\nType de travaux : {{ $json.type_travaux }}\\nBudget estimé : {{ $json.budget_estime }}\\nLocalisation : {{ $json.localisation }}\\nUrgence : {{ $json.urgence }}\\n\\nRetourne ce JSON exact (sans markdown) :\\n{\\\"type_travaux_normalise\\\": \\\"catégorie courte des travaux\\\", \\\"budget_range\\\": \\\"<5K|5K-20K|20K-50K|>50K|inconnu\\\", \\\"score_priorite\\\": 1, \\\"raison_score\\\": \\\"explication courte en 1 phrase\\\", \\\"message_reponse\\\": \\\"Message de 2-3 phrases pour accuser réception de façon personnalisée et proposer un rendez-vous téléphonique de 20 minutes. Ton professionnel et chaleureux. Ne pas promettre de délai de chiffrage.\\\"}\"\n    }\n  ],\n  \"max_tokens\": 600,\n  \"temperature\": 0.2\n}"
+      },
+      "id": "a1b2c3d4-0003-0003-0003-000000000003",
+      "name": "Agent Qualification IA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ai_raw",
+              "value": "={{ $json.choices[0].message.content }}"
+            },
+            {
+              "name": "type_travaux_normalise",
+              "value": "={{ JSON.parse($json.choices[0].message.content).type_travaux_normalise }}"
+            },
+            {
+              "name": "budget_range",
+              "value": "={{ JSON.parse($json.choices[0].message.content).budget_range }}"
+            },
+            {
+              "name": "raison_score",
+              "value": "={{ JSON.parse($json.choices[0].message.content).raison_score }}"
+            },
+            {
+              "name": "message_reponse",
+              "value": "={{ JSON.parse($json.choices[0].message.content).message_reponse }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "score_priorite",
+              "value": "={{ JSON.parse($json.choices[0].message.content).score_priorite }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0004-0004-0004-000000000004",
+      "name": "Parse Réponse IA",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.score_priorite }}",
+              "operation": "largerEqual",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0005-0005-0005-000000000005",
+      "name": "Score ≥ 3 ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.FROM_EMAIL || 'devis@votre-entreprise.fr' }}",
+        "toEmail": "={{ $('Normalisation Données').item.json.email }}",
+        "subject": "Votre demande de devis — nous revenons vers vous",
+        "emailType": "html",
+        "message": "=<p>Bonjour {{ $('Normalisation Données').item.json.nom_contact }},</p>\n<p>{{ $('Parse Réponse IA').item.json.message_reponse }}</p>\n<p>À très bientôt,<br>\n<strong>[Nom de votre entreprise]</strong></p>"
+      },
+      "id": "a1b2c3d4-0006-0006-0006-000000000006",
+      "name": "Email Accusé Réception Prospect",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1340, 180],
+      "credentials": {
+        "smtp": {
+          "id": "RESEND_SMTP_CREDENTIAL_ID",
+          "name": "Resend SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@votre-entreprise.fr",
+        "toEmail": "={{ $env.NOTIF_EMAIL_CA || 'chargé-affaires@votre-entreprise.fr' }}",
+        "subject": "=[LEAD SCORE {{ $('Parse Réponse IA').item.json.score_priorite }}/5] {{ $('Normalisation Données').item.json.nom_contact }} — {{ $('Parse Réponse IA').item.json.type_travaux_normalise }}",
+        "emailType": "html",
+        "message": "=<h3>Nouvelle demande de devis qualifiée</h3>\n<table border='1' cellpadding='6'>\n  <tr><td><b>Contact</b></td><td>{{ $('Normalisation Données').item.json.nom_contact }}</td></tr>\n  <tr><td><b>Email</b></td><td>{{ $('Normalisation Données').item.json.email }}</td></tr>\n  <tr><td><b>Téléphone</b></td><td>{{ $('Normalisation Données').item.json.telephone || 'Non fourni' }}</td></tr>\n  <tr><td><b>Travaux</b></td><td>{{ $('Parse Réponse IA').item.json.type_travaux_normalise }}</td></tr>\n  <tr><td><b>Budget estimé</b></td><td>{{ $('Parse Réponse IA').item.json.budget_range }}</td></tr>\n  <tr><td><b>Localisation</b></td><td>{{ $('Normalisation Données').item.json.localisation }}</td></tr>\n  <tr><td><b>Urgence</b></td><td>{{ $('Normalisation Données').item.json.urgence }}</td></tr>\n  <tr><td><b>SCORE IA</b></td><td><strong>{{ $('Parse Réponse IA').item.json.score_priorite }}/5</strong></td></tr>\n  <tr><td><b>Raison</b></td><td>{{ $('Parse Réponse IA').item.json.raison_score }}</td></tr>\n  <tr><td><b>Source</b></td><td>{{ $('Normalisation Données').item.json.source }}</td></tr>\n  <tr><td><b>Reçu le</b></td><td>{{ $('Normalisation Données').item.json.date_reception }}</td></tr>\n</table>\n<p><b>Action recommandée :</b> {{ $('Parse Réponse IA').item.json.score_priorite >= 4 ? 'PRIORITAIRE — rappeler sous 2h' : 'Standard — rappeler sous 24h' }}</p>"
+      },
+      "id": "a1b2c3d4-0007-0007-0007-000000000007",
+      "name": "Notif Interne Chargé Affaires",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1340, 360],
+      "credentials": {
+        "smtp": {
+          "id": "RESEND_SMTP_CREDENTIAL_ID",
+          "name": "Resend SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.SHEET_ID || 'VOTRE_GOOGLE_SHEET_ID' }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads BTP",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date réception": "={{ $('Normalisation Données').item.json.date_reception }}",
+            "Nom contact": "={{ $('Normalisation Données').item.json.nom_contact }}",
+            "Email": "={{ $('Normalisation Données').item.json.email }}",
+            "Téléphone": "={{ $('Normalisation Données').item.json.telephone }}",
+            "Type travaux": "={{ $('Parse Réponse IA').item.json.type_travaux_normalise }}",
+            "Budget estimé": "={{ $('Parse Réponse IA').item.json.budget_range }}",
+            "Localisation": "={{ $('Normalisation Données').item.json.localisation }}",
+            "Score IA": "={{ $('Parse Réponse IA').item.json.score_priorite }}",
+            "Raison score": "={{ $('Parse Réponse IA').item.json.raison_score }}",
+            "Source": "={{ $('Normalisation Données').item.json.source }}",
+            "Statut": "=Nouveau",
+            "Date rappel J+3": "={{ $now.plus({days: 3}).toISO() }}",
+            "Chargé affaires": ""
+          }
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0008-0008-0008-000000000008",
+      "name": "CRM Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1560, 270],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.SHEET_ID || 'VOTRE_GOOGLE_SHEET_ID' }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads BTP",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date réception": "={{ $('Normalisation Données').item.json.date_reception }}",
+            "Nom contact": "={{ $('Normalisation Données').item.json.nom_contact }}",
+            "Email": "={{ $('Normalisation Données').item.json.email }}",
+            "Téléphone": "={{ $('Normalisation Données').item.json.telephone }}",
+            "Type travaux": "={{ $('Parse Réponse IA').item.json.type_travaux_normalise }}",
+            "Budget estimé": "={{ $('Parse Réponse IA').item.json.budget_range }}",
+            "Localisation": "={{ $('Normalisation Données').item.json.localisation }}",
+            "Score IA": "={{ $('Parse Réponse IA').item.json.score_priorite }}",
+            "Raison score": "={{ $('Parse Réponse IA').item.json.raison_score }}",
+            "Source": "={{ $('Normalisation Données').item.json.source }}",
+            "Statut": "=Non qualifié",
+            "Date rappel J+3": "",
+            "Chargé affaires": ""
+          }
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0009-0009-0009-000000000009",
+      "name": "Log Non-Qualifié",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1340, 520],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\": \"received\", \"message\": \"Votre demande a bien été reçue.\"}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0010-0010-0010-000000000010",
+      "name": "Réponse Webhook OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1780, 270]
+    }
+  ],
+  "connections": {
+    "Réception Demande Devis": {
+      "main": [
+        [
+          {
+            "node": "Normalisation Données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalisation Données": {
+      "main": [
+        [
+          {
+            "node": "Agent Qualification IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Qualification IA": {
+      "main": [
+        [
+          {
+            "node": "Parse Réponse IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Réponse IA": {
+      "main": [
+        [
+          {
+            "node": "Score ≥ 3 ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score ≥ 3 ?": {
+      "main": [
+        [
+          {
+            "node": "Email Accusé Réception Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Non-Qualifié",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Accusé Réception Prospect": {
+      "main": [
+        [
+          {
+            "node": "Notif Interne Chargé Affaires",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notif Interne Chargé Affaires": {
+      "main": [
+        [
+          {
+            "node": "CRM Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Réponse Webhook OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Non-Qualifié": {
+      "main": [
+        [
+          {
+            "node": "Réponse Webhook OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "id": "vantyse-btp",
+      "name": "vantyse-btp"
+    }
+  ],
+  "meta": {
+    "vantyse_version": "v8",
+    "cas_slug": "qualification-devis-auto",
+    "secteur": "pme_btp",
+    "date_creation": "2026-06-16",
+    "smoke_test": "Envoyer POST à /webhook/qualification-devis-btp avec mock-data/input-sample.json — vérifier email accusé, notif interne, ligne Google Sheets"
+  }
+}

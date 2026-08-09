@@ -1,0 +1,309 @@
+{
+  "_comment": "WORKFLOW N8N — IMPORTABLE ET TESTABLE. Smoke test: envoyer un email de test à la boîte configurée avec le corps 'Bonjour, je cherche à faire rénover ma salle de bain 12m2 à Lyon, pour juin 2026. Budget ~15000€. Cordialement, Marc Dupont'. Output attendu: fiche Airtable créée + email notification envoyé + log Supabase inséré.",
+  "name": "Traitement Devis BTP Entrants",
+  "nodes": [
+    {
+      "id": "node-001",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "filters": {
+          "labelIds": ["INBOX", "UNREAD"],
+          "q": "is:unread label:devis-entrants OR (is:unread subject:devis)"
+        },
+        "options": {
+          "format": "full",
+          "markAsRead": true
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cred-gmail-01",
+          "name": "Gmail Client"
+        }
+      }
+    },
+    {
+      "id": "node-002",
+      "name": "A des pièces jointes ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ $json.attachments.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-003",
+      "name": "Extract From File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [680, 200],
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-004",
+      "name": "Merge Email + PJ",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [900, 300],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByIndex",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-005",
+      "name": "OpenAI — Extraction structurée",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "parameters": {
+        "resource": "text",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "prompt": "={{ 'CONTEXTE EMAIL:\nDe: ' + $json.from + '\nObjet: ' + $json.subject + '\nCorps:\n' + $json.text + '\n\nCONTENU PJ (si présent):\n' + ($json.extracted_text || '') }}\n\nExtrait les informations suivantes et réponds UNIQUEMENT en JSON valide sans markdown:\n{\n  \"type_travaux\": null,\n  \"adresse\": null,\n  \"surface_m2\": null,\n  \"delai_souhaite\": null,\n  \"budget_indication\": null,\n  \"nom_prospect\": null,\n  \"email_prospect\": null,\n  \"telephone_prospect\": null,\n  \"type_client\": null,\n  \"infos_complementaires\": null\n}",
+        "options": {
+          "temperature": 0,
+          "maxTokens": 500
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "cred-openai-01",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "id": "node-006",
+      "name": "Parse JSON OpenAI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text || $input.first().json.choices?.[0]?.message?.content || '{}';\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch(e) {\n  parsed = { parse_error: true, raw: raw };\n}\nreturn [{ json: { ...parsed, email_origine: $('Gmail Trigger').first().json.from, subject_origine: $('Gmail Trigger').first().json.subject, date_reception: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "node-007",
+      "name": "Champs requis présents ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "cond-002",
+              "leftValue": "={{ $json.type_travaux }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            },
+            {
+              "id": "cond-003",
+              "leftValue": "={{ $json.adresse }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-008",
+      "name": "Resend — Accusé incomplet",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [1780, 160],
+      "parameters": {
+        "fromEmail": "devis@{{ $env.CLIENT_DOMAIN }}",
+        "toEmail": "={{ $json.email_origine }}",
+        "subject": "Votre demande de devis — informations complémentaires",
+        "emailType": "text",
+        "message": "Bonjour,\n\nMerci pour votre demande. Afin de vous proposer un devis précis dans les meilleurs délais, pourriez-vous nous préciser :\n- Le type de travaux souhaité (si non précisé)\n- L'adresse du chantier (ville ou adresse complète)\n\nNous revenons vers vous sous 24h.\n\nCordialement,\nL'équipe [Nom entreprise]"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "cred-resend-01",
+          "name": "Resend SMTP"
+        }
+      }
+    },
+    {
+      "id": "node-009",
+      "name": "Code — Scoring & Catégorisation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 380],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// Catégorisation type travaux\nconst typeMap = {\n  'gros oeuvre': 'gros_oeuvre',\n  'maçonnerie': 'gros_oeuvre',\n  'fondation': 'gros_oeuvre',\n  'rénovation': 'second_oeuvre',\n  'salle de bain': 'second_oeuvre',\n  'cuisine': 'second_oeuvre',\n  'peinture': 'second_oeuvre',\n  'isolation': 'second_oeuvre',\n  'toiture': 'second_oeuvre',\n  'électricité': 'second_oeuvre',\n  'plomberie': 'second_oeuvre',\n  'terrassement': 'vrd',\n  'assainissement': 'vrd',\n  'voirie': 'vrd'\n};\n\nconst type_travaux_lower = (data.type_travaux || '').toLowerCase();\nlet categorie = 'autre';\nfor (const [key, val] of Object.entries(typeMap)) {\n  if (type_travaux_lower.includes(key)) { categorie = val; break; }\n}\n\n// Score complexité (1=simple, 2=moyen, 3=complexe)\nlet score = 1;\nif (data.surface_m2 && data.surface_m2 > 100) score = 2;\nif (data.surface_m2 && data.surface_m2 > 300) score = 3;\nif (data.budget_indication && /[5-9]\\d{4,}|\\d{6,}/.test(data.budget_indication)) score = 3;\n\nreturn [{ json: { ...data, categorie_travaux: categorie, score_complexite: score, commercial_assigne: score === 3 ? 'directeur' : 'commercial_1' } }];"
+      }
+    },
+    {
+      "id": "node-010",
+      "name": "Airtable — Créer fiche prospect",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [2000, 380],
+      "parameters": {
+        "operation": "create",
+        "baseId": "={{ $env.AIRTABLE_BASE_ID }}",
+        "tableId": "Prospects BTP",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "values": {
+            "Nom prospect": "={{ $json.nom_prospect || 'Inconnu' }}",
+            "Email": "={{ $json.email_prospect || $json.email_origine }}",
+            "Téléphone": "={{ $json.telephone_prospect }}",
+            "Type travaux": "={{ $json.type_travaux }}",
+            "Catégorie": "={{ $json.categorie_travaux }}",
+            "Adresse chantier": "={{ $json.adresse }}",
+            "Surface (m²)": "={{ $json.surface_m2 }}",
+            "Délai souhaité": "={{ $json.delai_souhaite }}",
+            "Budget indication": "={{ $json.budget_indication }}",
+            "Score complexité": "={{ $json.score_complexite }}",
+            "Commercial assigné": "={{ $json.commercial_assigne }}",
+            "Statut": "Nouveau",
+            "Date réception": "={{ $json.date_reception }}",
+            "Infos complémentaires": "={{ $json.infos_complementaires }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cred-airtable-01",
+          "name": "Airtable Client"
+        }
+      }
+    },
+    {
+      "id": "node-011",
+      "name": "Resend — Notifier commercial",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [2220, 300],
+      "parameters": {
+        "fromEmail": "noreply@{{ $env.CLIENT_DOMAIN }}",
+        "toEmail": "={{ $env.NOTIFICATION_EMAIL }}",
+        "subject": "🔔 Nouveau devis [Score {{ $('Code — Scoring & Catégorisation').first().json.score_complexite }}] — {{ $('Code — Scoring & Catégorisation').first().json.type_travaux || 'Travaux non précisés' }}",
+        "emailType": "html",
+        "message": "<h2>Nouvelle demande de devis</h2><table style='border-collapse:collapse;width:100%'><tr><td style='padding:8px;border:1px solid #ddd'><b>Prospect</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.nom_prospect || 'Non renseigné' }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd'><b>Email</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.email_origine }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd'><b>Type de travaux</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.type_travaux }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd'><b>Adresse</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.adresse }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd'><b>Budget</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.budget_indication || 'Non précisé' }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd'><b>Score complexité</b></td><td style='padding:8px;border:1px solid #ddd'>{{ $('Code — Scoring & Catégorisation').first().json.score_complexite }}/3</td></tr></table><p><a href='https://airtable.com/{{ $env.AIRTABLE_BASE_ID }}'>Voir la fiche Airtable →</a></p>"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "cred-resend-01",
+          "name": "Resend SMTP"
+        }
+      }
+    },
+    {
+      "id": "node-012",
+      "name": "Supabase — Log",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2440, 300],
+      "parameters": {
+        "operation": "insert",
+        "tableId": "devis_log",
+        "dataToInsert": {
+          "values": [
+            { "fieldId": "date_reception", "fieldValue": "={{ $('Code — Scoring & Catégorisation').first().json.date_reception }}" },
+            { "fieldId": "email_origine", "fieldValue": "={{ $('Code — Scoring & Catégorisation').first().json.email_origine }}" },
+            { "fieldId": "type_travaux", "fieldValue": "={{ $('Code — Scoring & Catégorisation').first().json.type_travaux }}" },
+            { "fieldId": "score_complexite", "fieldValue": "={{ $('Code — Scoring & Catégorisation').first().json.score_complexite }}" },
+            { "fieldId": "statut", "fieldValue": "traite" },
+            { "fieldId": "date_traitement", "fieldValue": "={{ new Date().toISOString() }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "cred-supabase-01",
+          "name": "Supabase Client"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [[{ "node": "A des pièces jointes ?", "type": "main", "index": 0 }]]
+    },
+    "A des pièces jointes ?": {
+      "main": [
+        [{ "node": "Extract From File", "type": "main", "index": 0 }],
+        [{ "node": "Merge Email + PJ", "type": "main", "index": 1 }]
+      ]
+    },
+    "Extract From File": {
+      "main": [[{ "node": "Merge Email + PJ", "type": "main", "index": 0 }]]
+    },
+    "Merge Email + PJ": {
+      "main": [[{ "node": "OpenAI — Extraction structurée", "type": "main", "index": 0 }]]
+    },
+    "OpenAI — Extraction structurée": {
+      "main": [[{ "node": "Parse JSON OpenAI", "type": "main", "index": 0 }]]
+    },
+    "Parse JSON OpenAI": {
+      "main": [[{ "node": "Champs requis présents ?", "type": "main", "index": 0 }]]
+    },
+    "Champs requis présents ?": {
+      "main": [
+        [{ "node": "Code — Scoring & Catégorisation", "type": "main", "index": 0 }],
+        [{ "node": "Resend — Accusé incomplet", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code — Scoring & Catégorisation": {
+      "main": [[{ "node": "Airtable — Créer fiche prospect", "type": "main", "index": 0 }]]
+    },
+    "Airtable — Créer fiche prospect": {
+      "main": [[{ "node": "Resend — Notifier commercial", "type": "main", "index": 0 }]]
+    },
+    "Resend — Notifier commercial": {
+      "main": [[{ "node": "Supabase — Log", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "",
+    "timezone": "Europe/Paris"
+  },
+  "meta": {
+    "vantyse_version": "v8",
+    "cas_slug": "traitement-devis-entrants",
+    "secteur": "pme_btp",
+    "date_creation": "2026-06-03"
+  }
+}

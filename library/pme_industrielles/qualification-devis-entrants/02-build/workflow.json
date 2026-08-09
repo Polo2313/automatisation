@@ -1,0 +1,402 @@
+{
+  "_meta": {
+    "note": "Squelette n8n importable. Remplacer les valeurs {{VARIABLE}} par vos credentials réels. Tester avec le smoke test documenté dans architecture.md avant mise en production.",
+    "version": "1.0",
+    "date": "2026-06-21",
+    "smoke_test": "Envoyer 5 emails test (3 standard, 1 urgent, 1 hors scope) sur la boîte IMAP configurée. Vérifier les 5 sorties attendues dans Supabase + email notification."
+  },
+  "name": "Vantyse — Qualification devis entrants PME industrielle v1",
+  "nodes": [
+    {
+      "id": "node-01-imap-trigger",
+      "name": "Surveille boîte email devis",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "mailbox": "INBOX",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "credentials": {
+        "imap": {
+          "id": "IMAP_CREDENTIAL_ID",
+          "name": "Boite devis entreprise"
+        }
+      }
+    },
+    {
+      "id": "node-02-set-normalize",
+      "name": "Normalise email entrant",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [460, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "email_from",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            },
+            {
+              "name": "email_subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "name": "email_body_text",
+              "value": "={{ $json.text || $json.html?.replace(/<[^>]*>/g, ' ') || '' }}",
+              "type": "string"
+            },
+            {
+              "name": "email_date",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            },
+            {
+              "name": "email_uid",
+              "value": "={{ $json.uid }}",
+              "type": "string"
+            },
+            {
+              "name": "has_attachments",
+              "value": "={{ ($json.attachments && $json.attachments.length > 0) }}",
+              "type": "boolean"
+            },
+            {
+              "name": "attachment_count",
+              "value": "={{ $json.attachments?.length || 0 }}",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-03-openai-extract",
+      "name": "OpenAI — Extraction structurée",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headers": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "body": {
+          "contentType": "json",
+          "body": "={\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0,\n  \"max_tokens\": 800,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant technique pour une PME industrielle. Extrais les informations suivantes d'une demande de devis et retourne UNIQUEMENT un JSON valide sans texte supplémentaire.\\n\\nChamps à extraire :\\n- expediteur_nom (string)\\n- expediteur_email (string)\\n- entreprise_cliente (string ou null)\\n- matiere (string ou null)\\n- quantite (string ou null)\\n- delai_souhaite (string ou null)\\n- specifications_cles (array de strings, max 5 éléments)\\n- type_demande (enum: devis_standard | devis_urgent | hors_perimetre | information_seulement)\\n- justification_classification (string, max 50 mots)\\n- faisabilite_probable (boolean ou null si incertain)\\n- draft_reponse_fr (string, 80-120 mots, ton professionnel, en français)\\n\\nRègle hors_perimetre: demande portant sur matières non industrielles (bois, textile, alimentaire, cosmétique) ou si ce n'est clairement pas une demande de devis.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"De: {{ $json.email_from }}\\nObjet: {{ $json.email_subject }}\\nDate: {{ $json.email_date }}\\nPièces jointes: {{ $json.attachment_count }} fichier(s)\\n\\nCorps du message:\\n{{ $json.email_body_text.substring(0, 3000) }}\"\n    }\n  ]\n}"
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API Key"
+        }
+      }
+    },
+    {
+      "id": "node-04-parse-json",
+      "name": "Parse réponse OpenAI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [900, 300],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "name": "extracted",
+              "value": "={{ JSON.parse($json.choices[0].message.content) }}",
+              "type": "object"
+            },
+            {
+              "name": "processed_at",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            },
+            {
+              "name": "source_email_uid",
+              "value": "={{ $('Normalise email entrant').item.json.email_uid }}",
+              "type": "string"
+            },
+            {
+              "name": "original_subject",
+              "value": "={{ $('Normalise email entrant').item.json.email_subject }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-05-switch-classify",
+      "name": "Classification — Routage",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1120, 300],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "options": {
+                  "leftValue": "={{ $json.extracted.type_demande }}",
+                  "caseSensitive": false
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.extracted.type_demande }}",
+                    "rightValue": "hors_perimetre",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "hors_scope"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.extracted.type_demande }}",
+                    "rightValue": "devis_urgent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "urgent"
+            }
+          ],
+          "fallbackOutput": "standard"
+        }
+      }
+    },
+    {
+      "id": "node-06-email-hors-scope",
+      "name": "Email — Réponse hors périmètre",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 160],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "body": {
+          "contentType": "json",
+          "body": "={\n  \"from\": \"{{ $env.FROM_EMAIL }}\",\n  \"to\": [\"{{ $json.extracted.expediteur_email }}\"],\n  \"subject\": \"RE: {{ $json.original_subject }}\",\n  \"text\": \"Bonjour {{ $json.extracted.expediteur_nom }},\\n\\nMerci pour votre demande.\\n\\nAprès analyse, il semble que votre besoin ne corresponde pas à notre périmètre d'activité (usinage, découpe et traitement de métaux et matières plastiques industrielles).\\n\\nNous vous souhaitons bonne chance dans vos recherches.\\n\\nCordialement,\\nL'équipe commerciale\"\n}"
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "RESEND_CREDENTIAL_ID",
+            "name": "Resend API Key"
+          }
+        }
+      }
+    },
+    {
+      "id": "node-07-supabase-insert",
+      "name": "Supabase — Enregistre devis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 380],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/devis_entrants",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headers": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "body": {
+          "contentType": "json",
+          "body": "={\n  \"source_email_uid\": \"{{ $json.source_email_uid }}\",\n  \"processed_at\": \"{{ $json.processed_at }}\",\n  \"expediteur_nom\": \"{{ $json.extracted.expediteur_nom }}\",\n  \"expediteur_email\": \"{{ $json.extracted.expediteur_email }}\",\n  \"entreprise_cliente\": \"{{ $json.extracted.entreprise_cliente }}\",\n  \"matiere\": \"{{ $json.extracted.matiere }}\",\n  \"quantite\": \"{{ $json.extracted.quantite }}\",\n  \"delai_souhaite\": \"{{ $json.extracted.delai_souhaite }}\",\n  \"specifications_cles\": {{ JSON.stringify($json.extracted.specifications_cles) }},\n  \"type_demande\": \"{{ $json.extracted.type_demande }}\",\n  \"justification_classification\": \"{{ $json.extracted.justification_classification }}\",\n  \"faisabilite_probable\": {{ $json.extracted.faisabilite_probable }},\n  \"draft_reponse_fr\": \"{{ $json.extracted.draft_reponse_fr }}\",\n  \"statut\": \"nouveau\",\n  \"original_subject\": \"{{ $json.original_subject }}\"\n}"
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "SUPABASE_CREDENTIAL_ID",
+            "name": "Supabase API Key"
+          }
+        }
+      }
+    },
+    {
+      "id": "node-08-email-notify",
+      "name": "Email — Notification commercial + draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1560, 380],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "body": {
+          "contentType": "json",
+          "body": "={\n  \"from\": \"{{ $env.FROM_EMAIL }}\",\n  \"to\": [\"{{ $env.NOTIFY_EMAIL }}\"],\n  \"subject\": \"[DEVIS {{ $('Parse réponse OpenAI').item.json.extracted.type_demande == 'devis_urgent' ? '🔴 URGENT' : '📋 STANDARD' }}] {{ $('Parse réponse OpenAI').item.json.extracted.entreprise_cliente || 'Client inconnu' }} — {{ $('Parse réponse OpenAI').item.json.extracted.matiere || 'Matière non précisée' }}\",\n  \"html\": \"<h2>Nouveau devis entrant</h2><table><tr><td><b>Expéditeur</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.expediteur_nom }} ({{ $('Parse réponse OpenAI').item.json.extracted.expediteur_email }})</td></tr><tr><td><b>Entreprise</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.entreprise_cliente }}</td></tr><tr><td><b>Matière</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.matiere }}</td></tr><tr><td><b>Quantité</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.quantite }}</td></tr><tr><td><b>Délai souhaité</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.delai_souhaite }}</td></tr><tr><td><b>Faisabilité estimée</b></td><td>{{ $('Parse réponse OpenAI').item.json.extracted.faisabilite_probable === true ? 'Oui' : $('Parse réponse OpenAI').item.json.extracted.faisabilite_probable === false ? 'Non' : 'Incertain' }}</td></tr></table><h3>Spécifications clés</h3><ul>{{ $('Parse réponse OpenAI').item.json.extracted.specifications_cles.map(s => '<li>' + s + '</li>').join('') }}</ul><h3>Draft réponse (à valider avant envoi)</h3><blockquote>{{ $('Parse réponse OpenAI').item.json.extracted.draft_reponse_fr }}</blockquote><hr/><small>Traité par Vantyse Agent | {{ $('Parse réponse OpenAI').item.json.processed_at }}</small>\"\n}"
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "RESEND_CREDENTIAL_ID",
+            "name": "Resend API Key"
+          }
+        }
+      }
+    },
+    {
+      "id": "node-09-slack-urgent",
+      "name": "Slack — Alerte urgente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1780, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "body": {
+          "contentType": "json",
+          "body": "={\n  \"text\": \"🔴 *DEVIS URGENT* — {{ $('Parse réponse OpenAI').item.json.extracted.entreprise_cliente || 'Client inconnu' }}\\nMatière : {{ $('Parse réponse OpenAI').item.json.extracted.matiere }}  |  Qté : {{ $('Parse réponse OpenAI').item.json.extracted.quantite }}  |  Délai : {{ $('Parse réponse OpenAI').item.json.extracted.delai_souhaite }}\\n_Notif email envoyée à {{ $env.NOTIFY_EMAIL }}_\"\n}"
+        }
+      },
+      "executeOnce": false
+    }
+  ],
+  "connections": {
+    "Surveille boîte email devis": {
+      "main": [
+        [
+          {
+            "node": "Normalise email entrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise email entrant": {
+      "main": [
+        [
+          {
+            "node": "OpenAI — Extraction structurée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI — Extraction structurée": {
+      "main": [
+        [
+          {
+            "node": "Parse réponse OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse réponse OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Classification — Routage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classification — Routage": {
+      "main": [
+        [
+          {
+            "node": "Email — Réponse hors périmètre",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase — Enregistre devis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase — Enregistre devis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase — Enregistre devis": {
+      "main": [
+        [
+          {
+            "node": "Email — Notification commercial + draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email — Notification commercial + draft": {
+      "main": [
+        [
+          {
+            "node": "Slack — Alerte urgente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "last",
+    "executionTimeout": 300,
+    "timezone": "Europe/Paris"
+  },
+  "tags": ["vantyse", "pme-industrielle", "devis", "automation-ia"]
+}

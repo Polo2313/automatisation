@@ -1,0 +1,48 @@
+{
+  "_comment": "Email de demande de devis fictif — anonymisé — utilisé pour les tests du workflow",
+  "_usage": "Simuler cet email depuis une boîte externe pour tester le workflow en conditions réelles. Le contenu doit déclencher les nodes 1 à 9.",
+
+  "id": "18f3a2b4c5d6e7f8",
+  "threadId": "18f3a2b4c5d6e7f8",
+  "labelIds": ["INBOX", "UNREAD"],
+
+  "from": {
+    "value": [
+      {
+        "address": "thomas.martin.lyon@gmail.com",
+        "name": "Thomas Martin"
+      }
+    ],
+    "html": "Thomas Martin &lt;thomas.martin.lyon@gmail.com&gt;",
+    "text": "Thomas Martin <thomas.martin.lyon@gmail.com>"
+  },
+
+  "to": {
+    "value": [
+      {
+        "address": "contact@electricite-blanchard.fr",
+        "name": "Blanchard Électricité"
+      }
+    ]
+  },
+
+  "subject": "Demande de devis — Rénovation électrique appartement Lyon 3ème",
+
+  "date": "2026-06-01T09:47:32+02:00",
+
+  "text": "Bonjour,\n\nJe me permets de vous contacter suite à une recommandation d'un voisin qui a fait appel à vos services l'an dernier.\n\nJe suis propriétaire d'un appartement de 80 m² situé au 3ème arrondissement de Lyon, construit en 1965. L'installation électrique n'a jamais été refaite et ne répond plus aux normes actuelles. Mon assurance m'a d'ailleurs signalé des anomalies lors d'un diagnostic réalisé le mois dernier.\n\nJe souhaiterais obtenir un devis pour la rénovation complète du tableau électrique et de l'ensemble du câblage de l'appartement, y compris la mise aux normes NF C 15-100. Les travaux comprennent :\n- Remplacement du tableau électrique (fusibles anciens à remplacer par des disjoncteurs)\n- Refaire les circuits prises et éclairage dans toutes les pièces (5 pièces + cuisine + 2 salles de bain)\n- Mise en place d'une protection différentielle 30 mA\n- Ajout d'une borne de recharge pour véhicule électrique (garage en sous-sol)\n\nMon budget est de l'ordre de 3 000 à 5 000 euros, mais je suis prêt à réviser si vous m'expliquez ce qui justifie un dépassement éventuel.\n\nIdéalement, je souhaiterais que les travaux démarrent d'ici 2 mois — j'ai un locataire qui part fin juillet et je veux profiter de la période de vacance pour faire les travaux.\n\nPourriez-vous me proposer un rendez-vous pour un état des lieux ? Je suis disponible en semaine après 18h ou le samedi matin.\n\nMerci d'avance,\nThomas Martin\n07 82 45 63 91",
+
+  "html": "<p>Bonjour,</p><p>Je me permets de vous contacter suite à une recommandation d'un voisin qui a fait appel à vos services l'an dernier.</p><p>Je suis propriétaire d'un appartement de 80 m² situé au 3ème arrondissement de Lyon, construit en 1965. L'installation électrique n'a jamais été refaite et ne répond plus aux normes actuelles. Mon assurance m'a d'ailleurs signalé des anomalies lors d'un diagnostic réalisé le mois dernier.</p><p>Je souhaiterais obtenir un devis pour la rénovation complète du tableau électrique et de l'ensemble du câblage de l'appartement, y compris la mise aux normes NF C 15-100. Les travaux comprennent :</p><ul><li>Remplacement du tableau électrique (fusibles anciens à remplacer par des disjoncteurs)</li><li>Refaire les circuits prises et éclairage dans toutes les pièces (5 pièces + cuisine + 2 salles de bain)</li><li>Mise en place d'une protection différentielle 30 mA</li><li>Ajout d'une borne de recharge pour véhicule électrique (garage en sous-sol)</li></ul><p>Mon budget est de l'ordre de 3 000 à 5 000 euros, mais je suis prêt à réviser si vous m'expliquez ce qui justifie un dépassement éventuel.</p><p>Idéalement, je souhaiterais que les travaux démarrent d'ici 2 mois — j'ai un locataire qui part fin juillet et je veux profiter de la période de vacance pour faire les travaux.</p><p>Pourriez-vous me proposer un rendez-vous pour un état des lieux ? Je suis disponible en semaine après 18h ou le samedi matin.</p><p>Merci d'avance,<br>Thomas Martin<br>07 82 45 63 91</p>",
+
+  "attachments": [],
+
+  "_expected_outputs": {
+    "score_attendu": 5,
+    "qualification_attendue": "chaud",
+    "type_travaux_attendu": "Rénovation électrique complète — mise aux normes NF C 15-100",
+    "localisation_attendue": "Lyon 3ème (69)",
+    "budget_attendu": "3 000 – 5 000 €",
+    "urgence_attendue": "normale",
+    "note_test": "Email idéal pour valider le scoring élevé : budget précis, type de travaux détaillé, localisation connue, délai mentionné. Score 5 attendu."
+  }
+}

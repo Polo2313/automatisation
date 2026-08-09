@@ -1,0 +1,57 @@
+{
+  "_description": "Exemples de données entrantes — 3 cas de test (CHAUD, TIEDE, FROID)",
+
+  "case_1_gmail_chaud": {
+    "source": "gmail",
+    "id": "18f4a2b3c1d0e9f8",
+    "threadId": "18f4a2b3c1d0e9f8",
+    "labelIds": ["INBOX", "UNREAD"],
+    "snippet": "Bonjour, nous cherchons à faire construire une extension de 60m2 sur notre maison à Nantes. Budget prévu autour de 90 000 euros HT. Travaux souhaités pour début septembre. Merci de nous rappeler.",
+    "from": {
+      "value": [{"address": "martin.dupont@gmail.com", "name": "Martin Dupont"}]
+    },
+    "to": {
+      "value": [{"address": "contact@btp-client.fr", "name": "BTP Client"}]
+    },
+    "subject": "Demande de devis extension maison",
+    "date": "2026-06-19T09:14:32.000Z",
+    "body": "Bonjour,\n\nNous cherchons à faire construire une extension de 60 m2 sur notre maison à Nantes (44). Budget prévu : 90 000 euros HT environ. Travaux souhaités pour début septembre 2026.\n\nPouvez-vous nous rappeler pour convenir d'un rendez-vous de visite ?\n\nCordialement,\nMartin Dupont\n06 12 34 56 78"
+  },
+
+  "case_2_tally_tiede": {
+    "source": "tally",
+    "eventId": "evt_tally_9a8b7c6d",
+    "createdAt": "2026-06-19T11:30:00.000Z",
+    "data": {
+      "respondent": {
+        "email": "isabelle.renaud@orange.fr",
+        "name": "Isabelle Renaud"
+      },
+      "fields": {
+        "type_travaux": "Rénovation salle de bain",
+        "surface_m2": "12",
+        "budget": "Je ne sais pas encore exactement",
+        "ville": "Clermont-Ferrand",
+        "urgence": "Dans les 3-6 prochains mois",
+        "message": "Bonjour, je souhaite rénover ma salle de bain (remplacement douche, carrelage, robinetterie). Surface environ 12 m2. Je n'ai pas encore de budget précis en tête. Merci de me contacter."
+      }
+    }
+  },
+
+  "case_3_gmail_froid": {
+    "source": "gmail",
+    "id": "17e3b9c2d4f1a0e7",
+    "threadId": "17e3b9c2d4f1a0e7",
+    "labelIds": ["INBOX", "UNREAD"],
+    "snippet": "Bonjour, je voulais savoir si vous faites des travaux de peinture. Merci.",
+    "from": {
+      "value": [{"address": "j.bernard@hotmail.com", "name": "J. Bernard"}]
+    },
+    "to": {
+      "value": [{"address": "contact@btp-client.fr", "name": "BTP Client"}]
+    },
+    "subject": "Question",
+    "date": "2026-06-19T14:55:12.000Z",
+    "body": "Bonjour,\n\nJe voulais savoir si vous faites des travaux de peinture.\n\nMerci."
+  }
+}

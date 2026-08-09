@@ -1,0 +1,97 @@
+{
+  "_comment": "Sortie attendue du workflow après traitement de input-sample.json",
+  "_usage": "Comparer avec la sortie réelle lors des tests J6. Toutes les valeurs sont des références pour valider la cohérence de l'IA et le bon fonctionnement du pipeline.",
+
+  "metadata": {
+    "email_id": "18f3a2b4c5d6e7f8",
+    "timestamp_traitement": "2026-06-01T09:53:14+02:00",
+    "delai_traitement_secondes": 102,
+    "workflow_version": "1.0.0",
+    "modele_ia": "gpt-4o-mini"
+  },
+
+  "lead": {
+    "expediteur_email": "thomas.martin.lyon@gmail.com",
+    "expediteur_nom": "Thomas Martin",
+    "sujet": "Demande de devis — Rénovation électrique appartement Lyon 3ème",
+    "date_reception": "2026-06-01T09:47:32+02:00"
+  },
+
+  "qualification_ia": {
+    "type_travaux": "Rénovation électrique complète — remplacement tableau, câblage, mise aux normes NF C 15-100, borne IRVE",
+    "localisation": "Lyon 3ème (69)",
+    "budget_estime": "3 000 – 5 000 €",
+    "urgence": "normale",
+    "score": 5,
+    "qualification": "chaud",
+    "resume_lead": "M. Martin, propriétaire d'un appartement de 80 m² à Lyon 3ème, souhaite une rénovation électrique complète (tableau + câblage + mise aux normes) avant fin juillet. Budget clair de 3 000 à 5 000 €, ajout d'une borne IRVE demandé. Disponible en semaine après 18h ou samedi matin.",
+    "tags": ["rénovation électrique", "mise aux normes", "NF C 15-100", "tableau électrique", "borne IRVE", "appartement", "Lyon", "locataire", "période de vacance"]
+  },
+
+  "google_sheets_row": {
+    "timestamp": "2026-06-01T09:53:14+02:00",
+    "email_id": "18f3a2b4c5d6e7f8",
+    "expediteur_email": "thomas.martin.lyon@gmail.com",
+    "expediteur_nom": "Thomas Martin",
+    "sujet": "Demande de devis — Rénovation électrique appartement Lyon 3ème",
+    "type_travaux": "Rénovation électrique complète — remplacement tableau, câblage, mise aux normes NF C 15-100, borne IRVE",
+    "localisation": "Lyon 3ème (69)",
+    "budget_estime": "3 000 – 5 000 €",
+    "urgence": "normale",
+    "score": 5,
+    "qualification": "chaud",
+    "resume_lead": "M. Martin, propriétaire d'un appartement de 80 m² à Lyon 3ème, souhaite une rénovation électrique complète (tableau + câblage + mise aux normes) avant fin juillet. Budget clair de 3 000 à 5 000 €, ajout d'une borne IRVE demandé. Disponible en semaine après 18h ou samedi matin.",
+    "statut": "recu",
+    "draft_response": "Bonjour M. Martin,\n\nMerci pour votre message et la confiance que vous accordez à notre recommandation.\n\nVotre projet de rénovation électrique complète — tableau, câblage et mise aux normes NF C 15-100 avec ajout d'une borne de recharge — correspond tout à fait à nos compétences.\n\nNous serions ravis de vous proposer un rendez-vous pour un état des lieux. Compte tenu de votre calendrier (travaux avant fin juillet), je vous propose de nous appeler au [NUMÉRO] ou de répondre à cet email pour convenir d'un créneau.\n\nBonne journée,\n[Prénom] — Blanchard Électricité",
+    "notes_gerant": ""
+  },
+
+  "emails_envoyes": {
+    "confirmation_prospect": {
+      "destinataire": "thomas.martin.lyon@gmail.com",
+      "expediteur": "contact@electricite-blanchard.fr",
+      "sujet": "Votre demande de devis a bien été reçue",
+      "statut": "envoye",
+      "timestamp": "2026-06-01T09:53:18+02:00",
+      "provider": "Resend"
+    },
+    "notification_gerant": {
+      "destinataire": "gerant@electricite-blanchard.fr",
+      "sujet": "🔔 Nouveau lead chaud — Score 5/5 — Thomas Martin",
+      "statut": "envoye",
+      "timestamp": "2026-06-01T09:53:22+02:00",
+      "contient_brouillon": true
+    }
+  },
+
+  "metriques_execution": {
+    "node_1_gmail_trigger_ms": 312,
+    "node_2_filter_ms": 45,
+    "node_3_parse_ms": 78,
+    "node_4_openai_qualify_ms": 1240,
+    "node_5_router_ms": 32,
+    "node_6_sheets_log_ms": 890,
+    "node_7_openai_draft_ms": 1680,
+    "node_8_notification_ms": 420,
+    "node_9_resend_ms": 380,
+    "total_traitement_ms": 5077,
+    "tokens_utilises": {
+      "node_4_input": 487,
+      "node_4_output": 218,
+      "node_7_input": 412,
+      "node_7_output": 147,
+      "total": 1264
+    },
+    "cout_estime_openai_usd": 0.00024
+  },
+
+  "validation_tests": {
+    "score_coherent": true,
+    "json_parse_ok": true,
+    "sheets_ligne_creee": true,
+    "email_confirmation_envoye": true,
+    "notification_gerant_envoyee": true,
+    "delai_total_ok": true,
+    "note": "Toutes les validations passées — email de référence pour le test J6"
+  }
+}

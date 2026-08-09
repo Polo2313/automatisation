@@ -1,0 +1,53 @@
+{
+  "run_date": "2026-06-26",
+  "devis_traites": 3,
+  "emails_envoyes": 3,
+  "resultats": [
+    {
+      "ref_devis": "DEV-2026-0412",
+      "relance_type": "relance_1",
+      "email_envoyé_a": "l.moreau@exemple-industrie.fr",
+      "sujet": "Votre devis DEV-2026-0412 — Un point rapide ?",
+      "corps_genere": "Bonjour Laurent,\n\nJe reviens vers vous concernant notre devis DEV-2026-0412 pour les pièces de fixation acier inox 316L.\n\nAvez-vous eu l'occasion de l'examiner ? Si vous avez des questions sur les spécifications ou les délais, je suis disponible pour en parler.\n\nCordialement,\nPaul De Cock",
+      "supabase_update": {
+        "nb_relances": 1,
+        "date_relance_1": "2026-06-26",
+        "date_derniere_relance": "2026-06-26"
+      },
+      "statut": "success"
+    },
+    {
+      "ref_devis": "DEV-2026-0413",
+      "relance_type": "relance_2",
+      "email_envoyé_a": "s.bertin@plasturgie-exemple.fr",
+      "sujet": "Votre devis DEV-2026-0413 — Toujours intéressé ?",
+      "corps_genere": "Bonjour Sophie,\n\nSuite à mon message de la semaine dernière sur le devis DEV-2026-0413 (moule injection PP, 2 empreintes).\n\nNous avons accompagné plusieurs plasturgistes sur ce type d'outillage — les délais que nous proposons sont généralement 15 à 20 % plus courts que la moyenne du secteur.\n\nUne question sur le cahier des charges ou le planning ? Je suis joignable cette semaine.\n\nCordialement,\nPaul De Cock",
+      "supabase_update": {
+        "nb_relances": 2,
+        "date_relance_2": "2026-06-26",
+        "date_derniere_relance": "2026-06-26"
+      },
+      "statut": "success"
+    },
+    {
+      "ref_devis": "DEV-2026-0401",
+      "relance_type": "break_up",
+      "email_envoyé_a": "jm.tissier@agro-exemple.fr",
+      "sujet": "Votre devis DEV-2026-0401 — On ferme le dossier",
+      "corps_genere": "Bonjour Jean-Marc,\n\nJe vous ai contacté à plusieurs reprises concernant le devis DEV-2026-0401 (convoyeur inox alimentaire 6m).\n\nSans réponse de votre part, je comprends que ce n'est probablement pas le bon moment. Je ferme ce dossier de mon côté.\n\nSi le besoin revient, n'hésitez pas à me recontacter directement.\n\nBonne continuation,\nPaul De Cock",
+      "supabase_update": {
+        "nb_relances": 3,
+        "date_relance_3": "2026-06-26",
+        "date_derniere_relance": "2026-06-26",
+        "status": "non_répondu"
+      },
+      "alerte_commercial": {
+        "envoyée": true,
+        "destinataire": "commercial@exemple-industrie.fr",
+        "message": "[Devis sans réponse] DEV-2026-0401 — Agrotech Exemple SAS — 12 400€ HT. Action recommandée : appel téléphonique ou classement."
+      },
+      "statut": "success"
+    }
+  ],
+  "erreurs": []
+}

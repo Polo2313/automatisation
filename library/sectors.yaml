@@ -2,17 +2,17 @@ sectors:
   # === LOW (cibles prioritaires) ===
   - slug: pme_industrielles
     nom: PME industrielles (méca, plasturgie, agro)
-    usage_count: 0
+    usage_count: 3
     niveau_equipement_ia: low
     cooldown: false
   - slug: distribution_b2b
     nom: Grossistes et distribution B2B
-    usage_count: 0
+    usage_count: 3
     niveau_equipement_ia: low
     cooldown: false
   - slug: pme_btp
     nom: PME BTP et artisans 5-50
-    usage_count: 0
+    usage_count: 9
     niveau_equipement_ia: low
     cooldown: false
   - slug: concessions_auto

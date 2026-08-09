@@ -1,0 +1,41 @@
+[
+  {
+    "id": "CLT-002391",
+    "raison_sociale": "Menuiserie Durand SARL",
+    "contact_prenom": "Michel",
+    "contact_nom": "Durand",
+    "email": "contact@menuiserie-durand-test.fr",
+    "telephone": "04 72 00 00 01",
+    "segment": "artisans_menuiserie",
+    "produit_favori_slug": "vis-inox-a4-5x60",
+    "ca_12m_eur": 4850.00,
+    "derniere_commande_date": "2025-12-10",
+    "actif": true
+  },
+  {
+    "id": "CLT-003107",
+    "raison_sociale": "Plomberie Martin & Fils",
+    "contact_prenom": "Sophie",
+    "contact_nom": "Martin",
+    "email": "s.martin@plomberie-martin-test.fr",
+    "telephone": "03 88 00 00 02",
+    "segment": "artisans_plomberie",
+    "produit_favori_slug": "raccord-multicouche-16mm",
+    "ca_12m_eur": 12340.00,
+    "derniere_commande_date": "2025-11-28",
+    "actif": true
+  },
+  {
+    "id": "CLT-000843",
+    "raison_sociale": "Entreprise Leclerc Peinture",
+    "contact_prenom": "Thomas",
+    "contact_nom": "Leclerc",
+    "email": "tleclerc@leclerc-peinture-test.fr",
+    "telephone": "02 40 00 00 03",
+    "segment": "artisans_peinture",
+    "produit_favori_slug": "peinture-glycero-blanc-mat-10l",
+    "ca_12m_eur": 7200.00,
+    "derniere_commande_date": "2025-10-15",
+    "actif": true
+  }
+]

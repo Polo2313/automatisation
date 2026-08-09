@@ -1,0 +1,41 @@
+{
+  "qualification_ia": {
+    "type_travaux_normalise": "Extension maison / véranda",
+    "budget_range": "20K-50K",
+    "score_priorite": 5,
+    "raison_score": "Budget conséquent (30-50K€) clairement exprimé, travaux bien définis, permis obtenu, délai précis — lead très qualifié",
+    "message_reponse": "Bonjour Martin, nous avons bien reçu votre demande concernant votre projet d'extension et de véranda à Lyon. Votre projet est complet et bien défini — c'est exactement le type de réalisation sur lequel nous intervenons. Je vous propose un rendez-vous téléphonique de 20 minutes cette semaine pour échanger sur les détails techniques et vous donner une première indication de délai."
+  },
+  "crm_row": {
+    "Date réception": "2026-06-16T08:32:00.000Z",
+    "Nom contact": "Martin Dupuis",
+    "Email": "martin.dupuis@gmail.com",
+    "Téléphone": "06 12 34 56 78",
+    "Type travaux": "Extension maison / véranda",
+    "Budget estimé": "20K-50K",
+    "Localisation": "Lyon 69003",
+    "Score IA": 5,
+    "Raison score": "Budget conséquent (30-50K€) clairement exprimé, travaux bien définis, permis obtenu, délai précis — lead très qualifié",
+    "Source": "formulaire_web",
+    "Statut": "Nouveau",
+    "Date rappel J+3": "2026-06-19T08:32:00.000Z",
+    "Chargé affaires": ""
+  },
+  "emails_envoyés": {
+    "accusé_réception": {
+      "to": "martin.dupuis@gmail.com",
+      "subject": "Votre demande de devis — nous revenons vers vous",
+      "statut": "envoyé"
+    },
+    "notif_interne": {
+      "to": "ca@entreprise.fr",
+      "subject": "[LEAD SCORE 5/5] Martin Dupuis — Extension maison / véranda",
+      "statut": "envoyé"
+    }
+  },
+  "_meta": {
+    "workflow_execution": "succès",
+    "branche_prise": "TRUE (score ≥ 3)",
+    "durée_execution_ms": 1240
+  }
+}

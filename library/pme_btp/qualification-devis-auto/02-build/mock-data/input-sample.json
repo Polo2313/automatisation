@@ -1,0 +1,17 @@
+{
+  "body": {
+    "nom": "Martin Dupuis",
+    "email": "martin.dupuis@gmail.com",
+    "telephone": "06 12 34 56 78",
+    "type_travaux": "Extension de maison de 25m2 avec création d'une véranda attenante au salon, fondations à prévoir",
+    "budget": "Entre 30 000 et 50 000 euros",
+    "localisation": "Lyon 69003",
+    "urgence": "Travaux souhaités avant été 2026, permis de construire obtenu",
+    "source": "formulaire_web"
+  },
+  "_meta": {
+    "description": "Lead haute priorité — score attendu 5/5",
+    "canal": "Tally formulaire web",
+    "smoke_test": "Vérifier : email accusé reçu sous 5 min, notif interne avec score 5, ligne Google Sheets créée, statut Nouveau"
+  }
+}

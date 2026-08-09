@@ -1,0 +1,44 @@
+[
+  {
+    "ref_devis": "DEV-2026-0412",
+    "contact_prenom": "Laurent",
+    "contact_nom": "Moreau",
+    "contact_email": "l.moreau@exemple-industrie.fr",
+    "entreprise": "Métallerie Exemple SAS",
+    "description_produit": "Pièces de fixation acier inox 316L — lot de 500 unités",
+    "montant_eur": 4200.00,
+    "date_envoi": "2026-06-23",
+    "nb_relances": 0,
+    "status": "envoyé",
+    "commercial_assigné": "Paul De Cock"
+  },
+  {
+    "ref_devis": "DEV-2026-0413",
+    "contact_prenom": "Sophie",
+    "contact_nom": "Bertin",
+    "contact_email": "s.bertin@plasturgie-exemple.fr",
+    "entreprise": "Plasturgie Exemple SARL",
+    "description_produit": "Moule injection plastique PP — 2 empreintes",
+    "montant_eur": 8750.00,
+    "date_envoi": "2026-06-19",
+    "nb_relances": 1,
+    "date_relance_1": "2026-06-22",
+    "status": "envoyé",
+    "commercial_assigné": "Paul De Cock"
+  },
+  {
+    "ref_devis": "DEV-2026-0401",
+    "contact_prenom": "Jean-Marc",
+    "contact_nom": "Tissier",
+    "contact_email": "jm.tissier@agro-exemple.fr",
+    "entreprise": "Agrotech Exemple SAS",
+    "description_produit": "Convoyeur inox alimentaire 6m — norme CE",
+    "montant_eur": 12400.00,
+    "date_envoi": "2026-06-09",
+    "nb_relances": 2,
+    "date_relance_1": "2026-06-12",
+    "date_relance_2": "2026-06-16",
+    "status": "envoyé",
+    "commercial_assigné": "Paul De Cock"
+  }
+]

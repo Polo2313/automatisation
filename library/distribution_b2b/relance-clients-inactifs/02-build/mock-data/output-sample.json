@@ -1,0 +1,62 @@
+[
+  {
+    "client_id": "CLT-002391",
+    "raison_sociale": "Menuiserie Durand SARL",
+    "email": "contact@menuiserie-durand-test.fr",
+    "type_relance": "inactif_60j",
+    "jours_inactif": 179,
+    "email_generated": {
+      "subject": "Michel, votre stock de vis inox A4 — on peut vous aider ?",
+      "body": "Bonjour Michel,\n\nNous ne vous avons pas vu depuis un moment et voulions prendre de vos nouvelles.\n\nLa saison reprend et nous savons que les vis inox A4 5×60 font partie de vos indispensables. Notre stock est à jour et nous pouvons vous préparer une commande rapidement.\n\nUn appel pour passer commande ou une question sur nos tarifs ? Nous sommes disponibles du lundi au vendredi.\n\nCordialement,\nL'équipe commerciale\nTél : 04 72 XX XX XX"
+    },
+    "sent_at": "2026-06-08T08:03:21Z",
+    "relance_id": "RLN-20260608-002391",
+    "log_supabase": {
+      "client_id": "CLT-002391",
+      "date_envoi": "2026-06-08T08:03:21Z",
+      "type_relance": "inactif_60j",
+      "sujet_email": "Michel, votre stock de vis inox A4 — on peut vous aider ?",
+      "statut": "envoyé"
+    }
+  },
+  {
+    "client_id": "CLT-003107",
+    "raison_sociale": "Plomberie Martin & Fils",
+    "email": "s.martin@plomberie-martin-test.fr",
+    "type_relance": "inactif_60j",
+    "jours_inactif": 191,
+    "email_generated": {
+      "subject": "Sophie, raccords multicouche 16mm — disponibles cette semaine",
+      "body": "Bonjour Sophie,\n\nCela fait quelques mois que nous n'avons pas eu l'occasion de vous servir et nous espérons que votre activité se porte bien.\n\nNous avons reconstitué nos stocks de raccords multicouche 16mm que vous commandez régulièrement. Si vous avez des chantiers en cours, n'hésitez pas à nous contacter pour un devis rapide.\n\nCordialement,\nL'équipe commerciale\nTél : 03 88 XX XX XX"
+    },
+    "sent_at": "2026-06-08T08:04:07Z",
+    "relance_id": "RLN-20260608-003107",
+    "log_supabase": {
+      "client_id": "CLT-003107",
+      "date_envoi": "2026-06-08T08:04:07Z",
+      "type_relance": "inactif_60j",
+      "sujet_email": "Sophie, raccords multicouche 16mm — disponibles cette semaine",
+      "statut": "envoyé"
+    }
+  },
+  {
+    "client_id": "CLT-000843",
+    "raison_sociale": "Entreprise Leclerc Peinture",
+    "email": "tleclerc@leclerc-peinture-test.fr",
+    "type_relance": "inactif_90j",
+    "jours_inactif": 235,
+    "email_generated": {
+      "subject": "Thomas, nouvelles références glycéro — et une offre pour vous",
+      "body": "Bonjour Thomas,\n\nNous avons remarqué que nous ne vous avons pas vu depuis quelques mois et voulions revenir vers vous.\n\nNous venons de référencer deux nouvelles teintes dans notre gamme glycéro blanc mat 10L que vous utilisez souvent. Par ailleurs, nous proposons ce mois-ci une remise sur les commandes de 5 unités et plus.\n\nSi vous avez des projets en cours ou à venir, je serais ravi d'en discuter avec vous.\n\nCordialement,\nL'équipe commerciale\nTél : 02 40 XX XX XX"
+    },
+    "sent_at": "2026-06-08T08:04:53Z",
+    "relance_id": "RLN-20260608-000843",
+    "log_supabase": {
+      "client_id": "CLT-000843",
+      "date_envoi": "2026-06-08T08:04:53Z",
+      "type_relance": "inactif_90j",
+      "sujet_email": "Thomas, nouvelles références glycéro — et une offre pour vous",
+      "statut": "envoyé"
+    }
+  }
+]

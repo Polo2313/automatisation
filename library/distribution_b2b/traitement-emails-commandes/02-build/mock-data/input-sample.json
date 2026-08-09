@@ -1,0 +1,11 @@
+{
+  "_description": "Email de test représentatif — grossiste B2B reçoit une commande standard",
+  "from": "m.bernard@industrie-auvergne.fr",
+  "to": "commandes@votreentreprise.fr",
+  "subject": "Commande urgente réf 4521-B et 7890-A",
+  "text": "Bonjour,\n\nNous souhaitons passer commande des articles suivants :\n\n- Réf 4521-B : 50 unités\n- Réf 7890-A : 20 unités\n- Réf 3310-C : 5 boîtes\n\nLivraison souhaitée avant le 15 juin 2026. Commande urgente car arrêt de chaîne prévu.\n\nMerci de confirmer disponibilité et délai par retour.\n\nCordialement,\nMarc Bernard\nResponsable Achats\nIndustrie Auvergne SAS\nTél : 04 73 XX XX XX",
+  "html": "<p>Bonjour,</p><p>Nous souhaitons passer commande des articles suivants :</p><ul><li>Réf 4521-B : 50 unités</li><li>Réf 7890-A : 20 unités</li><li>Réf 3310-C : 5 boîtes</li></ul><p>Livraison souhaitée avant le 15 juin 2026. Commande urgente car arrêt de chaîne prévu.</p><p>Merci de confirmer disponibilité et délai par retour.</p><p>Cordialement,<br>Marc Bernard<br>Responsable Achats<br>Industrie Auvergne SAS</p>",
+  "attachments": [],
+  "date": "2026-06-06T09:14:22Z",
+  "messageId": "test-001@industrie-auvergne.fr"
+}

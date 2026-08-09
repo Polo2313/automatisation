@@ -1,0 +1,54 @@
+[
+  {
+    "_scenario": "Lead A — Complet, urgent, budget identifié",
+    "prenom": "Michel",
+    "nom": "Renard",
+    "email": "michel.renard@gmail.com",
+    "telephone": "0678541230",
+    "type_travaux": "Extension maison + rénovation toiture",
+    "description": "Je souhaite faire agrandir ma maison de 30m2 côté jardin et refaire entièrement la toiture (environ 120m2, tuiles). Le toit fuit depuis 2 semaines. Maison individuelle de 1975.",
+    "adresse_chantier": "14 rue des Acacias, 69300 Caluire-et-Cuire",
+    "budget_estime": "35000-50000",
+    "delai_souhaite": "Dès que possible, urgence toiture",
+    "source": "formulaire"
+  },
+  {
+    "_scenario": "Lead B — Partiellement qualifié, zone OK, budget flou",
+    "prenom": "Sophie",
+    "nom": "Martini",
+    "email": "sophie.martini@orange.fr",
+    "telephone": "0654321987",
+    "type_travaux": "Rénovation salle de bain",
+    "description": "On veut refaire entièrement notre salle de bain, douche italienne et nouveau carrelage. Aucune idée du budget, c'est pour avoir des infos.",
+    "adresse_chantier": "Lyon 7ème",
+    "budget_estime": null,
+    "delai_souhaite": "Dans les 6 mois",
+    "source": "formulaire"
+  },
+  {
+    "_scenario": "Lead C — Incomplet, zone manquante, description vague",
+    "prenom": "Thomas",
+    "nom": "D.",
+    "email": "t.d@hotmail.com",
+    "telephone": "",
+    "type_travaux": "Travaux",
+    "description": "Bonjour j'ai besoin d'un devis merci",
+    "adresse_chantier": "",
+    "budget_estime": null,
+    "delai_souhaite": null,
+    "source": "email"
+  },
+  {
+    "_scenario": "Hors périmètre — Candidature emploi",
+    "prenom": "Kevin",
+    "nom": "Blanchet",
+    "email": "kevin.blanchet@gmail.com",
+    "telephone": "0612789654",
+    "type_travaux": "",
+    "description": "Bonjour, je suis maçon qualifié avec 8 ans d'expérience et je cherche un emploi dans votre entreprise. Pouvez-vous me contacter ?",
+    "adresse_chantier": "",
+    "budget_estime": null,
+    "delai_souhaite": null,
+    "source": "email"
+  }
+]
