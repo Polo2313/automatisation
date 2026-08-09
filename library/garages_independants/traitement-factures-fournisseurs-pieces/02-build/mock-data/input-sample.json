@@ -1,0 +1,6 @@
+{
+  "email_source": "factures@garage-client-test.fr",
+  "date_reception": "2026-08-05T09:14:00+02:00",
+  "piece_jointe": "facture_alliance_automotive_082026.pdf",
+  "raw_pdf_text": "ALLIANCE AUTOMOTIVE GROUP FRANCE\nFacture N: F2026-08421\nDate: 05/08/2026\nClient: GARAGE TEST SARL\n\nDesignation                    Qte   PU HT      Total HT\nPlaquettes de frein avant       2    45.00 EUR   90.00 EUR\nDisques de frein avant          2    62.50 EUR  125.00 EUR\nFiltre a huile                  1    12.75 EUR   12.75 EUR\nHuile moteur 5W30 (5L)          3    38.25 EUR  114.75 EUR\n\nTotal HT: 342.50 EUR\nTVA 20%: 68.50 EUR\nTotal TTC: 411.00 EUR\nConditions: paiement a 30 jours, escompte 2% si paiement sous 10 jours"
+}

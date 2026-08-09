@@ -1,0 +1,247 @@
+{
+  "name": "Vantyse - Traitement factures fournisseurs (garages independants)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "SMOKE TEST\n\nInput attendu : email avec 1 piece jointe PDF facture fournisseur (ex: mock-data/input-sample.json -> champ raw_pdf_text simule le texte extrait).\n\nOutput attendu : mock-data/output-sample.json (JSON structure avec fournisseur, numero_facture, montants, coherence_verifiee=true, statut='valide') + 1 ligne ajoutee dans Google Sheets + 1 fichier archive dans Google Drive.\n\nCe workflow n'a pas ete teste dans une instance n8n reelle (squelette de bibliotheque). A valider a l'import avant mise en production.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "note-smoke-test",
+      "name": "Note - Smoke test",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-200, -300]
+    },
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "simple": false,
+        "filters": { "q": "has:attachment filename:pdf" }
+      },
+      "id": "gmail-trigger",
+      "name": "1. Reception facture (Gmail Trigger)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "credentials": { "gmailOAuth2": { "id": "REPLACE_ME", "name": "Gmail - boite factures" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $binary.attachment_0 !== undefined }}", "value2": true }]
+        }
+      },
+      "id": "if-has-attachment",
+      "name": "2. IF piece jointe presente",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": { "operation": "pdf", "binaryPropertyName": "attachment_0" },
+      "id": "extract-pdf-text",
+      "name": "3. Extraction texte PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [440, -80]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu extrais les champs d'une facture fournisseur de pieces automobiles depuis le texte fourni. Reponds UNIQUEMENT en JSON valide avec les champs: fournisseur, numero_facture, date_facture (YYYY-MM-DD), montant_ht_eur, taux_tva_pct, montant_tva_eur, montant_ttc_eur, lignes (tableau reference/designation/quantite/prix_unitaire_ht si identifiable, sinon tableau vide)."
+            },
+            { "role": "user", "content": "={{ $json.text }}" }
+          ]
+        }
+      },
+      "id": "openai-extraction",
+      "name": "4. Extraction structuree (OpenAI gpt-4o-mini)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [660, -80],
+      "credentials": { "openAiApi": { "id": "REPLACE_ME", "name": "OpenAI - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "functionCode": "const f = JSON.parse($json.message.content);\nconst somme = Math.round((f.montant_ht_eur + f.montant_tva_eur) * 100) / 100;\nconst coherent = Math.abs(somme - f.montant_ttc_eur) < 0.5;\nf.coherence_verifiee = coherent;\nf.statut = coherent ? 'valide' : 'a_verifier';\nreturn [{ json: f }];"
+      },
+      "id": "validate-coherence",
+      "name": "5. Controle coherence HT+TVA=TTC",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [880, -80]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.coherence_verifiee }}", "value2": true }] }
+      },
+      "id": "if-coherent",
+      "name": "6. IF coherence OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1100, -80]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "range": "Registre!A:I"
+      },
+      "id": "sheets-append",
+      "name": "7a. Enregistrement registre (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1320, -160],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "REPLACE_ME", "name": "Google Sheets - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "folderId": "={{ $env.GOOGLE_DRIVE_FOLDER_ID }}",
+        "fileName": "={{ $json.fournisseur }}_{{ $json.date_facture }}_{{ $json.montant_ttc_eur }}EUR.pdf"
+      },
+      "id": "drive-archive",
+      "name": "8. Archivage PDF (Google Drive)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [1540, -160],
+      "credentials": { "googleDriveOAuth2Api": { "id": "REPLACE_ME", "name": "Google Drive - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.montant_ttc_eur }}", "operation": "larger", "value2": "={{ $env.SEUIL_ALERTE_MONTANT_EUR }}" }]
+        }
+      },
+      "id": "if-montant-eleve",
+      "name": "9. IF montant > seuil",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1760, -160]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@garage-client.fr",
+        "toEmail": "={{ $env.EMAIL_ALERTE }}",
+        "subject": "Facture fournisseur a valider - montant eleve",
+        "text": "=Facture {{ $json.fournisseur }} du {{ $json.date_facture }} pour {{ $json.montant_ttc_eur }} EUR TTC depasse le seuil defini. Merci de valider."
+      },
+      "id": "email-montant-eleve",
+      "name": "9a. Alerte montant eleve",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1980, -240]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@garage-client.fr",
+        "toEmail": "={{ $env.EMAIL_ALERTE }}",
+        "subject": "Facture fournisseur incoherente - verification manuelle requise",
+        "text": "=La facture recue de {{ $json.fournisseur }} presente un ecart entre HT+TVA et TTC. Merci de verifier manuellement."
+      },
+      "id": "email-incoherente",
+      "name": "6b. Alerte facture incoherente",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1100, 120]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@garage-client.fr",
+        "toEmail": "={{ $env.EMAIL_ALERTE }}",
+        "subject": "Email recu sans facture PDF exploitable",
+        "text": "Un email a ete recu dans la boite factures sans piece jointe PDF exploitable. A verifier manuellement."
+      },
+      "id": "email-sans-pj",
+      "name": "2b. Notification absence piece jointe",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [440, 120]
+    },
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] } },
+      "id": "cron-hebdo",
+      "name": "10. Cron hebdomadaire (lundi 8h)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [0, 400]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "sheetId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "range": "Registre!A:I"
+      },
+      "id": "sheets-read-recap",
+      "name": "11. Lecture registre semaine",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [220, 400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "REPLACE_ME", "name": "Google Sheets - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@garage-client.fr",
+        "toEmail": "={{ $env.EMAIL_RECAP_HEBDO }}",
+        "subject": "Recap hebdomadaire - factures fournisseurs traitees",
+        "text": "=Recapitulatif de la semaine : {{ $json.length }} factures traitees. Voir le registre complet pour le detail."
+      },
+      "id": "email-recap",
+      "name": "12. Envoi recap dirigeant",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [440, 400]
+    }
+  ],
+  "connections": {
+    "1. Reception facture (Gmail Trigger)": {
+      "main": [[{ "node": "2. IF piece jointe presente", "type": "main", "index": 0 }]]
+    },
+    "2. IF piece jointe presente": {
+      "main": [
+        [{ "node": "3. Extraction texte PDF", "type": "main", "index": 0 }],
+        [{ "node": "2b. Notification absence piece jointe", "type": "main", "index": 0 }]
+      ]
+    },
+    "3. Extraction texte PDF": {
+      "main": [[{ "node": "4. Extraction structuree (OpenAI gpt-4o-mini)", "type": "main", "index": 0 }]]
+    },
+    "4. Extraction structuree (OpenAI gpt-4o-mini)": {
+      "main": [[{ "node": "5. Controle coherence HT+TVA=TTC", "type": "main", "index": 0 }]]
+    },
+    "5. Controle coherence HT+TVA=TTC": {
+      "main": [[{ "node": "6. IF coherence OK", "type": "main", "index": 0 }]]
+    },
+    "6. IF coherence OK": {
+      "main": [
+        [{ "node": "7a. Enregistrement registre (Google Sheets)", "type": "main", "index": 0 }],
+        [{ "node": "6b. Alerte facture incoherente", "type": "main", "index": 0 }]
+      ]
+    },
+    "7a. Enregistrement registre (Google Sheets)": {
+      "main": [[{ "node": "8. Archivage PDF (Google Drive)", "type": "main", "index": 0 }]]
+    },
+    "8. Archivage PDF (Google Drive)": {
+      "main": [[{ "node": "9. IF montant > seuil", "type": "main", "index": 0 }]]
+    },
+    "9. IF montant > seuil": {
+      "main": [[{ "node": "9a. Alerte montant eleve", "type": "main", "index": 0 }], []]
+    },
+    "10. Cron hebdomadaire (lundi 8h)": {
+      "main": [[{ "node": "11. Lecture registre semaine", "type": "main", "index": 0 }]]
+    },
+    "11. Lecture registre semaine": {
+      "main": [[{ "node": "12. Envoi recap dirigeant", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

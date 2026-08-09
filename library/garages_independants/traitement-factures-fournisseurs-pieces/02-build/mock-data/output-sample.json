@@ -1,0 +1,17 @@
+{
+  "fournisseur": "Alliance Automotive Group France",
+  "numero_facture": "F2026-08421",
+  "date_facture": "2026-08-05",
+  "montant_ht_eur": 342.50,
+  "taux_tva_pct": 20,
+  "montant_tva_eur": 68.50,
+  "montant_ttc_eur": 411.00,
+  "lignes": [
+    { "reference": null, "designation": "Plaquettes de frein avant", "quantite": 2, "prix_unitaire_ht": 45.00 },
+    { "reference": null, "designation": "Disques de frein avant", "quantite": 2, "prix_unitaire_ht": 62.50 },
+    { "reference": null, "designation": "Filtre a huile", "quantite": 1, "prix_unitaire_ht": 12.75 },
+    { "reference": null, "designation": "Huile moteur 5W30 (5L)", "quantite": 3, "prix_unitaire_ht": 38.25 }
+  ],
+  "coherence_verifiee": true,
+  "statut": "valide"
+}

@@ -237,6 +237,43 @@
       ],
       "path": "/library/pme_btp/qualification-routage-devis-entrants/",
       "recovered_note": "Récupéré depuis la branche orpheline claude/laughing-heisenberg-klyi4q et fusionné dans main le 2026-08-09."
+    },
+    {
+      "id": "garages_independants-traitement-factures-fournisseurs-pieces",
+      "date": "2026-08-09",
+      "secteur": "garages_independants",
+      "probleme_slug": "traitement-factures-fournisseurs-pieces",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / secrétariat technique (+ contrôle dirigeant)",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant·e / dirigeant·e du garage",
+      "icp_entreprises_reelles": [
+        {"nom": "GARAGE SUD AUTOMOBILE", "ville": "Aix-en-Provence (13)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"},
+        {"nom": "SARL DUMEIGE (GARAGE DUMEIGE)", "ville": "Ailly-sur-Somme (80)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"},
+        {"nom": "GARAGE BRUNEL", "ville": "Lunel (34)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"}
+      ],
+      "icp_source": "Annuaire officiel des entreprises françaises (data.gouv.fr), consulté le 2026-08-09.",
+      "linkedin_target_title": "Gérant de garage automobile",
+      "linkedin_target_alt": "Chef d'atelier / Responsable après-vente automobile",
+      "marche_fr_adressable": "~104 000 entreprises de réparation automobile en France (INSEE), garages indépendants ~65-70% du marché ; segment 10-50 salariés estimé à quelques milliers - ~15 000 [hypothèse, ordre de grandeur]",
+      "prix_recommande_eur": 7200,
+      "prix_mvp_eur": 2520,
+      "run_mensuel_eur": 720,
+      "delai_implem_jours": 8,
+      "cout_run_pme_mensuel_eur": 40,
+      "h_gagnees_par_semaine": 6,
+      "capacity_freed_eur_an": 5934,
+      "cash_savings_eur_an": 1050,
+      "revenue_uplift_eur_an": 0,
+      "total_net_eur_an": 6504,
+      "payback_mois_central": 13.3,
+      "payback_mois_pessimiste_gains": 28.7,
+      "payback_mois_pessimiste_adoption": 24.4,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": ["n8n", "Gmail/IMAP", "OpenAI gpt-4o-mini", "Google Sheets", "Google Drive"],
+      "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/"
     }
   ]
 }
