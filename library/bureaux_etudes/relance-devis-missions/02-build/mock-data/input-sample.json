@@ -1,0 +1,11 @@
+{
+  "email_recu": {
+    "objet": "Devis mission structure - Résidence Les Tilleuls",
+    "expediteur": "contact@bet-exemple.fr",
+    "destinataire": "j.martin@architectes-martin.fr",
+    "date_envoi": "2026-07-15",
+    "corps": "Bonjour,\n\nVeuillez trouver ci-joint notre devis n°DEV-2026-0142 d'un montant de 4 200 € HT pour la mission de calcul de structure du projet Résidence Les Tilleuls (12 logements collectifs, Rennes).\n\nRestant à votre disposition pour tout complément.\n\nCordialement,\nL'équipe études",
+    "piece_jointe": "DEV-2026-0142-Les-Tilleuls.pdf",
+    "label_gmail": "Devis envoyés"
+  }
+}

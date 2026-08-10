@@ -22,7 +22,7 @@ sectors:
     cooldown: false
   - slug: bureaux_etudes
     nom: Bureaux d'études techniques
-    usage_count: 0
+    usage_count: 1
     niveau_equipement_ia: low
     cooldown: false
   - slug: imprimeries

@@ -249,9 +249,24 @@
       "tjm_user_eur": 28,
       "decideur": "Gérant·e / dirigeant·e du garage",
       "icp_entreprises_reelles": [
-        {"nom": "GARAGE SUD AUTOMOBILE", "ville": "Aix-en-Provence (13)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"},
-        {"nom": "SARL DUMEIGE (GARAGE DUMEIGE)", "ville": "Ailly-sur-Somme (80)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"},
-        {"nom": "GARAGE BRUNEL", "ville": "Lunel (34)", "effectif": "20-49 salariés", "secteur": "Entretien et réparation de véhicules automobiles légers"}
+        {
+          "nom": "GARAGE SUD AUTOMOBILE",
+          "ville": "Aix-en-Provence (13)",
+          "effectif": "20-49 salariés",
+          "secteur": "Entretien et réparation de véhicules automobiles légers"
+        },
+        {
+          "nom": "SARL DUMEIGE (GARAGE DUMEIGE)",
+          "ville": "Ailly-sur-Somme (80)",
+          "effectif": "20-49 salariés",
+          "secteur": "Entretien et réparation de véhicules automobiles légers"
+        },
+        {
+          "nom": "GARAGE BRUNEL",
+          "ville": "Lunel (34)",
+          "effectif": "20-49 salariés",
+          "secteur": "Entretien et réparation de véhicules automobiles légers"
+        }
       ],
       "icp_source": "Annuaire officiel des entreprises françaises (data.gouv.fr), consulté le 2026-08-09.",
       "linkedin_target_title": "Gérant de garage automobile",
@@ -272,8 +287,70 @@
       "payback_mois_pessimiste_adoption": 24.4,
       "case_status": "produit",
       "fragile": true,
-      "stack": ["n8n", "Gmail/IMAP", "OpenAI gpt-4o-mini", "Google Sheets", "Google Drive"],
+      "stack": [
+        "n8n",
+        "Gmail/IMAP",
+        "OpenAI gpt-4o-mini",
+        "Google Sheets",
+        "Google Drive"
+      ],
       "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/"
+    },
+    {
+      "id": "bureaux_etudes-relance-devis-missions",
+      "date": "2026-08-10",
+      "secteur": "bureaux_etudes",
+      "probleme_slug": "relance-devis-missions",
+      "type_flux": "relance_commerciale",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé·e d'affaires études techniques",
+      "tjm_user_eur": 45,
+      "decideur": "Gérant / associé fondateur du bureau d'études",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "Structure B",
+          "ville": "Rennes (35)",
+          "effectif": "~10 salariés",
+          "secteur": "Bureau d'études structure béton, bois, métal"
+        },
+        {
+          "nom": "Cetralp (Conseil et Études Techniques Rhône-Alpes)",
+          "ville": "Annecy-le-Vieux (74)",
+          "effectif": "~25 salariés",
+          "secteur": "Bureau d'études fluides, thermique, génie climatique, électricité"
+        },
+        {
+          "nom": "AREA Études Nantes",
+          "ville": "Saint-Aignan-Grandlieu (44)",
+          "effectif": "10-19 salariés",
+          "secteur": "Bureau d'études thermique, électricité, fluides, sécurité incendie"
+        }
+      ],
+      "linkedin_target_title": "Gérant bureau d'études techniques",
+      "linkedin_target_alt": "Chargé d'affaires études techniques BTP",
+      "marche_fr_adressable": "~15 000 bureaux d'études techniques du bâtiment en France (NAF 7112B), majoritairement <20 salariés [hypothèse, ordre de grandeur]",
+      "prix_recommande_eur": 12500,
+      "prix_mvp_eur": 4400,
+      "run_mensuel_eur": 1000,
+      "delai_implem_jours": 16,
+      "cout_run_pme_mensuel_eur": 30,
+      "h_gagnees_par_semaine": 5,
+      "capacity_freed_eur_an": 6210,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 14175,
+      "total_net_eur_an": 19725,
+      "payback_mois_central": 7.6,
+      "payback_mois_pessimiste_gains": 15.7,
+      "payback_mois_pessimiste_adoption": 15.7,
+      "case_status": "produit",
+      "fragile": false,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "Google Sheets",
+        "OpenAI gpt-4o-mini"
+      ],
+      "path": "/library/bureaux_etudes/relance-devis-missions/"
     }
   ]
 }
