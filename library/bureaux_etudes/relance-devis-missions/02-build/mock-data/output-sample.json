@@ -1,0 +1,17 @@
+{
+  "tracker_row": {
+    "reference_devis": "DEV-2026-0142",
+    "destinataire_nom": "J. Martin",
+    "destinataire_email": "j.martin@architectes-martin.fr",
+    "objet": "Devis mission structure - Résidence Les Tilleuls",
+    "montant_ht": 4200,
+    "date_envoi": "2026-07-15",
+    "statut": "relance_1_envoyee",
+    "date_derniere_relance": "2026-07-22",
+    "thread_id": "18f2a9c3d4e5b6a7"
+  },
+  "relance_1_generee": {
+    "objet": "Re: Devis mission structure - Résidence Les Tilleuls",
+    "corps": "Bonjour M. Martin,\n\nJe me permets de revenir vers vous concernant notre devis DEV-2026-0142 (4 200 € HT) transmis le 15 juillet pour la mission structure du projet Les Tilleuls.\n\nAvez-vous eu l'occasion de l'examiner ? Je reste disponible pour un point rapide si des précisions sont utiles.\n\nCordialement,\nL'équipe études"
+  }
+}

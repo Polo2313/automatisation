@@ -79,6 +79,11 @@ cases:
     last_touch_date: "2026-08-09"
     prospects: []
     notes: "Pack vente + build complets. 3 entreprises ICP identifiées via registre officiel (data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 24,4-28,7 mois > seuil 20 mois) — ne pas contractualiser au prix plein sans validation du volume réel de factures du prospect en amont."
+  - id: bureaux_etudes-relance-devis-missions
+    status: produit
+    last_touch_date: "2026-08-10"
+    prospects: []
+    notes: "Pack vente + build complets. 3 entreprises ICP identifiées via recherche web (sites institutionnels, Pappers, annuaire-entreprises.data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas NON fragile (paybacks pessimistes ≈15,7 mois, sous le seuil de 20 mois). Point d'attention: prix retenu (12 500 €) représente 61% du gain brut annuel estimé, au-dessus du plafond de 40% recommandé par le skill proposition-commerciale-vantyse — à corriger via ce skill avant tout envoi réel à un prospect (cf. 03-pilotage/pricing-internal.md)."
 # Schéma par cas:
 #  - id: "{secteur}-{cas}"
 #    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost

@@ -1,0 +1,250 @@
+{
+  "meta": {
+    "templateNote": "AVERTISSEMENT : ce squelette n8n a été rédigé à la main pour documenter l'architecture (cf. architecture.md) et n'a PAS été testé par un import réel dans une instance n8n depuis cet environnement (pas d'instance n8n disponible ici). Vérifier l'import et ajuster les paramètres de credentials avant mise en production.",
+    "instanceId": "vantyse-template"
+  },
+  "name": "Relance automatique devis de mission - BET",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Trigger - Nouveau devis (label Gmail)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "filters": { "labelIds": ["Devis envoyés"] },
+        "pollTimes": { "item": [{ "mode": "everyMinute", "minute": 15 }] }
+      },
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH", "name": "Gmail Vantyse" } }
+    },
+    {
+      "id": "2",
+      "name": "IA - Extraction métadonnées devis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [220, 0],
+      "parameters": {
+        "resource": "text",
+        "model": "gpt-4o-mini",
+        "prompt": "Extrais du contenu de cet email (objet, corps, pièce jointe) : destinataire_email, destinataire_nom, objet, montant_ht, reference_devis. Réponds en JSON strict."
+      },
+      "credentials": { "openAiApi": { "id": "OPENAI_API_KEY", "name": "OpenAI Vantyse" } }
+    },
+    {
+      "id": "3",
+      "name": "Sheets - Nouvelle ligne (statut=envoyé)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [440, 0],
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.TRACKER_SHEET_ID}}",
+        "columns": {
+          "destinataire_email": "={{$json.destinataire_email}}",
+          "destinataire_nom": "={{$json.destinataire_nom}}",
+          "objet": "={{$json.objet}}",
+          "montant_ht": "={{$json.montant_ht}}",
+          "reference_devis": "={{$json.reference_devis}}",
+          "date_envoi": "={{$now.format('yyyy-MM-dd')}}",
+          "statut": "envoyé"
+        }
+      },
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GSHEETS_OAUTH", "name": "Sheets Vantyse" } }
+    },
+    {
+      "id": "4",
+      "name": "Cron - Scan quotidien 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Sheets - Lire tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "parameters": {
+        "operation": "read",
+        "sheetId": "={{$env.TRACKER_SHEET_ID}}"
+      },
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GSHEETS_OAUTH", "name": "Sheets Vantyse" } }
+    },
+    {
+      "id": "6",
+      "name": "Filtre - J+7 sans réponse",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [440, 300],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            { "leftValue": "={{$json.statut}}", "rightValue": "envoyé", "operator": { "type": "string", "operation": "equals" } },
+            { "leftValue": "={{$json.jours_depuis_envoi}}", "rightValue": 7, "operator": { "type": "number", "operation": "gte" } }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7",
+      "name": "Gmail - Recherche réponse dans le thread",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [660, 300],
+      "parameters": {
+        "operation": "getAll",
+        "filters": { "q": "=thread:{{$json.thread_id}} from:{{$json.destinataire_email}}" }
+      },
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH", "name": "Gmail Vantyse" } }
+    },
+    {
+      "id": "8",
+      "name": "IF - Réponse trouvée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, 300],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            { "leftValue": "={{$json.length}}", "rightValue": 0, "operator": { "type": "number", "operation": "gt" } }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9",
+      "name": "Sheets - Statut = répondu",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1100, 200],
+      "parameters": {
+        "operation": "update",
+        "sheetId": "={{$env.TRACKER_SHEET_ID}}",
+        "columns": { "statut": "répondu" }
+      },
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GSHEETS_OAUTH", "name": "Sheets Vantyse" } }
+    },
+    {
+      "id": "10",
+      "name": "IA - Génère relance personnalisée",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1100, 400],
+      "parameters": {
+        "resource": "text",
+        "model": "gpt-4o-mini",
+        "prompt": "Rédige une relance email professionnelle, courte (≤120 mots), pour le devis {{$json.reference_devis}} envoyé le {{$json.date_envoi}} à {{$json.destinataire_nom}}. Ton cordial, pas insistant, propose un appel de 10 min."
+      },
+      "credentials": { "openAiApi": { "id": "OPENAI_API_KEY", "name": "OpenAI Vantyse" } }
+    },
+    {
+      "id": "11",
+      "name": "Gmail - Envoi relance",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1320, 400],
+      "parameters": {
+        "operation": "reply",
+        "threadId": "={{$json.thread_id}}",
+        "message": "={{$json.relance_texte}}"
+      },
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH", "name": "Gmail Vantyse" } }
+    },
+    {
+      "id": "12",
+      "name": "Sheets - Statut = relance envoyée",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1540, 400],
+      "parameters": {
+        "operation": "update",
+        "sheetId": "={{$env.TRACKER_SHEET_ID}}",
+        "columns": { "statut": "={{$json.relance_num === 1 ? 'relance_1_envoyee' : 'relance_2_envoyee'}}" }
+      },
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GSHEETS_OAUTH", "name": "Sheets Vantyse" } }
+    },
+    {
+      "id": "13",
+      "name": "Filtre - J+25 sans réponse",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1540, 600],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            { "leftValue": "={{$json.statut}}", "rightValue": "relance_2_envoyee", "operator": { "type": "string", "operation": "equals" } },
+            { "leftValue": "={{$json.jours_depuis_envoi}}", "rightValue": 25, "operator": { "type": "number", "operation": "gte" } }
+          ]
+        }
+      }
+    },
+    {
+      "id": "14",
+      "name": "Gmail - Alerte chargé d'affaires (J+25)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1760, 600],
+      "parameters": {
+        "operation": "send",
+        "to": "={{$env.NOTIF_EMAIL}}",
+        "subject": "Devis {{$json.reference_devis}} sans réponse depuis 25 jours",
+        "message": "Le devis {{$json.reference_devis}} envoyé à {{$json.destinataire_nom}} n'a reçu aucune réponse malgré 2 relances. À vous de décider : classer en perdu ou tenter une négociation directe."
+      },
+      "credentials": { "gmailOAuth2": { "id": "GMAIL_OAUTH", "name": "Gmail Vantyse" } }
+    },
+    {
+      "id": "15",
+      "name": "Cron - Récap hebdomadaire (lundi 8h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 800],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      }
+    }
+  ],
+  "connections": {
+    "Trigger - Nouveau devis (label Gmail)": { "main": [[{ "node": "IA - Extraction métadonnées devis", "type": "main", "index": 0 }]] },
+    "IA - Extraction métadonnées devis": { "main": [[{ "node": "Sheets - Nouvelle ligne (statut=envoyé)", "type": "main", "index": 0 }]] },
+    "Cron - Scan quotidien 8h": { "main": [[{ "node": "Sheets - Lire tracker", "type": "main", "index": 0 }]] },
+    "Sheets - Lire tracker": { "main": [[{ "node": "Filtre - J+7 sans réponse", "type": "main", "index": 0 }]] },
+    "Filtre - J+7 sans réponse": { "main": [[{ "node": "Gmail - Recherche réponse dans le thread", "type": "main", "index": 0 }]] },
+    "Gmail - Recherche réponse dans le thread": { "main": [[{ "node": "IF - Réponse trouvée ?", "type": "main", "index": 0 }]] },
+    "IF - Réponse trouvée ?": {
+      "main": [
+        [{ "node": "Sheets - Statut = répondu", "type": "main", "index": 0 }],
+        [{ "node": "IA - Génère relance personnalisée", "type": "main", "index": 0 }]
+      ]
+    },
+    "IA - Génère relance personnalisée": { "main": [[{ "node": "Gmail - Envoi relance", "type": "main", "index": 0 }]] },
+    "Gmail - Envoi relance": { "main": [[{ "node": "Sheets - Statut = relance envoyée", "type": "main", "index": 0 }]] },
+    "Sheets - Statut = relance envoyée": { "main": [[{ "node": "Filtre - J+25 sans réponse", "type": "main", "index": 0 }]] },
+    "Filtre - J+25 sans réponse": { "main": [[{ "node": "Gmail - Alerte chargé d'affaires (J+25)", "type": "main", "index": 0 }]] }
+  },
+  "_test": {
+    "description": "Test de smoke documenté (non exécuté automatiquement — à rejouer manuellement après import).",
+    "input_example": {
+      "email_objet": "Devis mission structure - Résidence Les Tilleuls",
+      "email_corps": "Bonjour, veuillez trouver ci-joint notre devis n°DEV-2026-0142 d'un montant de 4 200 € HT pour la mission de calcul structure du projet Les Tilleuls.",
+      "destinataire": "j.martin@architectes-martin.fr"
+    },
+    "output_attendu": {
+      "destinataire_email": "j.martin@architectes-martin.fr",
+      "destinataire_nom": "J. Martin",
+      "objet": "Devis mission structure - Résidence Les Tilleuls",
+      "montant_ht": 4200,
+      "reference_devis": "DEV-2026-0142",
+      "statut": "envoyé"
+    }
+  }
+}
