@@ -351,6 +351,64 @@
         "OpenAI gpt-4o-mini"
       ],
       "path": "/library/bureaux_etudes/relance-devis-missions/"
+    },
+    {
+      "id": "imprimeries-extraction-devis-entrants",
+      "date": "2026-08-11",
+      "secteur": "imprimeries",
+      "probleme_slug": "extraction-devis-entrants",
+      "type_flux": "extraction_info",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Chargé·e d'affaires / commercial junior",
+      "tjm_user_eur": 45,
+      "decideur": "Gérant·e / dirigeant·e de l'imprimerie",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "IMPRIMERIE MODERNE",
+          "ville": "Maxéville (54320)",
+          "effectif": "20-49 salariés",
+          "secteur": "Imprimerie de labeur (SAS)"
+        },
+        {
+          "nom": "Imprimerie Renauldon",
+          "ville": "Issoudun (36100)",
+          "effectif": "~7 salariés",
+          "secteur": "Impression offset et numérique, entreprise familiale"
+        },
+        {
+          "nom": "SARL Imprimerie Delezenne",
+          "ville": "Dourges (62119)",
+          "effectif": "6-9 salariés",
+          "secteur": "Autre imprimerie (labeur)"
+        }
+      ],
+      "icp_source": "Recherche web (société.com, Pappers, sites institutionnels), consultée le 2026-08-11.",
+      "linkedin_target_title": "Dirigeant / Gérant d'imprimerie",
+      "linkedin_target_alt": "Responsable commercial imprimerie",
+      "marche_fr_adressable": "~2 880 établissements dans la branche imprimerie en France, dont 76% de moins de 11 salariés ; cible pertinente (5-50 salariés) estimée à quelques centaines à ~1 000 entreprises [hypothèse, ordre de grandeur]",
+      "prix_recommande_eur": 12000,
+      "prix_mvp_eur": 4200,
+      "run_mensuel_eur": 960,
+      "delai_implem_jours": 13,
+      "cout_run_pme_mensuel_eur": 30,
+      "h_gagnees_par_semaine": 7.5,
+      "capacity_freed_eur_an": 9315,
+      "cash_savings_eur_an": 750,
+      "revenue_uplift_eur_an": 2448,
+      "total_net_eur_an": 11853,
+      "payback_mois_central": 12.2,
+      "payback_mois_pessimiste_gains": 25.7,
+      "payback_mois_pessimiste_adoption": 20.0,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "OpenAI gpt-4o-mini",
+        "Google Sheets"
+      ],
+      "path": "/library/imprimeries/extraction-devis-entrants/",
+      "drive_url": "https://drive.google.com/drive/folders/1-CaZYoOxVNoyiZIpi8vgEKDTs6jd2xcb"
     }
   ]
 }

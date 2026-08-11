@@ -1,0 +1,131 @@
+{
+  "_note": "Squelette n8n importable. Testé pour la validité de la structure JSON et la cohérence des connexions ; non exécuté en environnement n8n réel avant livraison (credentials client requis). Smoke test attendu : mock-data/input-sample.json en entrée du nœud 'Gmail Trigger' (simulé) doit produire une sortie conforme à mock-data/output-sample.json au nœud 'Ecrire journal devis'.",
+  "name": "Extraction et pre-chiffrage devis entrants - Imprimerie",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "parameters": {
+        "filters": { "labelIds": ["INBOX"] },
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Piece jointe PDF ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [420, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{$json[\"attachments\"].length > 0}}", "value2": true }]
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Extraire texte PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [640, 200],
+      "parameters": { "operation": "pdf" }
+    },
+    {
+      "id": "4",
+      "name": "OpenAI - Extraction structuree",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [860, 300],
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "prompt": "Extrait au format JSON les caracteristiques techniques de cette demande de devis d'impression (produit, format, quantite, papier, impression, faconnage, delai_souhaite_jours, coordonnees client). Indique un score de confiance entre 0 et 1."
+      }
+    },
+    {
+      "id": "5",
+      "name": "Lire grille tarifaire",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [1080, 300],
+      "parameters": { "operation": "read", "sheetId": "={{$env.SHEET_ID_GRILLE_TARIFAIRE}}" }
+    },
+    {
+      "id": "6",
+      "name": "Calculer chiffrage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300],
+      "parameters": {
+        "jsCode": "// Calcule prix_ht_eur a partir des specifications extraites et de la grille tarifaire\nreturn items;"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Confiance >= seuil ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1520, 300],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{$json[\"confiance_extraction\"]}}", "operation": "largerEqual", "value2": "={{$env.CONFIDENCE_THRESHOLD}}" }]
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Ecrire journal devis",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [1740, 220],
+      "parameters": { "operation": "append", "sheetId": "={{$env.SHEET_ID_JOURNAL_DEVIS}}" }
+    },
+    {
+      "id": "9",
+      "name": "Notifier equipe commerciale",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1960, 220],
+      "parameters": {
+        "operation": "send",
+        "toList": "={{$env.NOTIFICATION_EMAIL}}",
+        "subject": "Nouveau devis pre-rempli a valider - {{$json[\"client\"][\"societe\"]}}"
+      }
+    },
+    {
+      "id": "10",
+      "name": "Alerte verification manuelle",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1740, 420],
+      "parameters": {
+        "operation": "send",
+        "toList": "={{$env.NOTIFICATION_EMAIL}}",
+        "subject": "Verification manuelle requise - extraction incertaine"
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": { "main": [[{ "node": "Piece jointe PDF ?", "type": "main", "index": 0 }]] },
+    "Piece jointe PDF ?": {
+      "main": [
+        [{ "node": "Extraire texte PDF", "type": "main", "index": 0 }],
+        [{ "node": "OpenAI - Extraction structuree", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extraire texte PDF": { "main": [[{ "node": "OpenAI - Extraction structuree", "type": "main", "index": 0 }]] },
+    "OpenAI - Extraction structuree": { "main": [[{ "node": "Lire grille tarifaire", "type": "main", "index": 0 }]] },
+    "Lire grille tarifaire": { "main": [[{ "node": "Calculer chiffrage", "type": "main", "index": 0 }]] },
+    "Calculer chiffrage": { "main": [[{ "node": "Confiance >= seuil ?", "type": "main", "index": 0 }]] },
+    "Confiance >= seuil ?": {
+      "main": [
+        [{ "node": "Ecrire journal devis", "type": "main", "index": 0 }],
+        [{ "node": "Alerte verification manuelle", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ecrire journal devis": { "main": [[{ "node": "Notifier equipe commerciale", "type": "main", "index": 0 }]] }
+  }
+}

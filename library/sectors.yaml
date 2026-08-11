@@ -27,7 +27,7 @@ sectors:
     cooldown: false
   - slug: imprimeries
     nom: Imprimeries
-    usage_count: 0
+    usage_count: 1
     niveau_equipement_ia: low
     cooldown: false
   - slug: garages_independants

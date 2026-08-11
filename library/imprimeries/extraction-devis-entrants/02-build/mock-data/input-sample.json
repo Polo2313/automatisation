@@ -1,0 +1,16 @@
+{
+  "email": {
+    "from": "contact@exemple-client-fictif.fr",
+    "subject": "Demande de devis - flyers A5",
+    "received_at": "2026-08-11T09:14:00+02:00",
+    "body": "Bonjour, nous souhaiterions un devis pour 5000 flyers A5, recto-verso, quadrichromie, papier 170g couché brillant, pliage en 2. Livraison souhaitée sous 10 jours. Merci de nous recontacter. Cordialement, [Nom fictif], Société Exemple SARL.",
+    "attachments": [
+      {
+        "filename": "cahier-des-charges.pdf",
+        "mime_type": "application/pdf",
+        "size_kb": 240,
+        "text_extractable": true
+      }
+    ]
+  }
+}
