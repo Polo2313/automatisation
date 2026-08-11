@@ -84,6 +84,11 @@ cases:
     last_touch_date: "2026-08-10"
     prospects: []
     notes: "Pack vente + build complets. 3 entreprises ICP identifiées via recherche web (sites institutionnels, Pappers, annuaire-entreprises.data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas NON fragile (paybacks pessimistes ≈15,7 mois, sous le seuil de 20 mois). Point d'attention: prix retenu (12 500 €) représente 61% du gain brut annuel estimé, au-dessus du plafond de 40% recommandé par le skill proposition-commerciale-vantyse — à corriger via ce skill avant tout envoi réel à un prospect (cf. 03-pilotage/pricing-internal.md)."
+  - id: imprimeries-extraction-devis-entrants
+    status: produit
+    last_touch_date: "2026-08-11"
+    prospects: []
+    notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx). 3 entreprises ICP identifiées via recherche web (société.com, Pappers) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 20,0-25,7 mois, au-dessus du seuil de 20 mois) — ne pas pitcher au prix plein (12 000 €) sans validation du volume réel hebdomadaire de devis du prospect ; envisager l'option MVP (4 200 €) si le volume est incertain. Premier cas produit dans le secteur imprimeries (usage_count 0→1)."
 # Schéma par cas:
 #  - id: "{secteur}-{cas}"
 #    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost

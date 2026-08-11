@@ -1,0 +1,25 @@
+{
+  "devis_id": "DEV-2026-0811-001",
+  "client": {
+    "societe": "Société Exemple SARL",
+    "email": "contact@exemple-client-fictif.fr",
+    "telephone": null
+  },
+  "specifications": {
+    "produit": "Flyers",
+    "format": "A5",
+    "quantite": 5000,
+    "papier": "170g couché brillant",
+    "impression": "Quadrichromie recto-verso",
+    "faconnage": "Pliage en 2",
+    "delai_souhaite_jours": 10
+  },
+  "chiffrage_estimatif": {
+    "prix_ht_eur": 486.00,
+    "base_grille_tarifaire": "flyers-A5-quadri-170g",
+    "marge_cible_pct": 35
+  },
+  "confiance_extraction": 0.91,
+  "statut": "pret_a_verifier",
+  "champs_manquants": []
+}
