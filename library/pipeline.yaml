@@ -89,6 +89,11 @@ cases:
     last_touch_date: "2026-08-11"
     prospects: []
     notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx). 3 entreprises ICP identifiées via recherche web (société.com, Pappers) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 20,0-25,7 mois, au-dessus du seuil de 20 mois) — ne pas pitcher au prix plein (12 000 €) sans validation du volume réel hebdomadaire de devis du prospect ; envisager l'option MVP (4 200 €) si le volume est incertain. Premier cas produit dans le secteur imprimeries (usage_count 0→1)."
+  - id: cabinets_geometres-qualification-routage-demandes-entrantes
+    status: produit
+    last_touch_date: "2026-08-12"
+    prospects: []
+    notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx, validité structurelle confirmée — vérification visuelle via LibreOffice headless impossible dans cet environnement, cf. CLAUDE.md). 3 entreprises ICP identifiées via recherche web (société.com, verif.com, site institutionnel geoval.geometre-expert.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 26,0 mois dans les deux scénarios, au-dessus du seuil de 20 mois) — recommandation explicite dans risks.md de privilégier l'option MVP (2 600 €) pour les cabinets de moins de 10 salariés (ex: Cabinet Arthur, Bordeaux, 6-9 salariés) avant d'engager le prix plein (7 500 €). Premier cas produit dans le secteur cabinets_geometres (usage_count 0→1). Prix fixé sous le plancher habituel de la grille automatisation_ia (12 000€) pour rester réaliste vis-à-vis de la taille moyenne des cabinets ciblés, même logique que le cas garages_independants du 2026-08-09."
 # Schéma par cas:
 #  - id: "{secteur}-{cas}"
 #    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost
