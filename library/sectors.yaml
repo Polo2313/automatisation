@@ -52,7 +52,7 @@ sectors:
     cooldown: false
   - slug: cabinets_geometres
     nom: Cabinets de géomètres-experts
-    usage_count: 0
+    usage_count: 1
     niveau_equipement_ia: low
     cooldown: false
 

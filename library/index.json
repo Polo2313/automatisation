@@ -409,6 +409,63 @@
       ],
       "path": "/library/imprimeries/extraction-devis-entrants/",
       "drive_url": "https://drive.google.com/drive/folders/1-CaZYoOxVNoyiZIpi8vgEKDTs6jd2xcb"
+    },
+    {
+      "id": "cabinets_geometres-qualification-routage-demandes-entrantes",
+      "date": "2026-08-12",
+      "secteur": "cabinets_geometres",
+      "probleme_slug": "qualification-routage-demandes-entrantes",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / secrétariat technique",
+      "tjm_user_eur": 28,
+      "decideur": "Géomètre-expert associé / gérant du cabinet",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "Cabinet Jouenne Géomètre-Expert",
+          "ville": "Draveil (91210)",
+          "effectif": "10 à 19 salariés",
+          "secteur": "Géomètre-expert"
+        },
+        {
+          "nom": "GEOVAL (géomètre-expert et maître d'œuvre)",
+          "ville": "Cournon-d'Auvergne (63800), multi-agences Issoire/Brioude/Ambert/Riom",
+          "effectif": "~45 salariés",
+          "secteur": "Géomètre-expert / maîtrise d'œuvre"
+        },
+        {
+          "nom": "Cabinet Arthur - Géomètre-Expert",
+          "ville": "Bordeaux (33200)",
+          "effectif": "6 à 9 salariés",
+          "secteur": "Géomètre-expert"
+        }
+      ],
+      "icp_source": "Recherche web (société.com, verif.com, site institutionnel geoval.geometre-expert.fr, LinkedIn), consultée le 2026-08-12.",
+      "linkedin_target_title": "Géomètre-expert",
+      "linkedin_target_alt": "Gérant de cabinet de géomètre-expert",
+      "marche_fr_adressable": "~1 260 cabinets de géomètres-experts en France, dont environ un tiers de plus de 6 salariés ; cible pertinente (6-50 salariés) estimée à quelques centaines, ordre de grandeur ~400-500 [hypothèse]",
+      "prix_recommande_eur": 7500,
+      "prix_mvp_eur": 2600,
+      "run_mensuel_eur": 750,
+      "delai_implem_jours": 9,
+      "cout_run_pme_mensuel_eur": 32,
+      "h_gagnees_par_semaine": 7,
+      "capacity_freed_eur_an": 5410,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 2672,
+      "total_net_eur_an": 7498,
+      "payback_mois_central": 12.0,
+      "payback_mois_pessimiste_gains": 26.0,
+      "payback_mois_pessimiste_adoption": 26.0,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "OpenAI gpt-4o-mini",
+        "Google Sheets"
+      ],
+      "path": "/library/cabinets_geometres/qualification-routage-demandes-entrantes/"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "message_id": "mock-001",
+  "from": "m.durand.particulier@example.com",
+  "to": "contact@cabinet.fr",
+  "subject": "Demande de bornage - Parcelle rue des Tilleuls",
+  "date": "2026-08-10T09:14:00+02:00",
+  "textPlain": "Bonjour,\n\nJe suis propriétaire d'un terrain situé au 14 rue des Tilleuls, 91210 Draveil, et je souhaiterais faire réaliser un bornage avec mon voisin car nous avons un désaccord sur la limite exacte de nos parcelles respectives.\n\nLa parcelle est référencée section AB n°142 au cadastre, si cela peut aider.\n\nC'est assez urgent car nous prévoyons de poser une nouvelle clôture dans les semaines qui viennent et nous aimerions être fixés avant.\n\nPourriez-vous me dire si vous intervenez dans ce secteur et me communiquer une estimation du coût de cette prestation ?\n\nCordialement,\nMarc Durand\n06 12 34 56 78"
+}

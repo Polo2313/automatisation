@@ -98,6 +98,22 @@ l'environnement) pour produire `proposition-commerciale.docx` à partir de
 `diagnostic-ia-pme` et `proposition-commerciale-vantyse`. Ne pas retenter
 pandoc/python-docx.
 
+**Complément (2026-08-12)** : le module npm `docx` (utilisé par le skill
+`docx` pour générer le fichier) fonctionne bien et produit un `.docx` valide
+(`file` le reconnaît comme « Microsoft Word 2007+ », `unzip -t` ne remonte
+aucune erreur) — il n'est **pas préinstallé** cependant, il faut lancer
+`npm install docx` dans le dossier de travail avant de `require('docx')`.
+En revanche, l'étape de vérification visuelle recommandée par le skill
+(`soffice --headless --convert-to pdf`) **échoue systématiquement** dans cet
+environnement, y compris sur un `.docx` trivial d'une seule ligne et sur un
+`.txt` brut (`Error: source file could not be loaded`, LibreOffice
+24.2.7.2) — ce n'est donc pas un défaut du fichier généré mais une
+limitation de l'environnement d'exécution (LibreOffice headless indisponible
+ou cassé ici). Ne pas perdre de temps à déboguer `soffice` : générer le
+`.docx` via `docx` (npm), vérifier sa validité structurelle avec `file` et
+`unzip -t`, et continuer sans bloquer la routine si le rendu visuel n'est
+pas possible.
+
 ## Cohérence de pricing avec les skills Vantyse « métier »
 
 Deux skills existent en dehors de cette routine et sont plus récents / mieux
