@@ -1,0 +1,14 @@
+{
+  "site_nom": "Bureaux Dupont Immobilier",
+  "site_adresse": "",
+  "date_intervention": "2026-08-10",
+  "agent_nom": "M. Kader",
+  "heure_debut": "08:00",
+  "heure_fin": "10:30",
+  "duree_heures": 2.5,
+  "taches_realisees": ["aspiration", "sanitaires", "vitres"],
+  "anomalie_signalee": true,
+  "anomalie_description": "Distributeur de savon HS, sanitaires étage 2",
+  "champs_valides": true,
+  "statut": "ok"
+}

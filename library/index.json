@@ -466,6 +466,64 @@
         "Google Sheets"
       ],
       "path": "/library/cabinets_geometres/qualification-routage-demandes-entrantes/"
+    },
+    {
+      "id": "societes_nettoyage-traitement-rapports-intervention",
+      "date": "2026-08-13",
+      "secteur": "societes_nettoyage",
+      "probleme_slug": "traitement-rapports-intervention",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / gestionnaire d'exploitation",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant·e / dirigeant·e de la société de nettoyage",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "SARL NETTOYAGE ET MAINTENANCE",
+          "ville": "Saint-Maurice-l'Exil (38550)",
+          "effectif": "6-9 salariés",
+          "secteur": "Nettoyage courant des bâtiments"
+        },
+        {
+          "nom": "SARL DOPL'AIR",
+          "ville": "Beauzelle (31700)",
+          "effectif": "10-19 salariés",
+          "secteur": "Nettoyage des bâtiments et nettoyage industriel"
+        },
+        {
+          "nom": "Multi Services Propreté",
+          "ville": "Bourg-en-Bresse (01000)",
+          "effectif": "~15 salariés, ~90 sites suivis",
+          "secteur": "Nettoyage de locaux professionnels"
+        }
+      ],
+      "icp_source": "Recherche web (annuaire-entreprises.data.gouv.fr, sites institutionnels des entreprises), consultée le 2026-08-13.",
+      "linkedin_target_title": "Gérant d'entreprise de nettoyage",
+      "linkedin_target_alt": "Responsable d'exploitation propreté",
+      "marche_fr_adressable": "~15 000 entreprises de propreté employant au moins 1 salarié en France (Fédération des Entreprises de Propreté, chiffres 2025), majoritairement des PME <50 salariés [source: FEP]",
+      "prix_recommande_eur": 6500,
+      "prix_mvp_eur": 2300,
+      "run_mensuel_eur": 650,
+      "delai_implem_jours": 8,
+      "cout_run_pme_mensuel_eur": 30,
+      "h_gagnees_par_semaine": 7,
+      "capacity_freed_eur_an": 5410,
+      "cash_savings_eur_an": 600,
+      "revenue_uplift_eur_an": 0,
+      "total_net_eur_an": 5650,
+      "payback_mois_central": 13.8,
+      "payback_mois_pessimiste_gains": 29.5,
+      "payback_mois_pessimiste_adoption": 26.5,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "OpenAI gpt-4o-mini (vision)",
+        "Google Sheets",
+        "Google Drive"
+      ],
+      "path": "/library/societes_nettoyage/traitement-rapports-intervention/"
     }
   ]
 }

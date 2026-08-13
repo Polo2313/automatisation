@@ -6,6 +6,34 @@ planifiée, pas dans ce dépôt). Ce fichier documente des pannes réelles
 constatées le 2026-07-29 et corrige des points que le prompt planifié ne peut
 pas s'auto-corriger. À lire avant toute exécution de la routine sur ce dépôt.
 
+## Phase 0 — angle mort de l'arbitrage « sourcing prospect » (constaté le 2026-08-12, documenté le 2026-08-13)
+
+La règle 2 de l'arbitrage Phase 0 (« Si ≥ 1 cas en `ready_to_pitch` sans
+entreprise prospect identifiée → sourcing prospect ») ne se déclenche
+**jamais** en pratique, car aucun cas ne passe jamais de `produit` à
+`ready_to_pitch` — cette transition n'est déclenchée par aucune règle
+explicite du prompt planifié. Résultat observé sur les runs du 2026-08-03
+au 2026-08-13 : **7 cas consécutifs** (`pme_btp-qualification-routage-devis-entrants`,
+`garages_independants-...`, `bureaux_etudes-...`, `imprimeries-...`,
+`cabinets_geometres-...`, `societes_nettoyage-...`) sont tous restés en
+statut `produit`, sans prospect ni contact LinkedIn nominatif, et la routine
+a produit un nouveau cas chaque jour au lieu de sourcer un prospect sur le
+backlog existant. Le run du 2026-08-12 avait déjà signalé ce point sans
+correction possible depuis la session (le prompt planifié n'est pas
+modifiable depuis ce dépôt).
+
+**Correctif d'interprétation, à appliquer par toute session future tant que
+le prompt planifié n'est pas corrigé côté plateforme** : lire la règle 2 de
+la Phase 0 de façon élargie — inclure aussi les cas en statut `produit`
+**sans aucun prospect dans `pipeline.yaml`** et dont `last_touch_date` a
+plus de 3 jours. Concrètement : avant de décider de produire un nouveau cas,
+vérifier s'il existe un cas `produit` ancien sans prospect ; si oui, basculer
+la routine du jour sur le sourcing de ce cas (3 entreprises déjà identifiées
+dans son `gtm.md` → trouver au moins 1 contact LinkedIn nominatif réel,
+mettre à jour `pipeline.yaml` avec ce prospect, et faire passer `case_status`
+en `ready_to_pitch` si un contact a été trouvé) plutôt que de produire un
+8ᵉ cas supplémentaire qui ne fera qu'allonger le backlog non pitché.
+
 ## Panne de persistance mémoire — cause racine trouvée et corrigée (2026-08-09)
 
 Le correctif du 2026-07-29 ci-dessous (« committer et pousser à chaque run »)
