@@ -47,7 +47,7 @@ sectors:
     cooldown: false
   - slug: societes_nettoyage
     nom: Sociétés de nettoyage / services
-    usage_count: 0
+    usage_count: 1
     niveau_equipement_ia: low
     cooldown: false
   - slug: cabinets_geometres
