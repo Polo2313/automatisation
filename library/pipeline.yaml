@@ -70,10 +70,14 @@ cases:
     prospects: []
     notes: "Statut reconstruit rétroactivement. Doublon exact du cas pme_industrielles-qualification-devis-entrants du 2026-06-21. Dernier cas produit avant l'arrêt de 30 jours de la routine (aucune production entre le 2026-06-29 et le 2026-07-29)."
   - id: pme_btp-qualification-routage-devis-entrants
-    status: produit
-    last_touch_date: "2026-08-03"
-    prospects: []
-    notes: "Pack vente + build complets. Aucun prospect sourcé (nom de contact LinkedIn) à date. Prochain run: sourcing prospect (3 entreprises identifiées dans gtm.md, contacts LinkedIn à trouver) avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-14"
+    prospects:
+      - entreprise: "ISB (Industries et Services du Bâtiment)"
+        contact: "Bernard Baute — Gérant / Président (fondateur, société transformée en SAS en janvier 2020)"
+        linkedin: "https://fr.linkedin.com/in/bernard-baute-0a1845180"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-14 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement). Contact LinkedIn nominatif réel trouvé pour ISB (Bernard Baute), recoupé via Pappers, Societe.com et RocketReach (cohérence sur le rôle de gérant/président) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif trouvé pour Boutillet SAS (gouvernance récemment transférée à BVMC FINANCE, statut de Jean Paul Boutillet incertain) ni pour SEBACO (Joseph Le Bris confirmé dirigeant mais aucun profil LinkedIn correspondant identifié) — à sourcer lors d'un prochain run si ISB ne convertit pas. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch ferme, cf. risks.md."
   - id: garages_independants-traitement-factures-fournisseurs-pieces
     status: produit
     last_touch_date: "2026-08-09"
