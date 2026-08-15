@@ -79,10 +79,14 @@ cases:
         next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
     notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-14 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement). Contact LinkedIn nominatif réel trouvé pour ISB (Bernard Baute), recoupé via Pappers, Societe.com et RocketReach (cohérence sur le rôle de gérant/président) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif trouvé pour Boutillet SAS (gouvernance récemment transférée à BVMC FINANCE, statut de Jean Paul Boutillet incertain) ni pour SEBACO (Joseph Le Bris confirmé dirigeant mais aucun profil LinkedIn correspondant identifié) — à sourcer lors d'un prochain run si ISB ne convertit pas. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch ferme, cf. risks.md."
   - id: garages_independants-traitement-factures-fournisseurs-pieces
-    status: produit
-    last_touch_date: "2026-08-09"
-    prospects: []
-    notes: "Pack vente + build complets. 3 entreprises ICP identifiées via registre officiel (data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 24,4-28,7 mois > seuil 20 mois) — ne pas contractualiser au prix plein sans validation du volume réel de factures du prospect en amont."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-15"
+    prospects:
+      - entreprise: "SARL DUMEIGE (GARAGE DUMEIGE)"
+        contact: "Mickaël Dumeige — Associé-Gérant (dirigeant depuis 2011, confirmé Pappers)"
+        linkedin: "https://www.linkedin.com/in/mickael-dumeige-04837b303/"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-15 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement — prochain candidat après ISB le 2026-08-14). Contact LinkedIn nominatif réel trouvé pour SARL DUMEIGE (Mickaël Dumeige), recoupé via Pappers (dirigeant enregistré depuis le 2011-10-01, né 1973-08) et LinkedIn (titre de profil \"MICKAEL DUMEIGE - SARL DUMEIGE\" correspondant exactement à la raison sociale) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif recherché pour GARAGE SUD AUTOMOBILE (structure de groupe complexe, SOCIETE FINANCIERE GROUPE ESCUDIER-FIGES actionnaire principal, CA 15,9M€ — profil s'écarte du garage indépendant type de l'ICP) ni pour GARAGE BRUNEL (gouvernance multi-dirigeants ambiguë : Vincent BRUNEL, Didier BRUNEL, BRUNEL FRERES en tant que Président) — à sourcer lors d'un prochain run si DUMEIGE ne convertit pas. Cas FRAGILE (paybacks pessimistes 24,4-28,7 mois > seuil 20 mois) — ne pas contractualiser au prix plein sans validation du volume réel de factures du prospect en amont."
   - id: bureaux_etudes-relance-devis-missions
     status: produit
     last_touch_date: "2026-08-10"

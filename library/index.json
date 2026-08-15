@@ -286,7 +286,7 @@
       "payback_mois_central": 13.3,
       "payback_mois_pessimiste_gains": 28.7,
       "payback_mois_pessimiste_adoption": 24.4,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": true,
       "stack": [
         "n8n",
@@ -295,7 +295,8 @@
         "Google Sheets",
         "Google Drive"
       ],
-      "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/"
+      "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/",
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-15 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). Contact LinkedIn nominatif réel identifié pour SARL DUMEIGE (Mickaël Dumeige, Associé-Gérant — https://www.linkedin.com/in/mickael-dumeige-04837b303/, recoupé via Pappers). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "bureaux_etudes-relance-devis-missions",
