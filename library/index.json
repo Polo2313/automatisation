@@ -227,7 +227,7 @@
       "payback_mois_central": 13.8,
       "payback_mois_pessimiste_gains": 32.3,
       "payback_mois_pessimiste_adoption": 33.3,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": true,
       "stack": [
         "n8n",
@@ -236,7 +236,8 @@
         "Google Sheets"
       ],
       "path": "/library/pme_btp/qualification-routage-devis-entrants/",
-      "recovered_note": "Récupéré depuis la branche orpheline claude/laughing-heisenberg-klyi4q et fusionné dans main le 2026-08-09."
+      "recovered_note": "Récupéré depuis la branche orpheline claude/laughing-heisenberg-klyi4q et fusionné dans main le 2026-08-09.",
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-14 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). Contact LinkedIn nominatif réel identifié pour ISB (Bernard Baute, Gérant/Président — https://fr.linkedin.com/in/bernard-baute-0a1845180, recoupé via Pappers/Societe.com/RocketReach). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "garages_independants-traitement-factures-fournisseurs-pieces",
@@ -285,7 +286,7 @@
       "payback_mois_central": 13.3,
       "payback_mois_pessimiste_gains": 28.7,
       "payback_mois_pessimiste_adoption": 24.4,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": true,
       "stack": [
         "n8n",
@@ -294,7 +295,8 @@
         "Google Sheets",
         "Google Drive"
       ],
-      "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/"
+      "path": "/library/garages_independants/traitement-factures-fournisseurs-pieces/",
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-15 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). Contact LinkedIn nominatif réel identifié pour SARL DUMEIGE (Mickaël Dumeige, Associé-Gérant — https://www.linkedin.com/in/mickael-dumeige-04837b303/, recoupé via Pappers). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "bureaux_etudes-relance-devis-missions",
@@ -342,7 +344,7 @@
       "payback_mois_central": 7.6,
       "payback_mois_pessimiste_gains": 15.7,
       "payback_mois_pessimiste_adoption": 15.7,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": false,
       "stack": [
         "n8n",
@@ -409,6 +411,121 @@
       ],
       "path": "/library/imprimeries/extraction-devis-entrants/",
       "drive_url": "https://drive.google.com/drive/folders/1-CaZYoOxVNoyiZIpi8vgEKDTs6jd2xcb"
+    },
+    {
+      "id": "cabinets_geometres-qualification-routage-demandes-entrantes",
+      "date": "2026-08-12",
+      "secteur": "cabinets_geometres",
+      "probleme_slug": "qualification-routage-demandes-entrantes",
+      "type_flux": "capture_lead",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / secrétariat technique",
+      "tjm_user_eur": 28,
+      "decideur": "Géomètre-expert associé / gérant du cabinet",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "Cabinet Jouenne Géomètre-Expert",
+          "ville": "Draveil (91210)",
+          "effectif": "10 à 19 salariés",
+          "secteur": "Géomètre-expert"
+        },
+        {
+          "nom": "GEOVAL (géomètre-expert et maître d'œuvre)",
+          "ville": "Cournon-d'Auvergne (63800), multi-agences Issoire/Brioude/Ambert/Riom",
+          "effectif": "~45 salariés",
+          "secteur": "Géomètre-expert / maîtrise d'œuvre"
+        },
+        {
+          "nom": "Cabinet Arthur - Géomètre-Expert",
+          "ville": "Bordeaux (33200)",
+          "effectif": "6 à 9 salariés",
+          "secteur": "Géomètre-expert"
+        }
+      ],
+      "icp_source": "Recherche web (société.com, verif.com, site institutionnel geoval.geometre-expert.fr, LinkedIn), consultée le 2026-08-12.",
+      "linkedin_target_title": "Géomètre-expert",
+      "linkedin_target_alt": "Gérant de cabinet de géomètre-expert",
+      "marche_fr_adressable": "~1 260 cabinets de géomètres-experts en France, dont environ un tiers de plus de 6 salariés ; cible pertinente (6-50 salariés) estimée à quelques centaines, ordre de grandeur ~400-500 [hypothèse]",
+      "prix_recommande_eur": 7500,
+      "prix_mvp_eur": 2600,
+      "run_mensuel_eur": 750,
+      "delai_implem_jours": 9,
+      "cout_run_pme_mensuel_eur": 32,
+      "h_gagnees_par_semaine": 7,
+      "capacity_freed_eur_an": 5410,
+      "cash_savings_eur_an": 0,
+      "revenue_uplift_eur_an": 2672,
+      "total_net_eur_an": 7498,
+      "payback_mois_central": 12.0,
+      "payback_mois_pessimiste_gains": 26.0,
+      "payback_mois_pessimiste_adoption": 26.0,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "OpenAI gpt-4o-mini",
+        "Google Sheets"
+      ],
+      "path": "/library/cabinets_geometres/qualification-routage-demandes-entrantes/"
+    },
+    {
+      "id": "societes_nettoyage-traitement-rapports-intervention",
+      "date": "2026-08-13",
+      "secteur": "societes_nettoyage",
+      "probleme_slug": "traitement-rapports-intervention",
+      "type_flux": "traitement_doc",
+      "type_produit": "automation_ia",
+      "utilisateur_final": "Assistant·e administratif·ve / gestionnaire d'exploitation",
+      "tjm_user_eur": 28,
+      "decideur": "Gérant·e / dirigeant·e de la société de nettoyage",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "SARL NETTOYAGE ET MAINTENANCE",
+          "ville": "Saint-Maurice-l'Exil (38550)",
+          "effectif": "6-9 salariés",
+          "secteur": "Nettoyage courant des bâtiments"
+        },
+        {
+          "nom": "SARL DOPL'AIR",
+          "ville": "Beauzelle (31700)",
+          "effectif": "10-19 salariés",
+          "secteur": "Nettoyage des bâtiments et nettoyage industriel"
+        },
+        {
+          "nom": "Multi Services Propreté",
+          "ville": "Bourg-en-Bresse (01000)",
+          "effectif": "~15 salariés, ~90 sites suivis",
+          "secteur": "Nettoyage de locaux professionnels"
+        }
+      ],
+      "icp_source": "Recherche web (annuaire-entreprises.data.gouv.fr, sites institutionnels des entreprises), consultée le 2026-08-13.",
+      "linkedin_target_title": "Gérant d'entreprise de nettoyage",
+      "linkedin_target_alt": "Responsable d'exploitation propreté",
+      "marche_fr_adressable": "~15 000 entreprises de propreté employant au moins 1 salarié en France (Fédération des Entreprises de Propreté, chiffres 2025), majoritairement des PME <50 salariés [source: FEP]",
+      "prix_recommande_eur": 6500,
+      "prix_mvp_eur": 2300,
+      "run_mensuel_eur": 650,
+      "delai_implem_jours": 8,
+      "cout_run_pme_mensuel_eur": 30,
+      "h_gagnees_par_semaine": 7,
+      "capacity_freed_eur_an": 5410,
+      "cash_savings_eur_an": 600,
+      "revenue_uplift_eur_an": 0,
+      "total_net_eur_an": 5650,
+      "payback_mois_central": 13.8,
+      "payback_mois_pessimiste_gains": 29.5,
+      "payback_mois_pessimiste_adoption": 26.5,
+      "case_status": "produit",
+      "fragile": true,
+      "stack": [
+        "n8n",
+        "Gmail API",
+        "OpenAI gpt-4o-mini (vision)",
+        "Google Sheets",
+        "Google Drive"
+      ],
+      "path": "/library/societes_nettoyage/traitement-rapports-intervention/"
     }
   ]
 }

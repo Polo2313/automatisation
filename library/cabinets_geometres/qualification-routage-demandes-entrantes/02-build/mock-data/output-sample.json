@@ -1,0 +1,33 @@
+{
+  "extraction": {
+    "type_prestation": "bornage",
+    "adresse": "14 rue des Tilleuls, 91210 Draveil",
+    "parcelle_cadastrale": "Section AB n°142",
+    "urgence": "haute",
+    "client_nom": "Marc Durand",
+    "client_email": "m.durand.particulier@example.com",
+    "client_telephone": "06 12 34 56 78"
+  },
+  "routage_et_devis": {
+    "zone_couverte": true,
+    "devis_indicatif_eur": {
+      "bas": 950,
+      "haut": 1250
+    },
+    "necessite_validation_geometre": false,
+    "geometre_assigne": "Cabinet Jouenne - agence Draveil"
+  },
+  "journal_sheets": {
+    "date": "2026-08-10T09:16:22+02:00",
+    "client_nom": "Marc Durand",
+    "type_prestation": "bornage",
+    "statut": "traitée",
+    "devis_indicatif": "950-1250",
+    "geometre_assigne": "Cabinet Jouenne - agence Draveil"
+  },
+  "email_genere": {
+    "to": "m.durand.particulier@example.com",
+    "subject": "Votre demande de bornage auprès du cabinet - accusé de réception",
+    "body": "Bonjour Monsieur Durand,\n\nNous avons bien reçu votre demande de bornage concernant votre propriété située au 14 rue des Tilleuls, 91210 Draveil (parcelle section AB n°142), et vous en remercions.\n\nNotre cabinet intervient bien dans votre secteur. Sur la base des éléments transmis, nous pouvons vous communiquer une estimation indicative du coût de cette prestation, comprise entre 950 € et 1 250 € HT, hors frais annexes éventuels (bureau de vérification, notaire si nécessaire). Ce montant sera confirmé après un premier échange et, le cas échéant, une visite sur site.\n\nÉtant donné le caractère urgent de votre demande, notre géomètre en charge de votre secteur reviendra vers vous très prochainement afin de convenir d'un rendez-vous.\n\nProchaines étapes :\n1. Confirmation de rendez-vous par notre géomètre référent (sous 48h).\n2. Visite sur site et bornage contradictoire avec votre voisin.\n3. Établissement du procès-verbal de bornage.\n\nConformément à la réglementation applicable, les données que vous nous avez transmises sont traitées dans le seul cadre du suivi de votre demande et conservées pendant une durée maximale de 24 mois. Vous disposez d'un droit d'accès, de rectification et d'effacement de ces données.\n\nCordialement,\nLe Cabinet"
+  }
+}
