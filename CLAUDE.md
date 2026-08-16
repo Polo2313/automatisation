@@ -6,6 +6,45 @@ planifiée, pas dans ce dépôt). Ce fichier documente des pannes réelles
 constatées le 2026-07-29 et corrige des points que le prompt planifié ne peut
 pas s'auto-corriger. À lire avant toute exécution de la routine sur ce dépôt.
 
+## Exécution parallèle non tracée détectée (constatée le 2026-08-16)
+
+En préparant le run du 2026-08-16, retrouvé dans Gmail un envoi du 2026-08-15
+(« FactureFlow Restauration », secteur `restauration_reseaux`, cas
+`extraction-factures-fournisseurs-multisites`) qui ne correspond à **aucun**
+cas de `library/index.json`/`pipeline.yaml` de ce dépôt, ni à aucune branche
+`claude/*` sur le remote. Ce cas a pourtant été produit avec le même gabarit
+(01-vente/02-build/03-pilotage complets) et déposé dans un dossier Google
+Drive **« automatisation V2 »** — différent du dossier **« automatisation V3 »**
+utilisé par ce dépôt et documenté plus bas dans ce fichier. Le raisonnement de
+rotation sectorielle du mail (« 9 secteurs à usage_count=0 ») est incohérent
+avec l'état réel persisté ici (8/11 secteurs `low` déjà utilisés au
+2026-08-15) — preuve que cette exécution ne lit pas l'état de ce dépôt.
+
+**Conclusion** : au moins deux exécutions parallèles de la routine « Vantyse
+Daily » tournent indépendamment, chacune ignorant l'état (et donc les
+anti-doublons) de l'autre, et déposant leurs livrables dans deux dossiers
+Drive distincts. Impossible de corriger ni de retrouver cette deuxième
+exécution depuis une session attachée à ce dépôt — aucun accès à son
+repo/session d'origine. Signalé à Paul par email le 2026-08-16. **À vérifier
+côté plateforme** : nombre de tâches planifiées « Vantyse Daily » actives, et
+si l'une d'elles n'est pas rattachée à ce dépôt Git.
+
+## Pièces jointes .zip rejetées par Gmail (constaté le 2026-08-16)
+
+Les deux envois du 2026-08-15 pour « FactureFlow Restauration » (ci-dessus)
+ont été rejetés par un bounce `mailer-daemon@googlemail.com` : « Les fichiers
+de ce type ne respectent pas le règlement de Google concernant les fichiers
+exécutables et les archives. » — les pièces jointes `.zip` de la Phase 5d ne
+passent pas la politique de sécurité Gmail dans cet environnement, même pour
+un envoi vers sa propre boîte.
+
+**Correctif** : ne plus joindre les zips (`*-full.zip` / `*-VENTE.zip`) à
+l'email de la Phase 5d. Continuer à les générer localement (Phase 5b) et à
+déposer leur contenu dans Google Drive (Phase 5c) comme prévu, mais dans le
+corps de l'email, remplacer la pièce jointe par le lien du dossier Drive du
+cas. Ne pas retenter l'envoi de zips en pièce jointe tant que cette
+politique Gmail n'est pas confirmée changée.
+
 ## Phase 0 — angle mort de l'arbitrage « sourcing prospect » (constaté le 2026-08-12, documenté le 2026-08-13)
 
 La règle 2 de l'arbitrage Phase 0 (« Si ≥ 1 cas en `ready_to_pitch` sans
