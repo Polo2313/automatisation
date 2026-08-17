@@ -44,3 +44,9 @@
 ## Stratégie de référence
 
 Premier client signé dans ce secteur = candidat prioritaire pour une étude de cas chiffrée réelle (remplacer les projections `[hypothèse]` par des mesures avant/après), à solliciter à l'issue des 30 jours de support inclus.
+
+## Sourcing prospect (2026-08-17)
+
+Contact nominatif retenu : **Simon Gravier**, Dirigeant / Gérant d'**IMPRIMERIE MODERNE** (Maxéville). Reprise de l'entreprise en 2015 à 26 ans, gérant confirmé sur Pappers depuis le 2021-08-02 ; dirige également Digit'Offset et a repris SharePrint. Recoupement : Pappers (dirigeant), Le Journal des Entreprises (article le désignant comme « dirigeant de l'Imprimerie Moderne »), et titre du profil LinkedIn lui-même — `https://fr.linkedin.com/in/simon-gravier-3a387065` — intitulé « Simon GRAVIER - DIRIGEANT IMPRIMERIE MODERNE ». Correspondance directe, sans ambiguïté. Profil non consultable directement depuis cette session (`fr.linkedin.com` bloqué par le proxy réseau) — à vérifier manuellement avant premier contact.
+
+Pour Imprimerie Renauldon : gouvernance familiale (Philippe Renauldon PDG, Marie-Ange Renauldon, Maxime Renauldon administrateur depuis 2023) — rôle exact ambigu, non retenu ce run. Pour SARL Imprimerie Delezenne : 2 co-gérants (Jean-Luc et Valentin Delezenne) — choix ambigu, non retenu ce run. À sourcer lors d'un prochain run si Simon Gravier ne convertit pas.
