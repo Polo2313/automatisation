@@ -1,0 +1,259 @@
+{
+  "name": "Vantyse - Traitement rapports intervention (societes de nettoyage)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "SMOKE TEST\n\nInput attendu : email envoye a la boite dediee rapports@ avec 1 piece jointe photo/PDF d'un rapport d'intervention (ex: mock-data/input-sample.json -> champ raw_image_description simule la photo recue).\n\nOutput attendu : mock-data/output-sample.json (JSON structure avec site, date_intervention, agent, duree_heures, statut='ok') + 1 ligne ajoutee dans Google Sheets + 1 fichier archive dans Google Drive.\n\nCe workflow n'a pas ete teste dans une instance n8n reelle (squelette de bibliotheque). A valider a l'import avant mise en production.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "note-smoke-test",
+      "name": "Note - Smoke test",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-200, -300]
+    },
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "simple": false,
+        "filters": { "q": "has:attachment" }
+      },
+      "id": "gmail-trigger",
+      "name": "1. Reception rapport (Gmail Trigger)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "credentials": { "gmailOAuth2": { "id": "REPLACE_ME", "name": "Gmail - boite rapports" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $binary.attachment_0 !== undefined }}", "value2": true }]
+        }
+      },
+      "id": "if-has-attachment",
+      "name": "2. IF piece jointe presente",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": { "operation": "binaryToPropery", "binaryPropertyName": "attachment_0" },
+      "id": "extract-image-base64",
+      "name": "3. Conversion image/PDF en base64",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [440, -80]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu extrais les informations d'un rapport d'intervention de nettoyage depuis la photo ou le PDF fourni (feuille manuscrite ou formulaire). Reponds UNIQUEMENT en JSON valide avec les champs: site_nom, site_adresse (si visible), date_intervention (YYYY-MM-DD), agent_nom, heure_debut, heure_fin, duree_heures, taches_realisees (tableau), anomalie_signalee (booleen), anomalie_description (chaine vide si aucune)."
+            }
+          ]
+        }
+      },
+      "id": "openai-extraction",
+      "name": "4. Extraction structuree (OpenAI gpt-4o-mini vision)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [660, -80],
+      "credentials": { "openAiApi": { "id": "REPLACE_ME", "name": "OpenAI - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "functionCode": "const f = JSON.parse($json.message.content);\nconst siteConnu = !!(f.site_nom && f.site_nom.trim().length > 0);\nconst dateValide = !!(f.date_intervention && /^\\d{4}-\\d{2}-\\d{2}$/.test(f.date_intervention));\nf.champs_valides = siteConnu && dateValide;\nf.statut = f.champs_valides ? 'ok' : 'a_verifier';\nreturn [{ json: f }];"
+      },
+      "id": "validate-fields",
+      "name": "5. Controle champs obligatoires",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [880, -80]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.champs_valides }}", "value2": true }] }
+      },
+      "id": "if-fields-valid",
+      "name": "6. IF champs valides",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1100, -80]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "range": "Registre!A:H"
+      },
+      "id": "sheets-append",
+      "name": "7a. Enregistrement registre (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1320, -160],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "REPLACE_ME", "name": "Google Sheets - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "folderId": "={{ $env.GOOGLE_DRIVE_FOLDER_ID }}",
+        "fileName": "={{ $json.site_nom }}_{{ $json.date_intervention }}.jpg"
+      },
+      "id": "drive-archive",
+      "name": "8. Archivage photo/PDF (Google Drive)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [1540, -160],
+      "credentials": { "googleDriveOAuth2Api": { "id": "REPLACE_ME", "name": "Google Drive - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.anomalie_signalee }}", "value2": true }]
+        }
+      },
+      "id": "if-anomalie",
+      "name": "9. IF anomalie signalee",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1760, -160]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@nettoyage-client.fr",
+        "toEmail": "={{ $env.EMAIL_ALERTE_ANOMALIE }}",
+        "subject": "Anomalie signalee sur site - a traiter",
+        "text": "=Le rapport du site {{ $json.site_nom }} du {{ $json.date_intervention }} signale une anomalie : {{ $json.anomalie_description }}. Merci de planifier une action."
+      },
+      "id": "email-anomalie",
+      "name": "9a. Alerte anomalie dirigeant",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1980, -240]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@nettoyage-client.fr",
+        "toEmail": "={{ $env.EMAIL_ALERTE_ANOMALIE }}",
+        "subject": "Rapport d'intervention a verifier manuellement",
+        "text": "=Un rapport recu ne permet pas d'identifier automatiquement le site ou la date. Merci de verifier manuellement (piece jointe conservee dans la boite rapports)."
+      },
+      "id": "email-a-verifier",
+      "name": "6b. Alerte rapport a verifier",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1100, 120]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@nettoyage-client.fr",
+        "toEmail": "={{ $env.EMAIL_RAPPORT_NON_TRAITE }}",
+        "subject": "Email recu sans photo/PDF exploitable",
+        "text": "Un email a ete recu dans la boite rapports sans piece jointe exploitable. A verifier manuellement."
+      },
+      "id": "email-sans-pj",
+      "name": "2b. Notification absence piece jointe",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [440, 120]
+    },
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 17 * * 5" }] } },
+      "id": "cron-hebdo",
+      "name": "10. Cron hebdomadaire (vendredi 17h)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [0, 400]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "sheetId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "range": "Registre!A:H"
+      },
+      "id": "sheets-read-recap",
+      "name": "11. Lecture registre semaine",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [220, 400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "REPLACE_ME", "name": "Google Sheets - Vantyse" } }
+    },
+    {
+      "parameters": {
+        "functionCode": "const rows = $input.all().map(i => i.json);\nconst parSite = {};\nfor (const r of rows) {\n  parSite[r.site_nom] = parSite[r.site_nom] || { sites: r.site_nom, heures: 0, anomalies: 0 };\n  parSite[r.site_nom].heures += Number(r.duree_heures || 0);\n  if (r.anomalie_signalee) parSite[r.site_nom].anomalies += 1;\n}\nreturn [{ json: { nb_sites: Object.keys(parSite).length, nb_rapports: rows.length, detail: Object.values(parSite) } }];"
+      },
+      "id": "aggregate-recap",
+      "name": "12. Agregation par site/contrat",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [440, 400]
+    },
+    {
+      "parameters": {
+        "fromEmail": "automatisation@nettoyage-client.fr",
+        "toEmail": "={{ $env.EMAIL_RECAP_HEBDO }}",
+        "subject": "Recap hebdomadaire - rapports d'intervention traites",
+        "text": "=Recapitulatif de la semaine : {{ $json.nb_rapports }} rapports traites sur {{ $json.nb_sites }} sites. Base pre-remplie pour la facturation du mois. Voir le registre complet pour le detail."
+      },
+      "id": "email-recap",
+      "name": "13. Envoi recap dirigeant",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [660, 400]
+    }
+  ],
+  "connections": {
+    "1. Reception rapport (Gmail Trigger)": {
+      "main": [[{ "node": "2. IF piece jointe presente", "type": "main", "index": 0 }]]
+    },
+    "2. IF piece jointe presente": {
+      "main": [
+        [{ "node": "3. Conversion image/PDF en base64", "type": "main", "index": 0 }],
+        [{ "node": "2b. Notification absence piece jointe", "type": "main", "index": 0 }]
+      ]
+    },
+    "3. Conversion image/PDF en base64": {
+      "main": [[{ "node": "4. Extraction structuree (OpenAI gpt-4o-mini vision)", "type": "main", "index": 0 }]]
+    },
+    "4. Extraction structuree (OpenAI gpt-4o-mini vision)": {
+      "main": [[{ "node": "5. Controle champs obligatoires", "type": "main", "index": 0 }]]
+    },
+    "5. Controle champs obligatoires": {
+      "main": [[{ "node": "6. IF champs valides", "type": "main", "index": 0 }]]
+    },
+    "6. IF champs valides": {
+      "main": [
+        [{ "node": "7a. Enregistrement registre (Google Sheets)", "type": "main", "index": 0 }],
+        [{ "node": "6b. Alerte rapport a verifier", "type": "main", "index": 0 }]
+      ]
+    },
+    "7a. Enregistrement registre (Google Sheets)": {
+      "main": [[{ "node": "8. Archivage photo/PDF (Google Drive)", "type": "main", "index": 0 }]]
+    },
+    "8. Archivage photo/PDF (Google Drive)": {
+      "main": [[{ "node": "9. IF anomalie signalee", "type": "main", "index": 0 }]]
+    },
+    "9. IF anomalie signalee": {
+      "main": [[{ "node": "9a. Alerte anomalie dirigeant", "type": "main", "index": 0 }], []]
+    },
+    "10. Cron hebdomadaire (vendredi 17h)": {
+      "main": [[{ "node": "11. Lecture registre semaine", "type": "main", "index": 0 }]]
+    },
+    "11. Lecture registre semaine": {
+      "main": [[{ "node": "12. Agregation par site/contrat", "type": "main", "index": 0 }]]
+    },
+    "12. Agregation par site/contrat": {
+      "main": [[{ "node": "13. Envoi recap dirigeant", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

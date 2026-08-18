@@ -12,7 +12,13 @@ Bureaux d'études techniques du bâtiment (structure, thermique, fluides, élect
 | Cetralp (Conseil et Études Techniques Rhône-Alpes) | Annecy-le-Vieux (74) | ~25 salariés | Bureau d'études fluides, thermique, génie climatique, électricité |
 | AREA Études Nantes | Saint-Aignan-Grandlieu (44) | 10-19 salariés | Bureau d'études thermique, électricité, fluides, sécurité incendie |
 
-*Sourcé via recherche web (sites institutionnels des entreprises, Pappers, annuaire-entreprises.data.gouv.fr, societe.com) le 2026-08-10. Aucun contact nominatif LinkedIn identifié à ce stade — sourcing prospect à faire lors d'un prochain run (cf. `pipeline.yaml`).*
+*Sourcé via recherche web (sites institutionnels des entreprises, Pappers, annuaire-entreprises.data.gouv.fr, societe.com) le 2026-08-10.*
+
+### Sourcing prospect (2026-08-16)
+
+Contact LinkedIn nominatif trouvé pour **AREA Études Nantes** : **Cyril Petit**, Président AREA Études Nantes depuis le 2021-11-15 (Pappers) / listé "Co-gérant AREA Groupe" dans l'organigramme RocketReach — [profil LinkedIn](https://fr.linkedin.com/in/cyril-petit-398a2a103), non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), à vérifier manuellement avant premier contact. Attention à l'homonymie : un autre profil "Cyril Pellé - AREA études Nantes" existe (nom différent) — ne pas confondre.
+
+Aucun contact nominatif confirmé pour Structure B (gérants Ewen Dagorn, Laurent Emmanuel) ni Cetralp (gérants Frédéric Lapotre, Angélina Matner, Nathalie Martin) à ce stade — à sourcer lors d'un prochain run si AREA Études Nantes ne convertit pas. Détail dans `pipeline.yaml`.
 
 ## Canal LinkedIn
 

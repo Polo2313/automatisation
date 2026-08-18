@@ -19,11 +19,11 @@ Secteur `imprimeries` sélectionné en Phase 1 (usage_count le plus bas, ex-aequ
 
 ## Statut commercial actuel
 
-`produit` — pack vente et pack build complets. Aucun prospect sourcé avec contact LinkedIn nominatif à ce stade (3 entreprises ICP réelles identifiées, contacts à sourcer lors d'un prochain run).
+`ready_to_pitch` — pack vente et pack build complets. Sourcing prospect effectué le 2026-08-17 : contact LinkedIn nominatif trouvé pour **IMPRIMERIE MODERNE** — **Simon Gravier**, Dirigeant / Gérant (reprise en 2015, gérant confirmé sur Pappers depuis 2021-08-02), profil LinkedIn `https://fr.linkedin.com/in/simon-gravier-3a387065` intitulé explicitement « DIRIGEANT IMPRIMERIE MODERNE » — correspondance directe. Aucun contact retenu pour Imprimerie Renauldon (gouvernance familiale multi-personnes, rôle ambigu) ni SARL Imprimerie Delezenne (2 co-gérants, choix ambigu) — à sourcer si Simon Gravier ne convertit pas.
 
 ## Prochaine action concrète
 
-Sourcing prospect : identifier un contact LinkedIn nominatif (gérant ou responsable commercial) pour au moins une des 3 entreprises ICP identifiées dans `gtm.md`, avant de faire basculer ce cas en `ready_to_pitch`.
+Connexion LinkedIn à Simon Gravier (T0 de la séquence outbound documentée dans `01-vente/sequence-outbound.md`), puis message LI découverte à T+2j. Vérifier manuellement le profil avant premier contact (LinkedIn non consultable directement depuis les sessions d'exécution, cf. `CLAUDE.md`).
 
 ## ⚠️ Point d'attention
 

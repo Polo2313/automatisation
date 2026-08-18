@@ -70,25 +70,55 @@ cases:
     prospects: []
     notes: "Statut reconstruit rétroactivement. Doublon exact du cas pme_industrielles-qualification-devis-entrants du 2026-06-21. Dernier cas produit avant l'arrêt de 30 jours de la routine (aucune production entre le 2026-06-29 et le 2026-07-29)."
   - id: pme_btp-qualification-routage-devis-entrants
-    status: produit
-    last_touch_date: "2026-08-03"
-    prospects: []
-    notes: "Pack vente + build complets. Aucun prospect sourcé (nom de contact LinkedIn) à date. Prochain run: sourcing prospect (3 entreprises identifiées dans gtm.md, contacts LinkedIn à trouver) avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-14"
+    prospects:
+      - entreprise: "ISB (Industries et Services du Bâtiment)"
+        contact: "Bernard Baute — Gérant / Président (fondateur, société transformée en SAS en janvier 2020)"
+        linkedin: "https://fr.linkedin.com/in/bernard-baute-0a1845180"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-14 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement). Contact LinkedIn nominatif réel trouvé pour ISB (Bernard Baute), recoupé via Pappers, Societe.com et RocketReach (cohérence sur le rôle de gérant/président) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif trouvé pour Boutillet SAS (gouvernance récemment transférée à BVMC FINANCE, statut de Jean Paul Boutillet incertain) ni pour SEBACO (Joseph Le Bris confirmé dirigeant mais aucun profil LinkedIn correspondant identifié) — à sourcer lors d'un prochain run si ISB ne convertit pas. Cas FRAGILE (paybacks pessimistes 32-33 mois > seuil 20 mois) — à réévaluer avant tout pitch ferme, cf. risks.md."
   - id: garages_independants-traitement-factures-fournisseurs-pieces
-    status: produit
-    last_touch_date: "2026-08-09"
-    prospects: []
-    notes: "Pack vente + build complets. 3 entreprises ICP identifiées via registre officiel (data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 24,4-28,7 mois > seuil 20 mois) — ne pas contractualiser au prix plein sans validation du volume réel de factures du prospect en amont."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-15"
+    prospects:
+      - entreprise: "SARL DUMEIGE (GARAGE DUMEIGE)"
+        contact: "Mickaël Dumeige — Associé-Gérant (dirigeant depuis 2011, confirmé Pappers)"
+        linkedin: "https://www.linkedin.com/in/mickael-dumeige-04837b303/"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-15 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement — prochain candidat après ISB le 2026-08-14). Contact LinkedIn nominatif réel trouvé pour SARL DUMEIGE (Mickaël Dumeige), recoupé via Pappers (dirigeant enregistré depuis le 2011-10-01, né 1973-08) et LinkedIn (titre de profil \"MICKAEL DUMEIGE - SARL DUMEIGE\" correspondant exactement à la raison sociale) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif recherché pour GARAGE SUD AUTOMOBILE (structure de groupe complexe, SOCIETE FINANCIERE GROUPE ESCUDIER-FIGES actionnaire principal, CA 15,9M€ — profil s'écarte du garage indépendant type de l'ICP) ni pour GARAGE BRUNEL (gouvernance multi-dirigeants ambiguë : Vincent BRUNEL, Didier BRUNEL, BRUNEL FRERES en tant que Président) — à sourcer lors d'un prochain run si DUMEIGE ne convertit pas. Cas FRAGILE (paybacks pessimistes 24,4-28,7 mois > seuil 20 mois) — ne pas contractualiser au prix plein sans validation du volume réel de factures du prospect en amont."
   - id: bureaux_etudes-relance-devis-missions
-    status: produit
-    last_touch_date: "2026-08-10"
-    prospects: []
-    notes: "Pack vente + build complets. 3 entreprises ICP identifiées via recherche web (sites institutionnels, Pappers, annuaire-entreprises.data.gouv.fr) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas NON fragile (paybacks pessimistes ≈15,7 mois, sous le seuil de 20 mois). Point d'attention: prix retenu (12 500 €) représente 61% du gain brut annuel estimé, au-dessus du plafond de 40% recommandé par le skill proposition-commerciale-vantyse — à corriger via ce skill avant tout envoi réel à un prospect (cf. 03-pilotage/pricing-internal.md)."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-16"
+    prospects:
+      - entreprise: "AREA Études Nantes"
+        contact: "Cyril Petit — Co-gérant AREA Groupe / Président AREA Études Nantes (Président depuis le 2021-11-15, confirmé Pappers)"
+        linkedin: "https://fr.linkedin.com/in/cyril-petit-398a2a103"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-16 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement — prochain candidat après DUMEIGE le 2026-08-15, cas le plus ancien restant sans prospect). Contact LinkedIn nominatif trouvé pour AREA Études Nantes (Cyril Petit), recoupé via Pappers (Président depuis 2021-11-15) et RocketReach (listé \"Co-gérant AREA Groupe\" dans l'organigramme AREA études Nantes) — profil LinkedIn non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Attention à l'homonymie : un autre profil LinkedIn \"Cyril Pellé - AREA études Nantes\" existe (nom différent, Pellé ≠ Petit) — ne pas confondre. Aucun contact nominatif trouvé pour Structure B (2 gérants identifiés — Ewen Dagorn, Laurent Emmanuel — mais aucun profil LinkedIn confirmé) ni pour Cetralp (4 gérants identifiés — Frédéric Lapotre, Angélina Matner, Nathalie Martin — aucun profil LinkedIn confirmé) — à sourcer lors d'un prochain run si AREA Études Nantes ne convertit pas. Cas NON fragile (paybacks pessimistes ≈15,7 mois, sous le seuil de 20 mois). Point d'attention persistant : prix retenu (12 500 €) représente 61% du gain brut annuel estimé, au-dessus du plafond de 40% recommandé par le skill proposition-commerciale-vantyse — à corriger via ce skill avant tout envoi réel à un prospect (cf. 03-pilotage/pricing-internal.md)."
   - id: imprimeries-extraction-devis-entrants
+    status: ready_to_pitch
+    last_touch_date: "2026-08-17"
+    prospects:
+      - entreprise: "IMPRIMERIE MODERNE"
+        contact: "Simon Gravier — Dirigeant / Gérant (reprise de l'entreprise en 2015, gérant confirmé depuis 2021-08-02 sur Pappers)"
+        linkedin: "https://fr.linkedin.com/in/simon-gravier-3a387065"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Pack vente + build complets. Sourcing prospect effectué le 2026-08-17 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement — prochain candidat après AREA Études Nantes le 2026-08-16, cas le plus ancien restant sans prospect). Contact LinkedIn nominatif réel trouvé pour IMPRIMERIE MODERNE (Simon Gravier), recoupé via Pappers (gérant depuis 2021-08-02, reprise de l'entreprise à 26 ans), Le Journal des Entreprises (« dirigeant de l'Imprimerie Moderne ») et titre du profil LinkedIn lui-même (« Simon GRAVIER - DIRIGEANT IMPRIMERIE MODERNE ») — correspondance directe et sans ambiguïté, profil non consultable directement depuis cette session (fr.linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Aucun contact nominatif retenu pour Imprimerie Renauldon (gouvernance familiale multi-personnes — Philippe, Marie-Ange, Maxime Renauldon — rôle exact ambigu) ni pour SARL Imprimerie Delezenne (2 co-gérants, Jean-Luc et Valentin Delezenne, choix ambigu entre les deux) — à sourcer lors d'un prochain run si IMPRIMERIE MODERNE ne convertit pas. Cas FRAGILE (paybacks pessimistes 20,0-25,7 mois, au-dessus du seuil de 20 mois) — ne pas pitcher au prix plein (12 000 €) sans validation du volume réel hebdomadaire de devis du prospect ; envisager l'option MVP (4 200 €) si le volume est incertain."
+  - id: cabinets_geometres-qualification-routage-demandes-entrantes
+    status: ready_to_pitch
+    last_touch_date: "2026-08-18"
+    prospects:
+      - entreprise: "Cabinet Arthur - Géomètre-Expert"
+        contact: "Christophe Arthur — Gérant / Géomètre-expert (dirigeant confirmé société.com, PagesJaunes, expert judiciaire près la Cour d'Appel de Bordeaux)"
+        linkedin: "https://www.linkedin.com/in/christophe-arthur-691b06257/"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j. Approche MVP (2 600 €) à privilégier plutôt que le prix plein (7 500 €), cf. gtm.md et risks.md (cabinet 6-9 salariés)."
+    notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx, validité structurelle confirmée — vérification visuelle via LibreOffice headless impossible dans cet environnement, cf. CLAUDE.md). Sourcing prospect effectué le 2026-08-18 (application du correctif Phase 0 du CLAUDE.md : cas produit ancien sans prospect, > 3 jours sans mouvement — cas le plus ancien restant sans prospect au 2026-08-18, avant societes_nettoyage du 2026-08-13). Contact LinkedIn nominatif réel trouvé pour Cabinet Arthur (Christophe Arthur) : profil LinkedIn identifié directement par son titre exact \"Géomètre-expert - Cabinet ARTHUR\" (https://www.linkedin.com/in/christophe-arthur-691b06257/), recoupé avec société.com et PagesJaunes qui confirment Christophe Arthur comme gérant du Cabinet ARTHUR - GEOMETRE EXPERT (Bordeaux, SIREN 822874319) — correspondance directe et sans ambiguïté. Aucun contact nominatif retenu pour Cabinet Jouenne (Frédéric Jouenne confirmé dirigeant via Pappers/infonet, mais aucun profil LinkedIn identifiable dans cette recherche) ni pour GEOVAL (4 co-gérants identifiés — Armelle Rannou, Benoit Valadier, Philippe Caenen, Vincent Trefond — choix ambigu entre eux, aucun rattaché nominativement à un profil LinkedIn confirmé) — à sourcer lors d'un prochain run si Cabinet Arthur ne convertit pas. Cas FRAGILE (paybacks pessimistes 26,0 mois dans les deux scénarios, au-dessus du seuil de 20 mois) — ne pas pitcher au prix plein (7 500 €) à Cabinet Arthur compte tenu de sa taille (6-9 salariés) ; privilégier directement l'option MVP (2 600 €) dès le premier contact, conformément à gtm.md."
+  - id: societes_nettoyage-traitement-rapports-intervention
     status: produit
-    last_touch_date: "2026-08-11"
+    last_touch_date: "2026-08-13"
     prospects: []
-    notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx). 3 entreprises ICP identifiées via recherche web (société.com, Pappers) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 20,0-25,7 mois, au-dessus du seuil de 20 mois) — ne pas pitcher au prix plein (12 000 €) sans validation du volume réel hebdomadaire de devis du prospect ; envisager l'option MVP (4 200 €) si le volume est incertain. Premier cas produit dans le secteur imprimeries (usage_count 0→1)."
+    notes: "Pack vente + build complets (incl. proposition-commerciale.docx généré via skill docx npm, installé localement puis retiré du dossier livré ; validité structurelle confirmée via file/unzip -t). 3 entreprises ICP identifiées via recherche web (annuaire-entreprises.data.gouv.fr, sites institutionnels) dans gtm.md, aucun contact LinkedIn nominatif sourcé à date. Prochain run: sourcing prospect avant passage à ready_to_pitch. Cas FRAGILE (paybacks pessimistes 26,5-29,5 mois, largement au-dessus du seuil de 20 mois) — de plus, le prix retenu (6 500 €) représente ~108% du gain brut annuel estimé (6 010 €), au-dessus du plafond de 40% recommandé par le skill proposition-commerciale-vantyse (cf. 03-pilotage/pricing-internal.md) : ne pas envoyer tel quel à un prospect réel, repasser par le skill avec les données réelles du client ou privilégier l'option MVP (2 300 €). Premier cas produit dans le secteur societes_nettoyage (usage_count 0→1)."
 # Schéma par cas:
 #  - id: "{secteur}-{cas}"
 #    status: produit | ready_to_pitch | pitched | discovery | proposal | won | lost

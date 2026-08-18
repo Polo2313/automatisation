@@ -1,0 +1,407 @@
+{
+  "name": "Cabinets géomètres - Qualification et routage des demandes entrantes",
+  "meta": {
+    "description": "Workflow n8n : lecture des emails entrants sur contact@cabinet.fr, extraction structurée via OpenAI, vérification de zone, calcul de devis indicatif, réponse automatique au client et notification interne au géomètre assigné.",
+    "smoke_test": {
+      "input": "Voir mock-data/input-sample.json : email de demande de bornage reçu sur contact@cabinet.fr, expéditeur particulier, objet 'Demande de bornage - Parcelle rue des Tilleuls'.",
+      "expected_output": [
+        "Extraction JSON avec type_prestation='bornage', adresse, client_nom/email/telephone renseignés.",
+        "Code postal reconnu comme zone couverte (lookup Google Sheets 'zones_couvertes').",
+        "Devis indicatif calculé (fourchette basse-haute) depuis la grille tarifaire.",
+        "Email de réponse envoyé au client (accusé de réception + devis indicatif + prochaines étapes).",
+        "Ligne ajoutée dans l'onglet 'demandes' du Google Sheets de suivi (date, client, type, statut, devis indicatif, géomètre assigné).",
+        "Notification interne envoyée au géomètre assigné."
+      ],
+      "reference_files": [
+        "mock-data/input-sample.json",
+        "mock-data/output-sample.json"
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Gmail Trigger - nouvelle demande",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            { "mode": "everyMinute" }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "to:contact@cabinet.fr"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Filter - exclusion spam/newsletters",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-spam-subject",
+              "leftValue": "={{$json[\"subject\"]}}",
+              "rightValue": "unsubscribe|newsletter|promo|no-reply",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            },
+            {
+              "id": "cond-spam-sender",
+              "leftValue": "={{$json[\"from\"]}}",
+              "rightValue": "noreply|no-reply|newsletter",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "OpenAI - extraction structurée",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [680, 260],
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant qui extrait des informations structurées d'emails de demande de mission adressés à un cabinet de géomètre-expert. Réponds uniquement en JSON valide avec les clés : type_prestation (bornage|division_parcellaire|implantation|copropriete|diagnostic|autre), adresse, parcelle_cadastrale (ou null), urgence (faible|normale|haute), client_nom, client_email, client_telephone."
+            },
+            {
+              "role": "user",
+              "content": "={{$json[\"subject\"] + \"\\n\\n\" + $json[\"textPlain\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Switch - routage par type_prestation",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 260],
+      "parameters": {
+        "mode": "expression",
+        "output": "={{$json[\"type_prestation\"]}}",
+        "rules": {
+          "values": [
+            { "outputKey": "bornage" },
+            { "outputKey": "division_parcellaire" },
+            { "outputKey": "implantation" },
+            { "outputKey": "copropriete" },
+            { "outputKey": "diagnostic" },
+            { "outputKey": "autre" }
+          ]
+        },
+        "fallbackOutput": "autre"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Google Sheets - lookup zone couverte",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1120, 260],
+      "parameters": {
+        "operation": "lookup",
+        "documentId": "={{$env[\"GOOGLE_SHEETS_ID\"]}}",
+        "sheetName": "zones_couvertes",
+        "lookupColumn": "code_postal",
+        "lookupValue": "={{$json[\"adresse_code_postal\"]}}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "IF - hors zone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 260],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-hors-zone",
+              "leftValue": "={{$json[\"zone_couverte\"]}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "6b",
+      "name": "Réponse courtoisie hors zone",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1560, 180],
+      "parameters": {
+        "operation": "send",
+        "to": "={{$json[\"client_email\"]}}",
+        "subject": "Votre demande - hors zone d'intervention",
+        "message": "Bonjour, votre demande concerne une zone que notre cabinet ne couvre pas directement. Nous vous recommandons de contacter un confrère géomètre-expert proche de votre localisation. Cordialement."
+      }
+    },
+    {
+      "id": "7",
+      "name": "Google Sheets - lookup grille tarifaire",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1560, 340],
+      "parameters": {
+        "operation": "lookup",
+        "documentId": "={{$env[\"GOOGLE_SHEETS_ID\"]}}",
+        "sheetName": "grille_tarifaire",
+        "lookupColumn": "type_prestation",
+        "lookupValue": "={{$json[\"type_prestation\"]}}"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Function - calcul devis indicatif",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1780, 340],
+      "parameters": {
+        "functionCode": "for (const item of items) {\n  const base = item.json.prix_base || 0;\n  const coeff = item.json.complexite === 'elevee' ? 1.4 : (item.json.complexite === 'moyenne' ? 1.15 : 1);\n  item.json.devis_indicatif_bas = Math.round(base * coeff * 0.9);\n  item.json.devis_indicatif_haut = Math.round(base * coeff * 1.2);\n  item.json.necessite_validation_geometre = item.json.devis_indicatif_haut > (parseInt($env.SEUIL_VALIDATION_DEVIS_EUR) || 2000);\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "9",
+      "name": "OpenAI - rédaction réponse email",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [2000, 340],
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Tu rédiges une réponse email professionnelle et chaleureuse au nom d'un cabinet de géomètre-expert, en français, incluant un accusé de réception, le devis indicatif (fourchette), et les prochaines étapes."
+            },
+            {
+              "role": "user",
+              "content": "={{JSON.stringify($json)}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.4
+        }
+      }
+    },
+    {
+      "id": "10",
+      "name": "Gmail - envoi réponse client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [2220, 340],
+      "parameters": {
+        "operation": "send",
+        "to": "={{$json[\"client_email\"]}}",
+        "subject": "Votre demande auprès du cabinet - accusé de réception",
+        "message": "={{$json[\"email_genere\"]}}"
+      }
+    },
+    {
+      "id": "11",
+      "name": "Google Sheets - journalisation demande",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2440, 340],
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{$env[\"GOOGLE_SHEETS_ID\"]}}",
+        "sheetName": "demandes",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{$now}}",
+            "client_nom": "={{$json[\"client_nom\"]}}",
+            "type_prestation": "={{$json[\"type_prestation\"]}}",
+            "statut": "traitée",
+            "devis_indicatif": "={{$json[\"devis_indicatif_bas\"] + \"-\" + $json[\"devis_indicatif_haut\"]}}",
+            "geometre_assigne": "={{$json[\"geometre_assigne\"]}}"
+          }
+        }
+      }
+    },
+    {
+      "id": "12",
+      "name": "Notification interne géomètre assigné",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [2660, 340],
+      "parameters": {
+        "toEmail": "={{$json[\"geometre_email\"] || $env[\"NOTIF_INTERNE_EMAIL\"]}}",
+        "subject": "Nouvelle demande assignée",
+        "text": "={{\"Nouvelle demande \" + $json[\"type_prestation\"] + \" pour \" + $json[\"client_nom\"] + \" - devis indicatif \" + $json[\"devis_indicatif_bas\"] + \"-\" + $json[\"devis_indicatif_haut\"] + \" EUR\"}}"
+      }
+    },
+    {
+      "id": "12b",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [900, 620],
+      "parameters": {}
+    },
+    {
+      "id": "12c",
+      "name": "Notification interne erreur",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1120, 620],
+      "parameters": {
+        "toEmail": "={{$env[\"NOTIF_INTERNE_EMAIL\"]}}",
+        "subject": "Erreur workflow - qualification demandes entrantes",
+        "text": "={{\"Une erreur est survenue : \" + $json[\"error\"][\"message\"]}}"
+      }
+    },
+    {
+      "id": "12d",
+      "name": "Réponse générique de secours",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1340, 620],
+      "parameters": {
+        "operation": "send",
+        "to": "={{$json[\"client_email\"]}}",
+        "subject": "Votre demande a bien été reçue",
+        "message": "Bonjour, nous avons bien reçu votre demande et reviendrons vers vous rapidement. Cordialement, le cabinet."
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger - nouvelle demande": {
+      "main": [
+        [
+          { "node": "Filter - exclusion spam/newsletters", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Filter - exclusion spam/newsletters": {
+      "main": [
+        [
+          { "node": "OpenAI - extraction structurée", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI - extraction structurée": {
+      "main": [
+        [
+          { "node": "Switch - routage par type_prestation", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Switch - routage par type_prestation": {
+      "main": [
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ],
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ],
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ],
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ],
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ],
+        [ { "node": "Google Sheets - lookup zone couverte", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Google Sheets - lookup zone couverte": {
+      "main": [
+        [
+          { "node": "IF - hors zone", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF - hors zone": {
+      "main": [
+        [
+          { "node": "Réponse courtoisie hors zone", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Google Sheets - lookup grille tarifaire", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Google Sheets - lookup grille tarifaire": {
+      "main": [
+        [
+          { "node": "Function - calcul devis indicatif", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Function - calcul devis indicatif": {
+      "main": [
+        [
+          { "node": "OpenAI - rédaction réponse email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI - rédaction réponse email": {
+      "main": [
+        [
+          { "node": "Gmail - envoi réponse client", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Gmail - envoi réponse client": {
+      "main": [
+        [
+          { "node": "Google Sheets - journalisation demande", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Google Sheets - journalisation demande": {
+      "main": [
+        [
+          { "node": "Notification interne géomètre assigné", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          { "node": "Notification interne erreur", "type": "main", "index": 0 },
+          { "node": "Réponse générique de secours", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  }
+}
