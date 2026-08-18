@@ -51,3 +51,11 @@ Cabinets de géomètres-experts en France, de préférence 10+ salariés (voir m
 ## Stratégie de référence
 
 Vantyse étant en phase de lancement (moins de 5 missions livrées avec témoignage écrit à ce jour), transformer le premier client signé dans ce secteur en **étude de cas chiffrée**, avec autorisation explicite du client (nom du cabinet, chiffres réels si possible ou anonymisés selon préférence). Cette étude de cas sera intégrée à la séquence outbound future pour crédibiliser l'approche auprès des prospects suivants (Cabinet Jouenne, GEOVAL, Cabinet Arthur et au-delà), en particulier pour rassurer sur la fiabilité de l'extraction IA et le ROI réel mesuré en conditions de production.
+
+## Sourcing prospect (2026-08-18)
+
+Contact nominatif retenu : **Christophe Arthur**, Gérant / Géomètre-expert du **Cabinet Arthur - Géomètre-Expert** (Bordeaux). Profil identifié directement par son titre exact « Géomètre-expert - Cabinet ARTHUR » — `https://www.linkedin.com/in/christophe-arthur-691b06257/` — recoupé avec société.com et PagesJaunes qui confirment Christophe Arthur comme gérant du Cabinet ARTHUR - GEOMETRE EXPERT (SIREN 822874319). Exerce depuis 1999, expert judiciaire près la Cour d'Appel de Bordeaux. Correspondance directe, sans ambiguïté. Profil non consultable directement depuis cette session (`linkedin.com` bloqué par le proxy réseau) — à vérifier manuellement avant premier contact.
+
+Pour Cabinet Jouenne : Frédéric Jouenne confirmé dirigeant (Pappers, infonet, inscrit à l'Ordre depuis 2022 sous le n°06743), mais aucun profil LinkedIn identifiable dans cette recherche — non retenu ce run. Pour GEOVAL : 4 co-gérants identifiés (Armelle Rannou, Benoit Valadier, Philippe Caenen, Vincent Trefond) sans rattachement nominatif confirmé à un profil LinkedIn — choix ambigu, non retenu ce run. À sourcer lors d'un prochain run si Christophe Arthur ne convertit pas.
+
+**Note** : Cabinet Arthur (6-9 salariés) était initialement positionné en approche MVP plutôt qu'offre complète (cf. priorisation ci-dessus) — c'est néanmoins le seul des 3 cabinets pour lequel un contact nominatif direct a pu être confirmé ce run. Premier contact à mener sur la base de l'offre MVP (2 600 €), conformément à la priorisation initiale.

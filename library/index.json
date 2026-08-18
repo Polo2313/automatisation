@@ -459,7 +459,7 @@
       "payback_mois_central": 12.0,
       "payback_mois_pessimiste_gains": 26.0,
       "payback_mois_pessimiste_adoption": 26.0,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": true,
       "stack": [
         "n8n",
@@ -467,7 +467,8 @@
         "OpenAI gpt-4o-mini",
         "Google Sheets"
       ],
-      "path": "/library/cabinets_geometres/qualification-routage-demandes-entrantes/"
+      "path": "/library/cabinets_geometres/qualification-routage-demandes-entrantes/",
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-18 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). Contact LinkedIn nominatif réel identifié pour Cabinet Arthur (Christophe Arthur, Gérant/Géomètre-expert — https://www.linkedin.com/in/christophe-arthur-691b06257/, recoupé via société.com et PagesJaunes). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "societes_nettoyage-traitement-rapports-intervention",

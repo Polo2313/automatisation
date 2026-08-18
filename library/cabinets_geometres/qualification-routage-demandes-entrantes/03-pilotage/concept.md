@@ -14,8 +14,8 @@ Le cas propose un workflow n8n (12 nodes) qui lit automatiquement la boîte `con
 
 ## Statut commercial actuel
 
-**Statut : produit.** Aucun prospect n'a été sourcé nominativement à ce stade — le cas dispose d'un pack technique complet (`02-build/`) et d'un pack de pilotage interne (`03-pilotage/`), mais aucun contact n'a encore été engagé chez les 3 cabinets identifiés dans l'ICP (`gtm.md`).
+**Statut : `ready_to_pitch`.** Sourcing prospect effectué le 2026-08-18 : contact LinkedIn nominatif trouvé pour **Cabinet Arthur - Géomètre-Expert** (Bordeaux) — **Christophe Arthur**, Gérant / Géomètre-expert, profil LinkedIn `https://www.linkedin.com/in/christophe-arthur-691b06257/` intitulé explicitement « Géomètre-expert - Cabinet ARTHUR » — correspondance directe, recoupée via société.com et PagesJaunes. Aucun contact retenu pour Cabinet Jouenne (dirigeant confirmé mais pas de profil LinkedIn identifiable) ni GEOVAL (4 co-gérants, choix ambigu) — à sourcer si Christophe Arthur ne convertit pas.
 
 ## Prochaine action concrète
 
-Sourcer des contacts LinkedIn nominatifs (dirigeant ou géomètre-expert associé) dans les 3 cabinets ICP identifiés — Cabinet Jouenne (Draveil), GEOVAL (Cournon-d'Auvergne), Cabinet Arthur (Bordeaux) — avant de faire passer ce cas au statut `ready_to_pitch`. Prioriser Cabinet Jouenne et GEOVAL (10+ salariés) compte tenu de la fragilité du ROI sur les très petits cabinets (voir `risks.md`).
+Connexion LinkedIn à Christophe Arthur (T0 de la séquence outbound documentée dans `01-vente/sequence-outbound.md`), puis message LI découverte à T+2j. Approche **MVP (2 600 €)** à privilégier d'emblée plutôt que le prix plein (7 500 €), compte tenu de la taille du cabinet (6-9 salariés) et de la fragilité du ROI (voir `risks.md`). Vérifier manuellement le profil avant premier contact (LinkedIn non consultable directement depuis les sessions d'exécution, cf. `CLAUDE.md`).
