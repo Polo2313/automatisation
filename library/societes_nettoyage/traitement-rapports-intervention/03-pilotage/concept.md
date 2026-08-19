@@ -25,11 +25,11 @@
 
 ## Statut commercial actuel
 
-`produit` — pack vente + pack build complets. Aucun prospect nominatif (contact LinkedIn) sourcé à ce stade.
+`ready_to_pitch` — pack vente + pack build complets. Prospect nominatif sourcé le 2026-08-19 : Benoît de Cambourg, Gérant de SARL DOPL'AIR (cf. `gtm.md` et `pipeline.yaml`).
 
 ## Prochaine action concrète
 
-Sourcing prospect : identifier un contact LinkedIn nominatif (gérant ou responsable d'exploitation) pour au moins une des 3 entreprises ICP (`gtm.md`), avant de faire basculer ce cas en `ready_to_pitch`.
+Connexion LinkedIn (T0 de la séquence outbound documentée dans `01-vente/sequence-outbound.md`), puis message LI découverte à T+2j.
 
 ## Point d'attention
 
