@@ -14,6 +14,12 @@ Secteur : sociétés de nettoyage / propreté indépendantes, 5-50 salariés, g�
 
 `icp_source` : Recherche web (annuaire officiel des entreprises — annuaire-entreprises.data.gouv.fr, sites institutionnels des entreprises), consultée le 2026-08-13.
 
+### Sourcing prospect (2026-08-19)
+
+Contact LinkedIn nominatif trouvé pour **SARL DOPL'AIR** : **Benoît de Cambourg**, Gérant (confirmé Pappers) — [profil LinkedIn](https://www.linkedin.com/in/beno%C3%AEt-de-cambourg-570b9371/) dont le titre même est "DOPL'AIR", non consultable directement depuis cette session (linkedin.com bloqué par le proxy réseau), à vérifier manuellement avant premier contact.
+
+Aucun contact nominatif confirmé pour SARL NETTOYAGE ET MAINTENANCE (gouvernance récemment transférée à IZ CLEAN SASU représentée par Jeremy Pierron depuis le 2023-12-01, plusieurs homonymes LinkedIn sans rattachement certain) ni pour Multi Services Propreté (Kamil Gozubuyuk, Président, profil LinkedIn existant mais insuffisamment vérifiable) à ce stade — à sourcer lors d'un prochain run si DOPL'AIR ne convertit pas. Détail dans `pipeline.yaml`.
+
 ## Canal LinkedIn
 
 - **Titre cible principal** : Gérant d'entreprise de nettoyage

@@ -517,7 +517,7 @@
       "payback_mois_central": 13.8,
       "payback_mois_pessimiste_gains": 29.5,
       "payback_mois_pessimiste_adoption": 26.5,
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "fragile": true,
       "stack": [
         "n8n",
