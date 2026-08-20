@@ -1,9 +1,13 @@
 cases:
   - id: pme_btp-qualification-leads-devis
-    status: produit
-    last_touch_date: "2026-05-31"
-    prospects: []
-    notes: "Statut reconstruit rétroactivement le 2026-07-29. Aucune donnée de suivi commercial réelle disponible (pipeline.yaml n'existait pas au moment de la production) : impossible de savoir si ce cas a été pitché. À vérifier avec Paul."
+    status: ready_to_pitch
+    last_touch_date: "2026-08-20"
+    prospects:
+      - entreprise: "Couvreurs de l'Atlantique"
+        contact: "Alexandre Pichon — Gérant (confirmé Pappers, né 1979-09)"
+        linkedin: "https://www.linkedin.com/in/alexandre-pichon-5b3276142/"
+        next_action: "Connexion LinkedIn (T0 de la séquence outbound documentée dans 01-vente/sequence-outbound.md), puis message LI découverte à T+2j."
+    notes: "Sourcing prospect effectué le 2026-08-20 (application du correctif Phase 0 du CLAUDE.md : cas produit le plus ancien sans prospect, > 3 jours sans mouvement — tous les cas produits entre le 2026-08-03 et le 2026-08-13 étant désormais ready_to_pitch, retour sur le backlog legacy de mai-juin 2026). Les 3 entreprises listées à l'origine dans gtm.md (Morin Couverture Nantes, BTP Renovaction Lyon, Plâtrerie Guichard Bordeaux) se sont révélées introuvables sur Pappers/Societe.com sous ce nom exact — probable erreur de sourcing de la production initiale du 2026-05-31, avant le verrouillage de la vérification croisée Pappers/LinkedIn. gtm.md corrigé avec 3 entreprises réelles vérifiées. Contact LinkedIn nominatif réel trouvé pour Couvreurs de l'Atlantique (Alexandre Pichon), recoupé via Pappers (gérant confirmé) et LinkedIn (titre de profil correspondant exactement à l'entreprise, mention WorldSkills France couverture métallique) — profil non consultable directement depuis cette session (linkedin.com bloqué par le proxy réseau), donc à vérifier manuellement avant premier contact. Alternative solide identifiée : Hadrien Boissy, co-gérant de Boissy Plomberie (Fontaines-sur-Saône, 69), confirmé Pappers, LinkedIn au titre \"BoissyPlomberie\" — à activer si Couvreurs de l'Atlantique ne convertit pas. Aucun contact nominatif trouvé pour Gironde Plâtrerie Peinture (Bordeaux) — à sourcer lors d'un prochain run. Cas NON fragile (payback central 6,9 mois, pessimistes 14,5 mois dans les deux scénarios, sous le seuil de 20 mois) — le plus solide du backlog sourcé à ce jour. Point d'attention : effectif de Couvreurs de l'Atlantique (~3 salariés) sous la fourchette ICP cible (5-50) — à valider en audit si le volume de devis/mois atteint le seuil GO (≥10) avant de s'engager sur le prix plein."
   - id: pme_btp-qualification-devis-entrants
     status: produit
     last_touch_date: "2026-06-01"
