@@ -11,7 +11,7 @@
 | Utilisateur final | Assistante administrative (ou gérant seul) |
 | TJM utilisateur | 28 €/h (assistante) / 75 €/h (gérant seul) |
 | Décideur | Gérant PME BTP |
-| Statut commercial | produit |
+| Statut commercial | ready_to_pitch |
 
 ---
 
@@ -36,17 +36,18 @@ Stack : n8n.cloud + Claude Haiku API + Gmail API + Airtable + Twilio.
 
 ## Statut commercial actuel
 
-**`produit`** — Livrable complet prêt.
+**`ready_to_pitch`** — Livrable complet, prospect sourcé le 2026-08-20.
 
-Prochaines actions requises pour passer en `ready_to_pitch` :
-- [ ] Identifier 3 contacts LinkedIn réels parmi les entreprises cibles (Morin Couverture, BTP Renovaction, Plâtrerie Guichard ou équivalents)
-- [ ] Valider les profils Sales Navigator "Gérant PME BTP" dans les zones cibles (Nantes, Lyon, Bordeaux en priorité)
-- [ ] Envoyer les 3 premières connexions LinkedIn (T0 de la séquence)
+Les 3 entreprises listées à l'origine (Morin Couverture, BTP Renovaction, Plâtrerie Guichard) se sont révélées introuvables sur Pappers/Societe.com sous ce nom exact et ont été remplacées par 3 entreprises réelles vérifiées (cf. `gtm.md`) : Couvreurs de l'Atlantique (Le Bignon, 44), Boissy Plomberie (Fontaines-sur-Saône, 69), Gironde Plâtrerie Peinture (Bordeaux, 33).
+
+- [x] Identifier un contact LinkedIn réel — **Alexandre Pichon**, Gérant de Couvreurs de l'Atlantique (confirmé Pappers + LinkedIn)
+- [x] Alternative sourcée en réserve — Hadrien Boissy, co-gérant Boissy Plomberie
+- [ ] Envoyer la connexion LinkedIn T0 (séquence `01-vente/sequence-outbound.md`)
 
 ---
 
 ## Prochaine action concrète
 
-**Aujourd'hui :** chercher sur LinkedIn les gérants de Morin Couverture (Nantes), BTP Renovaction (Lyon), Plâtrerie Guichard (Bordeaux) — envoyer les 3 demandes de connexion T0.
+**Aujourd'hui :** connexion LinkedIn à Alexandre Pichon (Couvreurs de l'Atlantique) — T0 de la séquence outbound.
 
-**Dans 48h :** si connexion acceptée → envoyer le message T+2j de découverte.
+**Dans 48h :** si connexion acceptée → envoyer le message T+2j de découverte. Si refus/silence après 7-10j → basculer sur Hadrien Boissy (Boissy Plomberie).
