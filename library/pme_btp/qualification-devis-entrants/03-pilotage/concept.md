@@ -55,11 +55,13 @@ Système d'automatisation qui surveille la boîte email professionnelle d'une PM
 
 ## ICP — 3 entreprises cibles de référence
 
+**Correctif 2026-08-21** : entreprises d'origine introuvables (erreur de sourcing initiale), remplacées par 3 entreprises réelles vérifiées — détail et sources dans `gtm.md`.
+
 | # | Entreprise | Ville | Effectif | Corps de métier |
 |---|-----------|-------|----------|-----------------|
-| 1 | EURL Blanchard Électricité | Tours (37) | ~12 salariés | Électricité bâtiment résidentiel/tertiaire |
-| 2 | SARL Mauger Plomberie | Nantes (44) | ~20 salariés | Plomberie / chauffage / sanitaire |
-| 3 | SAS Berthelot Construction | Bordeaux (33) | ~35 salariés | Gros-œuvre / maçonnerie |
+| 1 | EEB — Entreprise d'Électricité Bâtiment | Sartrouville (78) | 10-12 salariés | Électricité bâtiment |
+| 2 | TPLM (Regairaz Frères) | Lescheraines (73) | >30 salariés | Travaux publics / maçonnerie |
+| 3 | Electricité Hayet | Villebon-sur-Yvette (91) | ~10 salariés | Électricité bâtiment |
 
 ---
 
@@ -86,14 +88,6 @@ Système d'automatisation qui surveille la boîte email professionnelle d'une PM
 
 ## Prochaine action concrète
 
-**Action prioritaire :** Identifier 3 contacts LinkedIn gérants BTP 15-50 salariés sur Sales Navigator et initier la séquence outbound T0.
+**Sourcing prospect effectué le 2026-08-21** (application du correctif Phase 0 du CLAUDE.md — cas `produit` ancien sans prospect, prochain candidat par ordre chronologique après `pme_btp-qualification-leads-devis` sourcé le 2026-08-20). Contact LinkedIn nominatif trouvé pour TPLM (Damien Regairaz, Président/Dirigeant) — détail dans `pipeline.yaml`. `case_status` passé à `ready_to_pitch`.
 
-**Procédure :**
-1. Ouvrir Sales Navigator
-2. Recherche : titre = "Gérant" ou "Dirigeant" — secteur = Construction / BTP — taille entreprise = 11-50 salariés — pays = France
-3. Filtrer sur les profils actifs (activité LinkedIn dans les 30 derniers jours)
-4. Sélectionner 3 cibles prioritaires en cross-référençant avec les critères ICP : corps de métier électricité/plomberie/maçonnerie, présence d'une boîte email pro visible
-5. Envoyer la demande de connexion LinkedIn (T0 de la séquence) avec la note personnalisée définie dans `01-vente/sequence-outbound.md`
-6. Logger les 3 contacts dans le pipeline Vantyse avec le statut "T0 envoyé"
-
-**Délai cible :** Avant le 8 juin 2026.
+**Action prioritaire suivante :** Connexion LinkedIn (T0 de la séquence outbound documentée dans `01-vente/sequence-outbound.md`) avec Damien Regairaz, puis message LI découverte à T+2j.

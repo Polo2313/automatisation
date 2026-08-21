@@ -29,11 +29,13 @@
 
 ### 3 entreprises FR de référence
 
+**Correctif 2026-08-21** : les 3 entreprises listées à l'origine (EURL Blanchard Électricité — Tours, SARL Mauger Plomberie — Nantes, SAS Berthelot Construction — Bordeaux) se sont révélées introuvables sous ce nom exact et cette localisation sur Pappers/societe.com/annuaire-entreprises.data.gouv.fr — probable erreur de sourcing de la production initiale du 2026-06-01, avant le verrouillage de la vérification croisée Pappers/LinkedIn (cf. précédent identique documenté sur `pme_btp/qualification-leads-devis` le 2026-08-20). Remplacées ci-dessous par 3 entreprises réelles vérifiées.
+
 | # | Nom | Ville | Département | Effectif estimé | Corps de métier | Pertinence |
 |---|-----|-------|-------------|-----------------|-----------------|------------|
-| 1 | **EURL Blanchard Électricité** | Tours | 37 (Indre-et-Loire) | ~12 salariés | Électricité bâtiment résidentiel et tertiaire | Forte — taille idéale, corps de métier très sollicité en devis |
-| 2 | **SARL Mauger Plomberie** | Nantes | 44 (Loire-Atlantique) | ~20 salariés | Plomberie / chauffage / sanitaire | Forte — volume devis important (urgences + rénovations) |
-| 3 | **SAS Berthelot Construction** | Bordeaux | 33 (Gironde) | ~35 salariés | Gros-œuvre / maçonnerie | Moyenne — volume devis fort mais cycles plus longs |
+| 1 | **EEB — Entreprise d'Électricité Bâtiment** | Sartrouville | 78 (Yvelines) | 10-12 salariés (confirmé Pappers/societe.com) | Électricité générale bâtiment (dépannage, entretien, travaux neufs, rénovation) | Forte — taille idéale, société créée en 1972, volume devis probable élevé |
+| 2 | **TPLM (Regairaz Frères)** | Lescheraines | 73 (Savoie) | >30 salariés (confirmé Pappers) | Travaux publics et maçonnerie / gros-œuvre | Moyenne — effectif en haut de fourchette ICP, cycles de devis plus longs (marchés publics/privés). **Contact nominatif LinkedIn confirmé** (Damien Regairaz) — cible retenue pour le sourcing du 2026-08-21. |
+| 3 | **Electricité Hayet** | Villebon-sur-Yvette | 91 (Essonne) | ~10 salariés (confirmé societe.com) | Électricité générale bâtiment | Faible/à requalifier — présidence transférée à une société holding (LER HOLDING) en avril 2026, aucun décideur nominatif identifiable actuellement ; à écarter du sourcing de contact tant qu'un dirigeant nommé n'est pas identifié |
 
 ---
 
