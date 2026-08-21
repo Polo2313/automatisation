@@ -39,12 +39,18 @@
       "secteur": "pme_btp",
       "probleme_slug": "qualification-devis-entrants",
       "type_flux": "capture_lead",
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "drive_url": "https://drive.google.com/drive/folders/1pKydsiq15xu66BKPdGDqIdAeqrs98y17",
       "donnees_financieres_reconstruites": false,
       "duplicate_probleme_slug_warning": "Même couple (secteur, probleme_slug) reproduit le 2026-06-23 — violation de la règle anti-doublon de la Phase 2, jamais détectée faute d'index.json persistant.",
+      "icp_entreprises_reelles": [
+        {"nom": "EEB — Entreprise d'Électricité Bâtiment", "ville": "Sartrouville (78)", "effectif": "10-12", "secteur": "Électricité bâtiment"},
+        {"nom": "TPLM (Regairaz Frères)", "ville": "Lescheraines (73)", "effectif": ">30", "secteur": "Travaux publics / maçonnerie"},
+        {"nom": "Electricité Hayet", "ville": "Villebon-sur-Yvette (91)", "effectif": "~10", "secteur": "Électricité bâtiment"}
+      ],
       "path": "/library/pme_btp/qualification-devis-entrants/",
-      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md)."
+      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md).",
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-21 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). ICP d'origine (Blanchard Électricité, Mauger Plomberie, Berthelot Construction) introuvable et remplacé par 3 entreprises réelles vérifiées (voir gtm.md/concept.md). Contact LinkedIn nominatif réel identifié pour TPLM (Damien Regairaz, Président — https://fr.linkedin.com/in/damien-regairaz-968194188). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "pme_btp-traitement-devis-entrants",
