@@ -21,26 +21,26 @@
 
 ## 3 entreprises FR réelles — profils ICP confirmés
 
-### 1. Morin Couverture — Nantes (44)
-- **Activité :** Couverture-zinguerie, rénovation toiture
-- **Effectif estimé :** ~8 salariés
-- **Indicateurs ICP :** Site web avec formulaire contact, profil Google Business actif, avis clients récents → flux de demandes entrants probable
-- **Contact LinkedIn cible :** Gérant (à identifier via LinkedIn search "couverture Nantes")
-- **Titre LinkedIn à rechercher :** "Gérant" + "Morin Couverture" OU "Couverture Nantes 44"
+**Correction du 2026-08-20** : les 3 entreprises listées initialement (« Morin Couverture — Nantes », « BTP Renovaction — Lyon », « Plâtrerie Guichard — Bordeaux ») n'ont pu être retrouvées ni sur Pappers ni sur Societe.com sous ce nom exact — probable erreur de sourcing lors de la production initiale (2026-05-31, avant que la routine ne verrouille la vérification Pappers/LinkedIn croisée). Remplacées ci-dessous par 3 entreprises réelles vérifiées.
 
-### 2. BTP Renovaction — Lyon (69)
-- **Activité :** Rénovation tous corps d'état
-- **Effectif estimé :** ~15 salariés
-- **Indicateurs ICP :** Présence Pages Jaunes + Google Maps, secteur très demandé Lyon
-- **Contact LinkedIn cible :** Gérant ou directeur commercial
-- **Titre LinkedIn à rechercher :** "Directeur" OU "Gérant" + "BTP Lyon"
+### 1. Couvreurs de l'Atlantique — Le Bignon (44), agglomération nantaise
+- **Activité :** Couverture, zinguerie (SIREN 498892835, créée en 2007)
+- **Effectif estimé :** ~3 salariés
+- **Indicateurs ICP :** Entreprise artisanale établie (Compagnons du Devoir, Maître Artisan 2018), site web avec formulaire de contact — flux de demandes entrantes probable. Effectif sous la fourchette cible (5-50) : à valider en audit si le volume de devis/mois atteint le seuil GO (≥10).
+- **Contact identifié :** Alexandre Pichon — Gérant (confirmé Pappers, né 1979-09)
+- **LinkedIn :** https://www.linkedin.com/in/alexandre-pichon-5b3276142/ — profil au titre "Couvreurs de l'Atlantique", cohérent avec son activité de couvreur (mention WorldSkills France, couverture métallique)
 
-### 3. Plâtrerie Guichard — Bordeaux (33)
-- **Activité :** Plâtrerie-peinture-isolation
-- **Effectif estimé :** ~12 salariés
+### 2. Boissy Plomberie — Fontaines-sur-Saône (69), agglomération lyonnaise
+- **Activité :** Plomberie, sanitaire, chauffage/climatisation (SIREN 990491771)
+- **Effectif :** SARL récente, 2 co-gérants
+- **Indicateurs ICP :** Structure familiale récemment créée, activité plomberie/chauffage = flux de devis entrants typique de l'ICP
+- **Contact identifié :** Hadrien (Lancelot) Boissy — Co-gérant (confirmé Pappers)
+- **LinkedIn :** https://www.linkedin.com/in/hadrien-boissy-2b72b8214/ — titre de profil "BoissyPlomberie", correspondance directe avec la raison sociale
+
+### 3. Gironde Plâtrerie Peinture — Bordeaux (33)
+- **Activité :** Plâtrerie-peinture (SIREN 890043458)
 - **Indicateurs ICP :** Zone Bordeaux = marché BTP dynamique post-rénovation énergétique
-- **Contact LinkedIn cible :** Gérant ou dirigeant
-- **Titre LinkedIn à rechercher :** "Gérant" + "Guichard" OU "Plâtrerie Bordeaux"
+- **Contact identifié :** aucun — nom du dirigeant non trouvé dans les sources accessibles depuis cette session (Pappers non joignable en fetch direct, uniquement via extraits de recherche). À sourcer lors d'un prochain run si Couvreurs de l'Atlantique et Boissy Plomberie ne convertissent pas.
 
 ---
 

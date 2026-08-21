@@ -7,11 +7,31 @@
       "secteur": "pme_btp",
       "probleme_slug": "qualification-leads-devis",
       "type_flux": "capture_lead",
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "drive_url": "https://drive.google.com/drive/folders/1cuqiD7FOKSAtABZdKE4QCJRDB2MB_XO_",
       "donnees_financieres_reconstruites": false,
       "path": "/library/pme_btp/qualification-leads-devis/",
-      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md)."
+      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md).",
+      "icp_entreprises_reelles": [
+        {
+          "nom": "Couvreurs de l'Atlantique",
+          "ville": "Le Bignon (44)",
+          "effectif": "~3",
+          "secteur": "Couverture-zinguerie"
+        },
+        {
+          "nom": "Boissy Plomberie",
+          "ville": "Fontaines-sur-Saône (69)",
+          "effectif": "PME familiale",
+          "secteur": "Plomberie-chauffage"
+        },
+        {
+          "nom": "Gironde Plâtrerie Peinture",
+          "ville": "Bordeaux (33)",
+          "effectif": "n.d.",
+          "secteur": "Plâtrerie-peinture"
+        }
+      ]
     },
     {
       "id": "pme_btp-qualification-devis-entrants",
