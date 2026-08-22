@@ -58,11 +58,17 @@
       "secteur": "pme_btp",
       "probleme_slug": "traitement-devis-entrants",
       "type_flux": "traitement_doc",
-      "case_status": "produit",
+      "case_status": "ready_to_pitch",
       "drive_url": "https://drive.google.com/drive/folders/1ugpJqpmfdFOkrjoowugw4cJHcnhTvePe",
       "donnees_financieres_reconstruites": false,
       "path": "/library/pme_btp/traitement-devis-entrants/",
-      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md)."
+      "recovered_note": "Fichiers récupérés depuis la branche Git orpheline du jour et fusionnés dans main le 2026-08-09 (voir CLAUDE.md).",
+      "icp_entreprises_reelles": [
+        {"nom": "VIRICEL SAS", "ville": "Trévoux (01)", "effectif": "20-49", "secteur": "Charpente, couverture, second œuvre multi-corps"},
+        {"nom": "SEAS-PSP", "ville": "Rueil-Malmaison (92)", "effectif": "20-49", "secteur": "Menuiserie bois/PVC"},
+        {"nom": "A-BTP", "ville": "Blain (44)", "effectif": "27", "secteur": "Gros œuvre, maçonnerie"}
+      ],
+      "sourcing_note": "Sourcing prospect effectué le 2026-08-22 (application du correctif Phase 0 documenté dans CLAUDE.md — angle mort règle 2, cas produit ancien sans prospect > 3 jours). ICP d'origine (SARL Durand Gros Œuvre, Entreprise Martin Rénovation, SAS Lemaire BTP) introuvable et remplacé par 3 entreprises réelles vérifiées (voir gtm.md/concept.md). Contact LinkedIn nominatif identifié pour VIRICEL SAS (Grégory Chalamel, Directeur Général — fr.linkedin.com/in/grégory-chalamel-9091001a2). case_status passé à ready_to_pitch. Détail du prospect dans pipeline.yaml."
     },
     {
       "id": "pme_btp-qualification-leads-chantier",

@@ -20,29 +20,37 @@
 
 ## 3 entreprises françaises réelles cibles
 
-### 1. SARL Durand Gros Œuvre
-- **Ville** : Clermont-Ferrand (Puy-de-Dôme, 63)
-- **Effectif estimé** : ~28 salariés
-- **Activité** : Gros œuvre, maçonnerie, fondations — marché résidentiel et petit tertiaire
-- **Sourcing** : Tissu PME BTP dense dans le bassin clermontois — patronyme Durand très courant dans le secteur
-- **Signal ICP** : Présence probable sur Pages Jaunes et Registre du Commerce ; peu d'outils digitaux visibles
-- **Titre LinkedIn à cibler** : Gérant / Co-gérant
+**Correctif du 2026-08-22** : les 3 entreprises listées à l'origine dans cette
+section (SARL Durand Gros Œuvre — Clermont-Ferrand, Entreprise Martin
+Rénovation — Nantes, SAS Lemaire BTP — Lille) se sont révélées introuvables
+sur Pappers/societe.com/annuaire-entreprises.data.gouv.fr sous ce nom exact —
+même défaut de sourcing que celui déjà corrigé sur plusieurs autres cas de ce
+dépôt (production antérieure au verrouillage de la vérification croisée
+Pappers/LinkedIn, cf. CLAUDE.md). Remplacées ci-dessous par 3 entreprises
+réelles vérifiées.
 
-### 2. Entreprise Martin Rénovation
-- **Ville** : Nantes (Loire-Atlantique, 44)
-- **Effectif estimé** : ~35 salariés
-- **Activité** : Second œuvre, rénovation intérieure, travaux énergétiques (isolation, VMC) — clientèle particuliers et petites copropriétés
-- **Sourcing** : Secteur rénovation en forte croissance en Pays de la Loire (lié aux aides MaPrimeRénov') — patronyme Martin dominant dans le BTP ligérien
-- **Signal ICP** : Segment RGE / rénovation énergétique = fort volume de devis entrants (demandes aidées = volume accru)
-- **Titre LinkedIn à cibler** : Gérant ou Directeur technique
+### 1. VIRICEL SAS
+- **Ville** : Trévoux (Ain, 01)
+- **Effectif** : 20 à 49 salariés (tranche Pappers 2023) ; le site institutionnel revendique « une quarantaine de compagnons »
+- **Activité** : Charpente, couverture, surélévation, plâtrerie-plaquisterie, menuiseries — second œuvre multi-corps d'état
+- **SIREN** : 779 726 124
+- **Sourcing** : Entreprise familiale créée en 1973, vérifiée via societe.com, pappers.fr, annuaire-entreprises.data.gouv.fr et le site officiel viricel.fr
+- **Contact retenu** : Grégory Chalamel, Directeur Général (opérationnel — la présidence légale est détenue depuis 2015 par une société holding patrimoniale « UDO »)
 
-### 3. SAS Lemaire BTP
-- **Ville** : Lille (Nord, 59)
-- **Effectif estimé** : ~42 salariés
-- **Activité** : Construction tous corps d'état, réhabilitation, marchés publics locaux
-- **Sourcing** : Hauts-de-France = forte densité PME BTP avec moins de numérisation que l'Île-de-France — patronyme Lemaire très présent dans le Nord
-- **Signal ICP** : PME multi-corps d'état = nombreux types de demandes différentes = extraction IA particulièrement utile pour qualifier et router
-- **Titre LinkedIn à cibler** : Gérant ou Responsable commercial
+### 2. SEAS-PSP (marque Fenêtres PSP / Stores SEAS)
+- **Ville** : Rueil-Malmaison (Hauts-de-Seine, 92)
+- **Effectif** : 20 à 49 salariés (tranche Pappers 2023)
+- **Activité** : Menuiserie bois/PVC — fenêtres, volets, stores, portes de garage — second œuvre
+- **SIREN** : 709 807 259
+- **Sourcing** : Entreprise familiale fondée en 1961/1970, vérifiée via societe.com, pappers.fr, annuaire-entreprises.data.gouv.fr et presse professionnelle (Le Moniteur, Batiweb)
+- **Contact potentiel** : Philippe Seas, dirigeant opérationnel (« Président de PSP 92 » selon dirigeant.societe.com ; présidence légale transférée à une holding « GROUPE SEAS » en août 2024 — même schéma que VIRICEL)
+
+### 3. A-BTP (Atlantique Bâtiment Travaux Publics)
+- **Ville** : Blain (Loire-Atlantique, 44)
+- **Effectif** : 27 salariés (source concordante sur plusieurs agrégateurs)
+- **Activité** : Gros œuvre, maçonnerie, construction durable
+- **SIREN** : 442 981 783
+- **Statut sourcing** : existence confirmée, mais dirigeant NON résolu — sources contradictoires (un agrégateur indique un président « REBORDELO », probablement une holding patronymique sans prénom exploitable ; une autre source indique une nomination plus récente d'un président « CAONE » via le BODACC). **Ne pas utiliser pour un premier contact sans revérification manuelle sur Pappers/Infogreffe.**
 
 ---
 
